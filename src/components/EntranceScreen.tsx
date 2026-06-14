@@ -129,7 +129,7 @@ export default function EntranceScreen({ onEnter }: EntranceScreenProps) {
           className="text-right"
         >
           <p className="font-mono text-[10px] tracking-[0.25em] text-stone-300 uppercase">
-            LOOM AVENUE × FLAWED
+            DEFINED BY STYLE
           </p>
         </motion.div>
       </header>
@@ -268,7 +268,7 @@ export default function EntranceScreen({ onEnter }: EntranceScreenProps) {
               <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#10352e] via-[#8d5a38] to-[#506257]" />
 
               <span className="font-mono text-[8.5px] tracking-[0.35em] uppercase text-[#8d5a38] block mb-2.5 font-bold">
-                LOOM AVENUE × FLAWED
+                LOOM AVENUE × VENTA STUDIOS
               </span>
 
               <h2 className="font-serif italic text-3xl text-[#10352e] tracking-tight mb-4">

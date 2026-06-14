@@ -147,7 +147,7 @@ export default function ShopLayout({ onBackToEntrance }: ShopLayoutProps) {
               <span className="font-serif italic text-[22px] text-earth-800 tracking-wide font-light">Avenue</span>
             </div>
             <span className="font-mono text-[7px] tracking-[0.35em] uppercase text-earth-550 mt-0.5 font-semibold">
-              flawed & forever evolving
+              elevate your fit
             </span>
           </div>
 
@@ -645,7 +645,7 @@ export default function ShopLayout({ onBackToEntrance }: ShopLayoutProps) {
               <div className="flex justify-between items-center border-b border-earth-200/40 pb-3">
                 <div>
                   <h4 className="font-serif italic text-2xl">The LOOM Avenue Manifesto</h4>
-                  <p className="text-[9px] font-mono text-earth-400 uppercase tracking-widest">loom avenue x flawed</p>
+                  <p className="text-[9px] font-mono text-earth-400 uppercase tracking-widest">loom avenue x venta studios</p>
                 </div>
                 <button
                   onClick={() => setIsStoryOpen(false)}
