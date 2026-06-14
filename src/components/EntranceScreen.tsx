@@ -17,6 +17,7 @@ export default function EntranceScreen({ onEnter }: EntranceScreenProps) {
   const [showMusicHint, setShowMusicHint] = useState<boolean>(true);
   const [showUpcomingModal, setShowUpcomingModal] = useState<boolean>(false);
   const [imageLoaded, setImageLoaded] = useState<boolean>(false);
+  const [isPreloading, setIsPreloading] = useState<boolean>(true);
 
   useEffect(() => {
     // Preload highly optimized main image to trigger instant reveal
@@ -24,6 +25,10 @@ export default function EntranceScreen({ onEnter }: EntranceScreenProps) {
     img.src = "https://res.cloudinary.com/deyatjand/image/upload/f_auto,q_auto:good,w_1400/v1781448482/a7eaa09f-329a-4bcc-bdc3-69e76ede4b37.png";
     img.onload = () => {
       setImageLoaded(true);
+      // Brief aesthetic delay before fading out black screen for silk-smooth release transition
+      setTimeout(() => {
+        setIsPreloading(false);
+      }, 150);
     };
 
     // Robust video fallback timer - ensures background video is revealed even if player events are sandboxed
@@ -31,10 +36,16 @@ export default function EntranceScreen({ onEnter }: EntranceScreenProps) {
       setVideoLoaded(true);
     }, 4000);
 
+    // Safe fallback limit to ensure preloader is cleared regardless of network speeds
+    const preloadFallback = setTimeout(() => {
+      setIsPreloading(false);
+    }, 600);
+
     const hintTimer = setTimeout(() => setShowMusicHint(false), 8000);
     
     return () => {
       clearTimeout(videoTimer);
+      clearTimeout(preloadFallback);
       clearTimeout(hintTimer);
     };
   }, []);
@@ -233,7 +244,7 @@ export default function EntranceScreen({ onEnter }: EntranceScreenProps) {
         {/* Right side available information */}
         <div className="text-right flex flex-col text-[#b3ac9f] font-mono text-[9px] tracking-widest uppercase">
           <span className="mb-1 text-stone-300">Available Globally</span>
-          <span className="opacity-50">© 2026 F&E Studio</span>
+          <span className="opacity-50">© 2026 Venta Studios</span>
         </div>
       </footer>
 
@@ -284,6 +295,18 @@ export default function EntranceScreen({ onEnter }: EntranceScreenProps) {
               </span>
             </motion.div>
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* LUXURIOUS INITIAL FADE-IN OVERLAY / PRELOADER */}
+      <AnimatePresence>
+        {isPreloading && (
+          <motion.div
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 1.8, ease: [0.22, 1, 0.36, 1] }}
+            className="fixed inset-0 z-[100] bg-black pointer-events-none"
+          />
         )}
       </AnimatePresence>
     </div>
