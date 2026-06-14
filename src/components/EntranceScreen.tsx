@@ -51,15 +51,22 @@ export default function EntranceScreen({ onEnter }: EntranceScreenProps) {
         muted
         playsInline
         preload="auto"
+        controls={false}
+        disablePictureInPicture
+        disableRemotePlayback
         onCanPlay={() => setVideoLoaded(true)}
         onCanPlayThrough={() => setVideoLoaded(true)}
         onLoadedData={() => setVideoLoaded(true)}
         onLoadedMetadata={() => setVideoLoaded(true)}
         onPlay={() => setVideoLoaded(true)}
-        className={`absolute inset-0 w-full h-full object-cover transition-all duration-1000 filter brightness-[0.6] contrast-[1.05] grayscale-[20%] z-0 ${
-          videoLoaded ? 'opacity-80 scale-100' : 'opacity-0 scale-105'
+        onPlaying={() => setVideoLoaded(true)}
+        className={`absolute inset-0 w-full h-full object-cover transition-all duration-700 filter brightness-[0.6] contrast-[1.05] grayscale-[20%] z-0 ${
+          videoLoaded ? 'opacity-80 scale-100' : 'opacity-0 scale-102'
         }`}
       >
+        {/* High performance optimized formats auto-transcoded by Cloudinary CDN */}
+        <source src="https://res.cloudinary.com/deyatjand/video/upload/q_auto:eco,vc_vp9/v1781444886/the-hidden-ivy-cafe-moewalls-com_yrdaqh.webm" type="video/webm" />
+        <source src="https://res.cloudinary.com/deyatjand/video/upload/q_auto:eco,vc_h264/v1781444886/the-hidden-ivy-cafe-moewalls-com_yrdaqh.mp4" type="video/mp4" />
         <source src="https://res.cloudinary.com/deyatjand/video/upload/v1781444886/the-hidden-ivy-cafe-moewalls-com_yrdaqh.mp4" type="video/mp4" />
       </video>
 
