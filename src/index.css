@@ -1,0 +1,50 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Cormorant+Garamond:ital,wght@0,300..700;1,300..700&family=Space+Grotesk:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui;
+  --font-serif: "Cormorant Garamond", Georgia, serif;
+  --font-display: "Space Grotesk", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+  
+  --color-earth-50: #faf9f4;
+  --color-earth-100: #f5efe4;
+  --color-earth-200: #e8ded1;
+  --color-earth-250: #dfdcd6;
+  --color-earth-300: #d6caa9;
+  --color-earth-400: #bbac94;
+  --color-earth-505: #9c9284;
+  --color-earth-500: #a08e73;
+  --color-earth-550: #506257;
+  --color-earth-600: #8d5a38;
+  --color-earth-650: #544b3e;
+  --color-earth-700: #655642;
+  --color-earth-800: #8d5a38;
+  --color-earth-900: #1b473f;
+  --color-earth-950: #10352e;
+
+  /* Exclusive LOOM logo custom variables */
+  --color-loom-pine: #10352e;
+  --color-loom-hazel: #8d5a38;
+  --color-loom-sage: #506257;
+  --color-loom-ivory: #faf9f4;
+  --color-loom-cream: #f5efe4;
+}
+
+/* Custom CSS utilities for subtle glow and rustic feel */
+.earth-glow {
+  text-shadow: 0 0 12px rgba(222, 214, 201, 0.45);
+}
+
+.earth-glow-sm {
+  text-shadow: 0 0 6px rgba(222, 214, 201, 0.3);
+}
+
+/* Custom hide scrollbar */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

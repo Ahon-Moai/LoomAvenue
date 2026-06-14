@@ -1,0 +1,6 @@
+{
+  "name": "flawed",
+  "description": "An elegant, lofi, and earthy entrance and e-commerce experience for flawed - forever evolving.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
