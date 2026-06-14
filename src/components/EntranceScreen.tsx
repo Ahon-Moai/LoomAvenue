@@ -16,12 +16,20 @@ export default function EntranceScreen({ onEnter }: EntranceScreenProps) {
   const [videoLoaded, setVideoLoaded] = useState<boolean>(false);
   const [showMusicHint, setShowMusicHint] = useState<boolean>(true);
   const [showUpcomingModal, setShowUpcomingModal] = useState<boolean>(false);
+  const [imageLoaded, setImageLoaded] = useState<boolean>(false);
 
   useEffect(() => {
+    // Preload highly optimized main image to trigger instant reveal
+    const img = new Image();
+    img.src = "https://res.cloudinary.com/deyatjand/image/upload/f_auto,q_auto:good,w_1400/v1781448482/a7eaa09f-329a-4bcc-bdc3-69e76ede4b37.png";
+    img.onload = () => {
+      setImageLoaded(true);
+    };
+
     // Robust video fallback timer - ensures background video is revealed even if player events are sandboxed
     const videoTimer = setTimeout(() => {
       setVideoLoaded(true);
-    }, 1000);
+    }, 4000);
 
     const hintTimer = setTimeout(() => setShowMusicHint(false), 8000);
     
@@ -34,13 +42,24 @@ export default function EntranceScreen({ onEnter }: EntranceScreenProps) {
   return (
     <div id="entrance-gate" className="relative w-full h-screen overflow-hidden flex flex-col justify-between bg-[#1e1a15] text-[#dfd9cc] select-none">
       
-      {/* Background Image Placeholder for Instant Loading Speed / Fluid Layout */}
+      {/* 1. Low-res Blurred Instant Placeholder Background (< 2KB) */}
       <div 
-        className={`absolute inset-0 bg-[#1e1a15] bg-cover bg-center transition-opacity duration-1000 z-0 ${
-          videoLoaded ? 'opacity-0 pointer-events-none' : 'opacity-100'
-        }`}
+        className="absolute inset-0 bg-[#1e1a15] bg-cover bg-center filter brightness-[0.55] contrast-[1.05] grayscale-[20%] transition-opacity duration-1000 z-0"
         style={{
-          backgroundImage: `radial-gradient(circle at center, #2e261d 0%, #15110c 100%)`
+          backgroundImage: `url('https://res.cloudinary.com/deyatjand/image/upload/f_auto,q_auto:low,w_80,e_blur:400/v1781448482/a7eaa09f-329a-4bcc-bdc3-69e76ede4b37.png')`,
+          opacity: videoLoaded ? 0 : 1,
+          pointerEvents: 'none',
+        }}
+      />
+
+      {/* 2. Highly Optimized Full Screen Background (WebP/AVIF auto, compressed) */}
+      <div 
+        className="absolute inset-0 bg-cover bg-center filter brightness-[0.55] contrast-[1.05] grayscale-[20%] transition-all duration-[1200ms] ease-out z-0"
+        style={{
+          backgroundImage: `url('https://res.cloudinary.com/deyatjand/image/upload/f_auto,q_auto:good,w_1400/v1781448482/a7eaa09f-329a-4bcc-bdc3-69e76ede4b37.png')`,
+          opacity: (!videoLoaded && imageLoaded) ? 1 : 0,
+          transform: imageLoaded ? 'scale(1)' : 'scale(1.03)',
+          pointerEvents: 'none',
         }}
       />
 
@@ -51,6 +70,7 @@ export default function EntranceScreen({ onEnter }: EntranceScreenProps) {
         muted
         playsInline
         preload="auto"
+        poster="https://res.cloudinary.com/deyatjand/image/upload/f_auto,q_auto:good,w_1200/v1781448482/a7eaa09f-329a-4bcc-bdc3-69e76ede4b37.png"
         controls={false}
         disablePictureInPicture
         disableRemotePlayback
