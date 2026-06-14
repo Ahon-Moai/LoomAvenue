@@ -7,12 +7,14 @@ import { useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import EntranceScreen from './components/EntranceScreen';
 import ShopLayout from './components/ShopLayout';
+import CustomCursor from './components/CustomCursor';
 
 export default function App() {
   const [view, setView] = useState<'entrance' | 'shop'>('entrance');
 
   return (
     <div className="w-full min-h-screen bg-[#faf8f5] overflow-x-hidden selection:bg-earth-300 selection:text-earth-950">
+      <CustomCursor />
       <AnimatePresence mode="wait">
         {view === 'entrance' ? (
           <motion.div
