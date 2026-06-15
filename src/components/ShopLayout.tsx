@@ -8,13 +8,14 @@ import { motion, AnimatePresence } from 'motion/react';
 import { 
   ShoppingBag, Trash2, ArrowLeft, Heart, Search, 
   Sparkles, Check, ChevronRight, Menu, X, HelpCircle, 
-  Volume2, CheckCircle, Smartphone
+  Volume2, CheckCircle, Smartphone, User, ArrowUpRight
 } from 'lucide-react';
 import { Product, CartItem, Collection } from '../types';
 import { products, collections } from '../data';
 import ProductCard from './ProductCard';
 import ProductDetail from './ProductDetail';
 import AudioPlayer from './AudioPlayer';
+import ThreadWeaverGame from './ThreadWeaverGame';
 
 interface ShopLayoutProps {
   onBackToEntrance: () => void;
@@ -56,6 +57,23 @@ export default function ShopLayout({ onBackToEntrance }: ShopLayoutProps) {
 
   // Story modal state
   const [isStoryOpen, setIsStoryOpen] = useState<boolean>(false);
+
+  // Mini game state
+  const [isGameOpen, setIsGameOpen] = useState<boolean>(false);
+
+  // Search input expansion state
+  const [isSearchActive, setIsSearchActive] = useState<boolean>(false);
+
+  // Micro-toast state for interactive user verification feedback
+  const [showToast, setShowToast] = useState<string | null>(null);
+
+  // Dismiss toast after brief delay
+  useEffect(() => {
+    if (showToast) {
+      const timer = setTimeout(() => setShowToast(null), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [showToast]);
 
   // Sync cart to local storage and update header counters
   useEffect(() => {
@@ -127,53 +145,238 @@ export default function ShopLayout({ onBackToEntrance }: ShopLayoutProps) {
   return (
     <div id="shop-container" className="min-h-screen bg-earth-100 text-earth-900 font-sans relative pb-24 flex flex-col justify-between">
       
-      {/* SOLID MINIMALIST NATURAL HEADER */}
-      <header className="sticky top-0 bg-earth-100/90 backdrop-blur-md border-b border-earth-250/60 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
-          
-          {/* Back left to main gate */}
-          <button
-            onClick={onBackToEntrance}
-            className="flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-widest text-earth-500 hover:text-earth-900 transition-colors duration-150 py-2"
-          >
-            <ArrowLeft className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">storefront panel</span>
-          </button>
-
-          {/* Centered LOOM Avenue logo with beautiful extracted styling */}
-          <div className="flex flex-col items-center cursor-pointer group" onClick={onBackToEntrance}>
-            <div className="flex items-center gap-1.5">
-              <span className="text-earth-950 text-xl font-bold tracking-[0.2em] font-serif group-hover:text-earth-800 transition-colors">LOOM</span>
-              <span className="font-serif italic text-[22px] text-earth-800 tracking-wide font-light">Avenue</span>
-            </div>
-            <span className="font-mono text-[7px] tracking-[0.35em] uppercase text-earth-550 mt-0.5 font-semibold">
-              elevate your fit
-            </span>
+      {/* ULTRA-PREMIUM TICKER ANNOUNCEMENT STRIP */}
+      <div className="w-full bg-[#1b1713] text-earth-200 py-2 overflow-hidden whitespace-nowrap border-b border-[#2d2621]/80 select-none relative z-50">
+        <style>{`
+          @keyframes marquee {
+            0% { transform: translate3d(0, 0, 0); }
+            100% { transform: translate3d(-50%, 0, 0); }
+          }
+          .animate-marquee-slow {
+            display: inline-flex;
+            width: max-content;
+            animation: marquee 35s linear infinite;
+          }
+        `}</style>
+        <div className="animate-marquee-slow flex items-center gap-16 text-[9.5px] font-mono tracking-[0.22em] uppercase text-stone-300 font-semibold">
+          <div className="flex items-center gap-2">
+            <span className="text-orange-400">🏷️</span> 10% OFF FOR TODAY ONLY
           </div>
-
-          {/* Right Action Widgets (Basket counter, story toggle) */}
-          <div className="flex items-center gap-2.5 sm:gap-3">
-            <button
-              onClick={() => setIsStoryOpen(true)}
-              className="px-2 py-1.5 flex items-center gap-1 font-mono text-[9.5px] sm:text-[10px] uppercase tracking-[0.12em] sm:tracking-widest text-earth-500 hover:text-earth-900 transition-colors duration-150"
-            >
-              <Sparkles className="w-3 h-3 text-earth-400" />
-              <span>Manifesto</span>
-            </button>
-
-            <button
-              onClick={() => setIsCartOpen(true)}
-              className="flex items-center gap-1.5 px-3 py-2 bg-earth-950 text-[#faf8f5] hover:bg-earth-800 rounded-lg shadow-sm transition-all duration-200 text-xs font-mono font-medium relative"
-              title="Open cart basket"
-            >
-              <ShoppingBag className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">basket</span>
-              <span className="inline-flex items-center justify-center bg-earth-450 text-[#1d1813] text-[9.5px] font-bold h-4 px-1.5 rounded-full">
-                {cartItemCount}
-              </span>
-            </button>
+          <div className="flex items-center gap-2">
+            <span className="text-orange-400">🏷️</span> WABI-SABI ECO EMBROIDERY GOODS
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-orange-400">🏷️</span> 10% OFF FOR TODAY ONLY
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-orange-400">🏷️</span> ARTISANAL LOOMS & PIECES
+          </div>
+          
+          {/* Loop copy for seamless infinity scrolling */}
+          <div className="flex items-center gap-2">
+            <span className="text-orange-400">🏷️</span> 10% OFF FOR TODAY ONLY
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-orange-400">🏷️</span> WABI-SABI ECO EMBROIDERY GOODS
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-orange-400">🏷️</span> 10% OFF FOR TODAY ONLY
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-orange-400">🏷️</span> ARTISANAL LOOMS & PIECES
           </div>
         </div>
+      </div>
+
+      {/* REVERSED-PROXY COMPLIANT GLASS-PHORIUM HEADER */}
+      <header className="sticky top-0 bg-[#faf8f5]/80 backdrop-blur-xl border-b border-earth-200/40 z-40 transition-all duration-300">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 py-4 flex items-center justify-between gap-4">
+          
+          {/* Leftside Branding Emblem */}
+          <div className="flex items-center gap-2.5 cursor-pointer group shrink-0" onClick={onBackToEntrance}>
+            <div className="w-8 h-8 rounded-lg border border-earth-950 font-serif font-black text-sm flex items-center justify-center bg-earth-950 text-white tracking-normal shadow-sm">
+              L
+            </div>
+            <div className="flex flex-col">
+              <span className="text-earth-950 text-xs sm:text-sm font-semibold tracking-[0.22em] font-sans group-hover:text-[#8d5a38] transition-colors leading-none uppercase">
+                LOOM AVENUE
+              </span>
+              <span className="font-mono text-[7px] tracking-[0.18em] uppercase text-earth-500 mt-1 leading-none font-medium">
+                Sustainably Crafted
+              </span>
+            </div>
+          </div>
+
+          {/* Centered Capsule Pill Navigator */}
+          <div className="hidden md:flex items-center gap-1.5 bg-earth-200/35 border border-earth-250/25 p-1 rounded-full shadow-[inset_0_1px_4px_rgba(0,0,0,0.02)] max-w-2xl mx-auto backdrop-blur-md">
+            <button
+              onClick={onBackToEntrance}
+              className="px-3.5 py-1.5 text-[9.5px] font-mono font-bold tracking-[0.15em] uppercase rounded-full text-earth-650 hover:text-earth-950 hover:bg-white/40 transition-all duration-150"
+            >
+              Home
+            </button>
+
+            <button
+              onClick={() => setSelectedCollection('all')}
+              className={`px-3.5 py-1.5 text-[9.5px] font-mono font-bold tracking-[0.15em] uppercase rounded-full transition-all duration-150 ${
+                selectedCollection === 'all'
+                  ? 'bg-earth-950 text-white shadow-sm'
+                  : 'text-earth-650 hover:text-earth-950 hover:bg-white/40'
+              }`}
+            >
+              All
+            </button>
+
+            {collections.map((col) => (
+              <button
+                key={col.id}
+                onClick={() => {
+                  setSelectedCollection(col.slug);
+                  // Ensure if filtered is clicked it brings view to active list
+                  const el = document.getElementById('shop-grid-anchor');
+                  if (el) el.scrollIntoView({ behavior: 'smooth' });
+                }}
+                className={`px-3.5 py-1.5 text-[9.5px] font-mono font-bold tracking-[0.15em] uppercase rounded-full transition-all duration-150 whitespace-nowrap ${
+                  selectedCollection === col.slug
+                    ? 'bg-[#8d5a38] text-white shadow-xs'
+                    : 'text-earth-650 hover:text-earth-950 hover:bg-white/40'
+                }`}
+              >
+                {col.name}
+              </button>
+            ))}
+
+            <button
+              onClick={() => setIsStoryOpen(true)}
+              className="px-3.5 py-1.5 text-[9.5px] font-mono font-bold tracking-[0.15em] uppercase rounded-full text-earth-650 hover:text-earth-950 hover:bg-white/40 transition-all duration-150"
+            >
+              Manifesto
+            </button>
+
+            {/* Special Highlighted Capsule Pill matching mockup */}
+            <button
+              onClick={() => setIsGameOpen(true)}
+              className="px-3 py-1.5 text-[9.5px] font-mono tracking-[0.15em] uppercase rounded-full text-[#8d5a38] border border-[#8d5a38]/30 hover:border-[#8d5a38]/80 hover:bg-white/50 transition-all duration-200 font-bold bg-[#faf8f5]/40 flex items-center gap-1 scale-[0.98]"
+              title="Interactive Thread Weaver Game"
+            >
+              <span>Weave Game</span>
+              <span className="text-[8px] opacity-75">%</span>
+            </button>
+          </div>
+
+          {/* Right Action Widgets Grid */}
+          <div className="flex items-center gap-2 sm:gap-3.5 shrink-0 relative">
+            
+            {/* Inline Toggleable Search Panel */}
+            <div className="flex items-center relative">
+              <AnimatePresence>
+                {isSearchActive && (
+                  <motion.div
+                    initial={{ opacity: 0, width: 0 }}
+                    animate={{ opacity: 1, width: 160 }}
+                    exit={{ opacity: 0, width: 0 }}
+                    className="absolute right-8 top-1/2 -translate-y-1/2 bg-white border border-earth-200 rounded-full flex items-center px-2.5 py-1 shadow-sm overflow-hidden"
+                  >
+                    <input
+                      type="text"
+                      placeholder="Search items..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="text-[10px] w-full focus:outline-none text-earth-800 placeholder-earth-450 bg-transparent pr-4"
+                      autoFocus
+                    />
+                    {searchQuery && (
+                      <button onClick={() => setSearchQuery('')} className="absolute right-2 text-earth-450 hover:text-earth-850">
+                        <X className="w-3 h-3" />
+                      </button>
+                    )}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+              <button
+                onClick={() => setIsSearchActive(!isSearchActive)}
+                className="w-8.5 h-8.5 rounded-full flex items-center justify-center hover:bg-earth-200/40 text-earth-850 hover:text-earth-950 transition-all duration-150 cursor-pointer"
+                title="Toggle search input"
+              >
+                <Search className="w-[17px] h-[17px]" />
+              </button>
+            </div>
+
+            {/* Interactive User Avatar Profile Button in Mockup */}
+            <button
+              onClick={() => {
+                setShowToast("Authenticated: Loom Premium Member Verified ");
+              }}
+              className="w-8.5 h-8.5 rounded-full flex items-center justify-center hover:bg-earth-200/40 text-earth-850 hover:text-earth-950 transition-all duration-150 cursor-pointer"
+              title="Verified User Profile Status"
+            >
+              <User className="w-[17px] h-[17px]" />
+            </button>
+
+            {/* Premium Custom Basket Indicator matching the precise mock-up badge */}
+            <button
+              onClick={() => setIsCartOpen(true)}
+              className="relative p-1.5 hover:bg-earth-200/40 rounded-full transition-all duration-150 flex items-center justify-center"
+              title="Open cart basket"
+            >
+              <ShoppingBag className="w-[19px] h-[19px] text-earth-950" />
+              <div 
+                className="absolute -top-1 -right-1 bg-[#d8af47] border border-earth-950 text-earth-950 text-[9.5px] font-black w-4.5 h-4.5 rounded-full flex items-center justify-center shadow-xs"
+              >
+                {cartItemCount}
+              </div>
+            </button>
+          </div>
+
+        </div>
+
+        {/* Dynamic Fallback mobile bar with horizontal swipe menu */}
+        <div className="md:hidden flex items-center gap-1.5 px-4 py-2 bg-earth-50/80 overflow-x-auto no-scrollbar border-t border-earth-200/30">
+          <button
+            onClick={() => setSelectedCollection('all')}
+            className={`px-3 py-1 font-mono text-[9px] uppercase tracking-wider rounded-full whitespace-nowrap transition-all ${
+              selectedCollection === 'all'
+                ? 'bg-earth-950 text-[#faf8f5]'
+                : 'text-earth-650 bg-white/50 border border-earth-200/50'
+            }`}
+          >
+            All Pieces
+          </button>
+          {collections.map((col) => (
+            <button
+              key={col.id}
+              onClick={() => setSelectedCollection(col.slug)}
+              className={`px-3 py-1 font-mono text-[9px] uppercase tracking-wider rounded-full whitespace-nowrap transition-all ${
+                selectedCollection === col.slug
+                  ? 'bg-[#8d5a38] text-white'
+                  : 'text-earth-650 bg-white/50 border border-earth-200/50'
+              }`}
+            >
+              {col.name}
+            </button>
+          ))}
+          <button
+            onClick={() => setIsGameOpen(true)}
+            className="px-3 py-1 font-mono text-[9px] uppercase tracking-wider rounded-full bg-white/80 border border-[#8d5a38]/30 text-[#8d5a38] whitespace-nowrap font-bold"
+          >
+            Weave Game %
+          </button>
+        </div>
+
+        {/* Micro notifications toast */}
+        <AnimatePresence>
+          {showToast && (
+            <motion.div
+              initial={{ opacity: 0, y: -20, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -10, scale: 0.95 }}
+              className="absolute top-18 right-6 z-50 bg-earth-950 text-white text-[10px] font-mono uppercase tracking-widest px-4 py-2.5 rounded-lg shadow-xl border border-white/10 flex items-center gap-1.5"
+            >
+              <Check className="w-3.5 h-3.5 text-green-400" />
+              <span>{showToast}</span>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </header>
 
       {/* COMPACT INTRO STAGE */}
@@ -228,7 +431,7 @@ export default function ShopLayout({ onBackToEntrance }: ShopLayoutProps) {
         </AnimatePresence>
 
         {/* Dynamic Controls Bar */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-5 mb-8 border-b border-earth-200/40 pb-5">
+        <div id="shop-grid-anchor" className="flex flex-col md:flex-row md:items-center justify-between gap-5 mb-8 border-b border-earth-200/40 pb-5">
           {/* Collection Filter Buttons with Active Transition Indicators */}
           <div className="flex gap-2 sm:gap-3 overflow-x-auto no-scrollbar scroll-smooth py-1">
             <button
@@ -684,6 +887,9 @@ export default function ShopLayout({ onBackToEntrance }: ShopLayoutProps) {
           </div>
         )}
       </AnimatePresence>
+
+      {/* MINI WEAVE GAME OVERLAY */}
+      <ThreadWeaverGame isOpen={isGameOpen} onClose={() => setIsGameOpen(false)} />
 
       {/* FOOTER */}
       <footer className="mt-auto border-t border-earth-200/50 py-8 px-4 text-center text-earth-405 bg-earth-50">

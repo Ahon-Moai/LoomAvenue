@@ -5,8 +5,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Instagram, Smartphone, Disc, Volume2, ArrowRight } from 'lucide-react';
+import { Instagram, Smartphone, Disc, Volume2, ArrowRight, Sparkles } from 'lucide-react';
 import AudioPlayer from './AudioPlayer';
+import ThreadWeaverGame from './ThreadWeaverGame';
 
 interface EntranceScreenProps {
   onEnter: () => void;
@@ -18,6 +19,7 @@ export default function EntranceScreen({ onEnter }: EntranceScreenProps) {
   const [showUpcomingModal, setShowUpcomingModal] = useState<boolean>(false);
   const [imageLoaded, setImageLoaded] = useState<boolean>(false);
   const [isPreloading, setIsPreloading] = useState<boolean>(true);
+  const [isGameOpen, setIsGameOpen] = useState<boolean>(false);
 
   useEffect(() => {
     // Preload highly optimized main image to trigger instant reveal
@@ -122,6 +124,22 @@ export default function EntranceScreen({ onEnter }: EntranceScreenProps) {
           <span className="text-[11px] font-mono mt-1 opacity-50">01 / 04</span>
         </motion.div>
 
+        {/* Elegant Centered Mini-Game Invitation */}
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 1.2, delay: 0.1, ease: 'easeOut' }}
+          className="flex items-center"
+        >
+          <button
+            onClick={() => setIsGameOpen(true)}
+            className="px-3.5 py-1.5 rounded-full border border-stone-100/25 bg-stone-900/40 backdrop-blur-md flex items-center gap-1.5 font-mono text-[9.5px] uppercase tracking-widest text-[#cebfa4] hover:text-white hover:border-white/50 hover:bg-[#8d5a38]/40 transition-all cursor-pointer shadow-lg"
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-orange-400 animate-pulse"></span>
+            <span>Weave Game</span>
+          </button>
+        </motion.div>
+
         <motion.div 
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -180,7 +198,7 @@ export default function EntranceScreen({ onEnter }: EntranceScreenProps) {
           className="flex flex-col items-center gap-4"
         >
           <button
-            onClick={() => setShowUpcomingModal(true)}
+            onClick={onEnter}
             id="enter-shop-btn"
             className="group relative flex items-center justify-center w-32 h-32 rounded-full border border-stone-100/40 hover:border-stone-100 transition-all duration-500 cursor-pointer focus:outline-none focus:ring-1 focus:ring-stone-200"
           >
@@ -283,10 +301,31 @@ export default function EntranceScreen({ onEnter }: EntranceScreenProps) {
 
               <div className="flex flex-col gap-2.5">
                 <button
-                  onClick={() => setShowUpcomingModal(false)}
-                  className="w-full bg-[#10352e] text-[#faf9f4] hover:bg-[#8d5a38] py-3 px-4 rounded-xl font-mono text-[11px] uppercase tracking-widest font-semibold transition-all duration-200 shadow-md flex items-center justify-center gap-1.5 cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
+                  onClick={() => {
+                    setShowUpcomingModal(false);
+                    onEnter();
+                  }}
+                  className="w-full bg-[#10352e] text-[#faf9f4] hover:bg-[#8d5a38] py-3.5 px-4 rounded-xl font-mono text-[11px] uppercase tracking-widest font-bold transition-all duration-200 shadow-md flex items-center justify-center gap-1.5 cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
                 >
-                  <span>Back to Ambient Gate</span>
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>Explore Beta Shop</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    setShowUpcomingModal(false);
+                    setIsGameOpen(true);
+                  }}
+                  className="w-full bg-[#8d5a38] text-[#faf9f4] hover:bg-[#10352e] py-3.5 px-4 rounded-xl font-mono text-[11px] uppercase tracking-widest font-semibold transition-all duration-200 shadow-sm flex items-center justify-center gap-1.5 cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
+                >
+                  <span>Play Weaving Game 🎮</span>
+                </button>
+
+                <button
+                  onClick={() => setShowUpcomingModal(false)}
+                  className="w-full border border-[#10352e]/25 text-[#10352e]/85 hover:bg-[#10352e]/5 py-2 px-4 rounded-xl font-mono text-[10px] uppercase tracking-widest transition-all duration-200 cursor-pointer"
+                >
+                  <span>Remain at Gate</span>
                 </button>
               </div>
 
@@ -297,6 +336,9 @@ export default function EntranceScreen({ onEnter }: EntranceScreenProps) {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* MINI WEAVE GAME OVERLAY */}
+      <ThreadWeaverGame isOpen={isGameOpen} onClose={() => setIsGameOpen(false)} />
 
       {/* LUXURIOUS INITIAL FADE-IN OVERLAY / PRELOADER */}
       <AnimatePresence>
