@@ -7,7 +7,6 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Instagram, Smartphone, Disc, Volume2, ArrowRight, Sparkles } from 'lucide-react';
 import AudioPlayer from './AudioPlayer';
-import ThreadWeaverGame from './ThreadWeaverGame';
 
 interface EntranceScreenProps {
   onEnter: () => void;
@@ -19,7 +18,6 @@ export default function EntranceScreen({ onEnter }: EntranceScreenProps) {
   const [showUpcomingModal, setShowUpcomingModal] = useState<boolean>(false);
   const [imageLoaded, setImageLoaded] = useState<boolean>(false);
   const [isPreloading, setIsPreloading] = useState<boolean>(true);
-  const [isGameOpen, setIsGameOpen] = useState<boolean>(false);
 
   useEffect(() => {
     // Preload highly optimized main image to trigger instant reveal
@@ -53,65 +51,8 @@ export default function EntranceScreen({ onEnter }: EntranceScreenProps) {
   }, []);
 
   return (
-    <div id="entrance-gate" className="relative w-full h-screen overflow-hidden flex flex-col justify-between bg-[#1e1a15] text-[#dfd9cc] select-none">
+    <div id="entrance-gate" className="relative w-full h-screen overflow-hidden flex flex-col justify-between text-[#dfd9cc] select-none z-10">
       
-      {/* 1. Low-res Blurred Instant Placeholder Background (< 2KB) */}
-      <div 
-        className="absolute inset-0 bg-[#1e1a15] bg-cover bg-center filter brightness-[0.55] contrast-[1.05] grayscale-[20%] transition-opacity duration-1000 z-0"
-        style={{
-          backgroundImage: `url('https://res.cloudinary.com/deyatjand/image/upload/f_auto,q_auto:low,w_80,e_blur:400/v1781448482/a7eaa09f-329a-4bcc-bdc3-69e76ede4b37.png')`,
-          opacity: videoLoaded ? 0 : 1,
-          pointerEvents: 'none',
-        }}
-      />
-
-      {/* 2. Highly Optimized Full Screen Background (WebP/AVIF auto, compressed) */}
-      <div 
-        className="absolute inset-0 bg-cover bg-center filter brightness-[0.55] contrast-[1.05] grayscale-[20%] transition-all duration-[1200ms] ease-out z-0"
-        style={{
-          backgroundImage: `url('https://res.cloudinary.com/deyatjand/image/upload/f_auto,q_auto:good,w_1400/v1781448482/a7eaa09f-329a-4bcc-bdc3-69e76ede4b37.png')`,
-          opacity: (!videoLoaded && imageLoaded) ? 1 : 0,
-          transform: imageLoaded ? 'scale(1)' : 'scale(1.03)',
-          pointerEvents: 'none',
-        }}
-      />
-
-      {/* Background Video with multiple event triggers for maximum browser compatibility */}
-      <video
-        autoPlay
-        loop
-        muted
-        playsInline
-        preload="auto"
-        poster="https://res.cloudinary.com/deyatjand/image/upload/f_auto,q_auto:good,w_1200/v1781448482/a7eaa09f-329a-4bcc-bdc3-69e76ede4b37.png"
-        controls={false}
-        disablePictureInPicture
-        disableRemotePlayback
-        onCanPlay={() => setVideoLoaded(true)}
-        onCanPlayThrough={() => setVideoLoaded(true)}
-        onLoadedData={() => setVideoLoaded(true)}
-        onLoadedMetadata={() => setVideoLoaded(true)}
-        onPlay={() => setVideoLoaded(true)}
-        onPlaying={() => setVideoLoaded(true)}
-        className={`absolute inset-0 w-full h-full object-cover transition-all duration-700 filter brightness-[0.6] contrast-[1.05] grayscale-[20%] z-0 ${
-          videoLoaded ? 'opacity-80 scale-100' : 'opacity-0 scale-102'
-        }`}
-      >
-        {/* High performance optimized formats auto-transcoded by Cloudinary CDN */}
-        <source src="https://res.cloudinary.com/deyatjand/video/upload/q_auto:eco,vc_vp9/v1781444886/the-hidden-ivy-cafe-moewalls-com_yrdaqh.webm" type="video/webm" />
-        <source src="https://res.cloudinary.com/deyatjand/video/upload/q_auto:eco,vc_h264/v1781444886/the-hidden-ivy-cafe-moewalls-com_yrdaqh.mp4" type="video/mp4" />
-        <source src="https://res.cloudinary.com/deyatjand/video/upload/v1781444886/the-hidden-ivy-cafe-moewalls-com_yrdaqh.mp4" type="video/mp4" />
-      </video>
-
-      {/* Earthy Muted Overlay from Design HTML */}
-      <div className="absolute inset-0 bg-[#5A5A40]/25 mix-blend-multiply z-1 pointer-events-none" />
-
-      {/* Lofi Grain Effect from Design HTML */}
-      <div className="absolute inset-0 opacity-[0.15] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/p6.png')] z-10" />
-
-      {/* Subtle Vignette / Amber Vignette shadow */}
-      <div className="absolute inset-0 pointer-events-none shadow-[inset_0_0_150px_rgba(0,0,0,0.35)] bg-gradient-to-t from-[#13110d]/40 via-transparent to-[#13110d]/40 z-10" />
-
       {/* TOP BAR BRAND ACCENT */}
       <header className="relative z-20 w-full max-w-7xl mx-auto px-6 py-6 sm:py-8 flex justify-between items-center">
         <motion.div 
@@ -124,20 +65,13 @@ export default function EntranceScreen({ onEnter }: EntranceScreenProps) {
           <span className="text-[11px] font-mono mt-1 opacity-50">01 / 04</span>
         </motion.div>
 
-        {/* Elegant Centered Mini-Game Invitation */}
+        {/* Elegant Centered Mini-Game Invitation Removed */}
         <motion.div 
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1.2, delay: 0.1, ease: 'easeOut' }}
           className="flex items-center"
         >
-          <button
-            onClick={() => setIsGameOpen(true)}
-            className="px-3.5 py-1.5 rounded-full border border-stone-100/25 bg-stone-900/40 backdrop-blur-md flex items-center gap-1.5 font-mono text-[9.5px] uppercase tracking-widest text-[#cebfa4] hover:text-white hover:border-white/50 hover:bg-[#8d5a38]/40 transition-all cursor-pointer shadow-lg"
-          >
-            <span className="w-1.5 h-1.5 rounded-full bg-orange-400 animate-pulse"></span>
-            <span>Weave Game</span>
-          </button>
         </motion.div>
 
         <motion.div 
@@ -312,16 +246,6 @@ export default function EntranceScreen({ onEnter }: EntranceScreenProps) {
                 </button>
 
                 <button
-                  onClick={() => {
-                    setShowUpcomingModal(false);
-                    setIsGameOpen(true);
-                  }}
-                  className="w-full bg-[#8d5a38] text-[#faf9f4] hover:bg-[#10352e] py-3.5 px-4 rounded-xl font-mono text-[11px] uppercase tracking-widest font-semibold transition-all duration-200 shadow-sm flex items-center justify-center gap-1.5 cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
-                >
-                  <span>Play Weaving Game 🎮</span>
-                </button>
-
-                <button
                   onClick={() => setShowUpcomingModal(false)}
                   className="w-full border border-[#10352e]/25 text-[#10352e]/85 hover:bg-[#10352e]/5 py-2 px-4 rounded-xl font-mono text-[10px] uppercase tracking-widest transition-all duration-200 cursor-pointer"
                 >
@@ -336,9 +260,6 @@ export default function EntranceScreen({ onEnter }: EntranceScreenProps) {
           </motion.div>
         )}
       </AnimatePresence>
-
-      {/* MINI WEAVE GAME OVERLAY */}
-      <ThreadWeaverGame isOpen={isGameOpen} onClose={() => setIsGameOpen(false)} />
 
       {/* LUXURIOUS INITIAL FADE-IN OVERLAY / PRELOADER */}
       <AnimatePresence>
