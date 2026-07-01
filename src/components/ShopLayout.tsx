@@ -463,8 +463,8 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
                     autoPlay loop muted playsInline preload="auto"
                     className="absolute inset-0 w-full h-full object-cover object-center z-0 filter brightness-[0.45]"
                   >
-                    <source src="https://res.cloudinary.com/deyatjand/video/upload/f_auto,q_auto/v1782572836/IMG_2439_lnghj5.webm" type="video/webm" />
-                    <source src="https://res.cloudinary.com/deyatjand/video/upload/f_auto,q_auto/v1782572836/IMG_2439_lnghj5.mp4" type="video/mp4" />
+                    <source src="https://res.cloudinary.com/deyatjand/video/upload/f_webm,q_auto,vc_vp9,ac_none,w_1920,c_limit/v1782572836/IMG_2439_lnghj5.webm" type="video/webm" />
+                    <source src="https://res.cloudinary.com/deyatjand/video/upload/f_mp4,q_auto,vc_h264,ac_none,w_1920,c_limit/v1782572836/IMG_2439_lnghj5.mp4" type="video/mp4" />
                   </video>
                   
                   {/* Gradient Overlay */}
