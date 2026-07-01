@@ -8,20 +8,22 @@ import { motion, AnimatePresence } from 'motion/react';
 import { 
   ShoppingBag, Trash2, Heart, Search, 
   Sparkles, Check, ChevronRight, Menu, X, HelpCircle, 
-  Volume2, CheckCircle, Smartphone, User, ArrowUpRight,
+  Volume2, CheckCircle, Smartphone, ArrowUpRight,
   Disc
 } from 'lucide-react';
 import { Product, CartItem, Collection } from '../types';
-import { products, collections } from '../data';
+import { collections } from '../data';
 import ProductCard from './ProductCard';
 import ProductDetail from './ProductDetail';
 import AudioPlayer from './AudioPlayer';
 
 interface ShopLayoutProps {
   onBackToEntrance: () => void;
+  onAdmin: () => void;
+  products: Product[];
 }
 
-export default function ShopLayout({ onBackToEntrance }: ShopLayoutProps) {
+export default function ShopLayout({ onBackToEntrance, onAdmin, products }: ShopLayoutProps) {
   const [selectedCollection, setSelectedCollection] = useState<string | null>(null);
   const [selectedProductDetail, setSelectedProductDetail] = useState<Product | null>(null);
   
@@ -73,17 +75,6 @@ export default function ShopLayout({ onBackToEntrance }: ShopLayoutProps) {
     handleScroll(); // Trigger initial state
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-
-  // Micro-toast state for interactive user verification feedback
-  const [showToast, setShowToast] = useState<string | null>(null);
-
-  // Dismiss toast after brief delay
-  useEffect(() => {
-    if (showToast) {
-      const timer = setTimeout(() => setShowToast(null), 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [showToast]);
 
   // Sync cart to local storage and update header counters
   useEffect(() => {
@@ -281,6 +272,13 @@ export default function ShopLayout({ onBackToEntrance }: ShopLayoutProps) {
           {/* Right Action Widgets Grid */}
           <div className="flex items-center gap-2 sm:gap-3.5 shrink-0 relative">
             
+            <button
+              onClick={onAdmin}
+              className="px-3.5 py-1.5 text-[9.5px] font-mono font-bold tracking-[0.15em] uppercase rounded-full text-white/70 hover:text-white border border-white/20 hover:bg-white/20 transition-all duration-150"
+            >
+              Admin
+            </button>
+
             {/* Inline Toggleable Search Panel */}
             <div className="flex items-center relative">
               <AnimatePresence>
@@ -315,17 +313,6 @@ export default function ShopLayout({ onBackToEntrance }: ShopLayoutProps) {
                 <Search className="w-[17px] h-[17px]" />
               </button>
             </div>
-
-            {/* Interactive User Avatar Profile Button in Mockup */}
-            <button
-              onClick={() => {
-                setShowToast("Authenticated: Loom Premium Member Verified ");
-              }}
-              className="w-8.5 h-8.5 rounded-full flex items-center justify-center hover:bg-white/20 text-white/90 hover:text-white transition-all duration-150 cursor-pointer"
-              title="Verified User Profile Status"
-            >
-              <User className="w-[17px] h-[17px]" />
-            </button>
 
             {/* Premium Custom Basket Indicator matching the precise mock-up badge */}
             <button
@@ -371,20 +358,6 @@ export default function ShopLayout({ onBackToEntrance }: ShopLayoutProps) {
           ))}
         </div>
 
-        {/* Micro notifications toast */}
-        <AnimatePresence>
-          {showToast && (
-            <motion.div
-              initial={{ opacity: 0, y: -20, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -10, scale: 0.95 }}
-              className="absolute top-18 right-6 z-50 bg-white/20 backdrop-blur-xl text-white text-[10px] font-mono uppercase tracking-widest px-4 py-2.5 rounded-lg shadow-xl border border-white/20 flex items-center gap-1.5"
-            >
-              <Check className="w-3.5 h-3.5 text-green-400" />
-              <span>{showToast}</span>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </header>
 
       {/* CORE WORK AREA: CATEGORY SELECTOR & PRODUCTS GRID */}

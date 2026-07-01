@@ -10,9 +10,10 @@ import AudioPlayer from './AudioPlayer';
 
 interface EntranceScreenProps {
   onEnter: () => void;
+  onAdmin: () => void;
 }
 
-export default function EntranceScreen({ onEnter }: EntranceScreenProps) {
+export default function EntranceScreen({ onEnter, onAdmin }: EntranceScreenProps) {
   const [videoLoaded, setVideoLoaded] = useState<boolean>(false);
   const [showMusicHint, setShowMusicHint] = useState<boolean>(true);
   const [showUpcomingModal, setShowUpcomingModal] = useState<boolean>(false);
@@ -196,7 +197,10 @@ export default function EntranceScreen({ onEnter }: EntranceScreenProps) {
         {/* Right side available information */}
         <div className="text-right flex flex-col text-[#b3ac9f] font-mono text-[9px] tracking-widest uppercase">
           <span className="mb-1 text-stone-300">Available Globally</span>
-          <span className="opacity-50">© 2026 Venta Studios</span>
+          <span className="opacity-50 flex items-center justify-end gap-2">
+            © 2026 Venta Studios
+            <button onClick={onAdmin} className="hover:text-white transition-colors cursor-pointer ml-2">Admin</button>
+          </span>
         </div>
       </footer>
 
