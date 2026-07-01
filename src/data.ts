@@ -6,14 +6,16 @@ export const collections: Collection[] = [
     name: 'Worn Textiles',
     slug: 'worn-textiles',
     description: 'Garments made to breathe and gracefully break in. Natural fibers, uneven weave, and honest wear.',
-    tagline: 'Wear it, live it, own it.'
+    tagline: 'Wear it, live it, own it.',
+    imageUrl: 'https://res.cloudinary.com/deyatjand/image/upload/f_auto,q_auto/v1782924586/a29a51d3-ae0e-4657-99ff-0e77e555807c.png'
   },
   {
     id: 'col-2',
     name: 'Earth & Clay',
     slug: 'earth-clay',
     description: 'Uneven finishes, wood-fired tones, and speckled clays. Handmolded pieces that celebrate the hand of the maker.',
-    tagline: 'Earthy, coarse, and timeless.'
+    tagline: 'Earthy, coarse, and timeless.',
+    imageUrl: 'https://res.cloudinary.com/deyatjand/image/upload/f_auto,q_auto/v1782924448/52273ddd-c1b5-45a0-b04b-702f4fc25807.png'
   },
   {
     id: 'col-3',
@@ -99,10 +101,10 @@ export const products: Product[] = [
   },
   {
     id: 'prd-5',
-    name: 'Asymmetric Clay Incense Holder',
+    name: 'New Era',
     price: 28.00,
     description: 'An elongated hand-carved clay dish textured to resemble river bedrock. Includes a shallow depression that catches ashes gently and a custom-drilled brass incense stand.',
-    imageUrl: 'https://images.unsplash.com/photo-1602143407151-7111542de6e8?auto=format&fit=crop&q=80&w=600',
+    imageUrl: 'https://res.cloudinary.com/deyatjand/image/upload/f_auto,q_auto/v1782924448/52273ddd-c1b5-45a0-b04b-702f4fc25807.png',
     category: 'earth-clay',
     sizes: ['One Size'],
     materials: 'Raw terracotta clay, solid raw brass insert',
@@ -116,10 +118,10 @@ export const products: Product[] = [
   },
   {
     id: 'prd-6',
-    name: 'Crinkled Cotton Lounge Pants',
+    name: 'LoomAvenue',
     price: 90.00,
     description: 'Double-gauze relaxed lounge trousers featuring a soft and light crinkled texture. Designed with a flexible drawstring waistband, deep utility pockets, and a wide-leg cut.',
-    imageUrl: 'https://images.unsplash.com/photo-1509551388413-e18d0ac5d495?auto=format&fit=crop&q=80&w=600',
+    imageUrl: 'https://res.cloudinary.com/deyatjand/image/upload/f_auto,q_auto/v1782924586/a29a51d3-ae0e-4657-99ff-0e77e555807c.png',
     category: 'worn-textiles',
     sizes: ['S', 'M', 'L', 'XL'],
     materials: '100% Organic Double-Gauze Cotton',

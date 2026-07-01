@@ -29,6 +29,7 @@ export interface Collection {
   slug: string;
   description: string;
   tagline: string;
+  imageUrl?: string;
 }
 
 export interface AudioTrack {

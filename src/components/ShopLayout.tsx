@@ -415,9 +415,9 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
                 >
                   <div className="absolute inset-0 bg-black/50 group-hover:bg-black/30 transition-all duration-700 z-10" />
                   
-                  {bgProduct && (
+                  {(col.imageUrl || bgProduct) && (
                     <img 
-                      src={bgProduct.imageUrl} 
+                      src={col.imageUrl || bgProduct?.imageUrl} 
                       alt={col.name}
                       className="absolute inset-0 w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-1000 ease-out"
                     />

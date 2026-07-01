@@ -18,7 +18,7 @@ export default function App() {
   const [products, setProducts] = useState<Product[]>(initialProducts);
 
   useEffect(() => {
-    const saved = localStorage.getItem('loom_products');
+    const saved = localStorage.getItem('loom_products_v2');
     if (saved) {
       try {
         setProducts(JSON.parse(saved));
@@ -29,7 +29,7 @@ export default function App() {
   const handleUpdateProduct = (updatedProduct: Product) => {
     setProducts(prev => {
       const next = prev.map(p => p.id === updatedProduct.id ? updatedProduct : p);
-      localStorage.setItem('loom_products', JSON.stringify(next));
+      localStorage.setItem('loom_products_v2', JSON.stringify(next));
       return next;
     });
   };
