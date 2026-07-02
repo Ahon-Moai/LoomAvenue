@@ -32,6 +32,22 @@ export interface Collection {
   imageUrl?: string;
 }
 
+export interface OrderItem {
+  productName: string;
+  quantity: number;
+  price: number;
+}
+
+export interface Order {
+  id: string;
+  customerName: string;
+  customerEmail: string;
+  status: 'Pending' | 'Processing' | 'Shipped' | 'Delivered' | 'Cancelled';
+  date: string;
+  total: number;
+  items: OrderItem[];
+}
+
 export interface AudioTrack {
   id: string;
   title: string;

@@ -16,6 +16,7 @@ import { collections } from '../data';
 import ProductCard from './ProductCard';
 import ProductDetail from './ProductDetail';
 import AudioPlayer from './AudioPlayer';
+import { supabase } from '../lib/supabase';
 
 interface ShopLayoutProps {
   onBackToEntrance: () => void;
@@ -134,9 +135,24 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
   const cartTotal = cartSubtotal + shippingFee;
 
   // Handle order purchase trigger
-  const handleCheckoutSubmit = (e: React.FormEvent) => {
+  const handleCheckoutSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!shippingForm.name || !shippingForm.email || !shippingForm.address) return;
+
+    const orderId = `ORD-${Date.now().toString().slice(-6)}`;
+    const items = cart.map(i => ({ productName: i.product.name, quantity: i.quantity, price: i.product.price }));
+
+    if (supabase) {
+      await supabase.from('orders').insert([{
+        id: orderId,
+        customerName: shippingForm.name,
+        customerEmail: shippingForm.email,
+        status: 'Pending',
+        date: new Date().toISOString(),
+        total: cartTotal,
+        items: items
+      }]);
+    }
 
     setCheckoutStep('completed');
     setCart([]); // Reset basket
