@@ -10,6 +10,7 @@ import ShopLayout from './components/ShopLayout';
 import CustomCursor from './components/CustomCursor';
 import SharedBackground from './components/SharedBackground';
 import AdminPanel from './components/AdminPanel';
+import { supabase } from './lib/supabase';
 import { products as initialProducts } from './data';
 import { Product } from './types';
 
@@ -18,20 +19,44 @@ export default function App() {
   const [products, setProducts] = useState<Product[]>(initialProducts);
 
   useEffect(() => {
+    // Local fallback
     const saved = localStorage.getItem('loom_products_v2');
     if (saved) {
       try {
         setProducts(JSON.parse(saved));
       } catch (e) {}
     }
+
+    // Supabase sync (Low Usage: Fetch on mount only, no real-time subscriptions)
+    const fetchProducts = async () => {
+      if (supabase) {
+        const { data, error } = await supabase.from('products').select('*');
+        if (data && data.length > 0 && !error) {
+          setProducts(data);
+        } else if (data && data.length === 0 && !error) {
+          // Seed the database if empty
+          await supabase.from('products').insert(initialProducts);
+        }
+      }
+    };
+    
+    fetchProducts();
   }, []);
 
-  const handleUpdateProduct = (updatedProduct: Product) => {
+  const handleUpdateProduct = async (updatedProduct: Product) => {
+    // Optimistic UI update
     setProducts(prev => {
       const next = prev.map(p => p.id === updatedProduct.id ? updatedProduct : p);
       localStorage.setItem('loom_products_v2', JSON.stringify(next));
       return next;
     });
+
+    // Supabase persist
+    if (supabase) {
+      await supabase.from('products')
+        .update(updatedProduct)
+        .eq('id', updatedProduct.id);
+    }
   };
 
   // Smoothly scroll window to the absolute top on view transitions
