@@ -58,6 +58,8 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
     phoneNumber: '',
     transactionId: ''
   });
+  const [copiedNumber, setCopiedNumber] = useState<boolean>(false);
+  const [lastOrderId, setLastOrderId] = useState<string>('');
 
   // Story modal state
   const [isStoryOpen, setIsStoryOpen] = useState<boolean>(false);
@@ -147,6 +149,7 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
     if (!shippingForm.transactionId) return;
 
     const orderId = `ORD-${Date.now().toString().slice(-6)}`;
+    setLastOrderId(orderId);
     const items = cart.map(i => ({ productName: i.product.name, quantity: i.quantity, price: i.product.price }));
 
     if (supabase) {
@@ -736,10 +739,10 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-white/10 backdrop-blur-3xl border border-white/20 rounded-xl max-w-md w-full shadow-2xl overflow-hidden"
+              className="bg-white/10 backdrop-blur-3xl border border-white/20 rounded-xl max-w-md w-full shadow-2xl overflow-hidden max-h-[95vh] flex flex-col"
             >
               {checkoutStep === 'info' ? (
-                <form onSubmit={handleInfoSubmit} className="p-6 sm:p-8 space-y-5">
+                <form onSubmit={handleInfoSubmit} className="p-6 sm:p-8 space-y-5 overflow-y-auto">
                   <div className="flex justify-between items-center pb-3 border-b border-white/20">
                     <div>
                       <h4 className="font-serif italic text-xl text-white">Shipping Details</h4>
@@ -835,19 +838,21 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
                   </div>
                 </form>
               ) : checkoutStep === 'payment' ? (
-                <div className="bg-[#f8fafc] text-[#334155] font-sans flex flex-col h-full overflow-hidden">
-                  {/* Header */}
-                  <div className="bg-white px-4 py-3 flex justify-between items-center shadow-sm">
-                    <button onClick={() => setCheckoutStep('info')} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+                <div className="bg-[#f8fafc] text-[#334155] font-sans flex flex-col h-[580px] max-h-[85vh] sm:max-h-[80vh] overflow-hidden">
+                  {/* Header - Sticky */}
+                  <div className="bg-white px-4 py-3 flex justify-between items-center shadow-sm border-b border-gray-100 shrink-0">
+                    <button type="button" onClick={() => setCheckoutStep('info')} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
                       <ArrowLeft className="w-5 h-5 text-gray-700" />
                     </button>
-                    <button onClick={() => setIsCheckingOut(false)} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+                    <span className="font-bold text-gray-800 text-sm">bKash Payment Verification</span>
+                    <button type="button" onClick={() => setIsCheckingOut(false)} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
                       <X className="w-5 h-5 text-gray-700" />
                     </button>
                   </div>
 
-                  {/* Amount Section */}
-                  <div className="p-4">
+                  {/* Scrollable Content */}
+                  <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                    {/* Amount Section */}
                     <div className="bg-white rounded-xl p-4 flex justify-between items-center shadow-sm border border-gray-100">
                       <div className="flex items-center gap-2">
                         {/* Mock bkash logo */}
@@ -863,88 +868,110 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
                         ৳ {shippingFee}.00
                       </div>
                     </div>
-                  </div>
 
-                  {/* Note Section */}
-                  <div className="px-4 pb-2">
+                    {/* Note Section */}
                     <div className="bg-[#fef9c3] border border-[#fef08a] text-[#854d0e] text-[11px] text-center py-2.5 rounded shadow-sm">
                       <span className="font-bold">নোটঃ</span> টাকা পাঠানোর ৫-১০ সেকেন্ড পর ভেরিফাই করবেন।
                     </div>
-                  </div>
 
-                  {/* Main Pink Box */}
-                  <div className="mx-4 mb-4 bg-[#E2136E] rounded-xl text-white p-5 shadow-lg flex-1">
-                    <h3 className="text-center text-lg font-bold mb-4 tracking-wide text-white">ট্রানজেকশন আইডি দিন</h3>
-                    <input
-                      type="text"
-                      placeholder="ট্রানজেকশন আইডি দিন"
-                      value={shippingForm.transactionId}
-                      onChange={(e) => setShippingForm({ ...shippingForm, transactionId: e.target.value })}
-                      className="w-full bg-white text-gray-800 px-4 py-3.5 rounded text-center mb-6 focus:outline-none focus:ring-2 focus:ring-pink-300 shadow-inner font-mono text-sm"
-                    />
-                    
-                    <div className="mb-4">
-                      <h4 className="font-bold text-sm tracking-wider mb-4 text-white">INSTRUCTIONS</h4>
-                      <ul className="space-y-4 text-[13px] leading-relaxed">
-                        <li className="flex items-start gap-2.5">
-                          <div className="w-1.5 h-1.5 rounded-full bg-white mt-1.5 shrink-0" />
-                          <p><strong className="text-[#FDE047] font-semibold">*247#</strong> ডায়াল করে আপনার <strong className="text-[#FDE047] font-semibold">BKASH</strong> মোবাইল মেনুতে যান অথবা <strong className="text-[#FDE047] font-semibold">BKASH</strong> অ্যাপে যান।</p>
-                        </li>
-                        <li className="flex items-start gap-2.5">
-                          <div className="w-1.5 h-1.5 rounded-full bg-white mt-1.5 shrink-0" />
-                          <p><strong className="text-[#FDE047] font-semibold">"Send Money"</strong> -এ ক্লিক করুন।</p>
-                        </li>
-                        <li className="flex items-start gap-2.5">
-                          <div className="w-1.5 h-1.5 rounded-full bg-white mt-1.5 shrink-0" />
-                          <div className="flex flex-col gap-1.5 w-full">
-                            <p>প্রাপক নম্বর হিসেবে এই নম্বরটি লিখুন: </p>
-                            <div className="flex items-center gap-2">
-                              <strong className="text-[#FDE047] text-base font-semibold">01234567890</strong> 
-                              <button 
-                                type="button"
-                                onClick={() => navigator.clipboard.writeText('01234567890')}
-                                className="inline-flex items-center gap-1 bg-black/20 px-2 py-1 rounded text-[10px] hover:bg-black/30 transition-colors uppercase font-mono tracking-wider font-semibold"
-                              >
-                                <Copy className="w-3 h-3" /> Copy
-                              </button>
+                    {/* Main Pink Box */}
+                    <div className="bg-[#E2136E] rounded-xl text-white p-5 shadow-lg">
+                      <h3 className="text-center text-lg font-bold mb-4 tracking-wide text-white">ট্রানজেকশন আইডি দিন</h3>
+                      <input
+                        type="text"
+                        placeholder="ট্রানজেকশন আইডি দিন"
+                        value={shippingForm.transactionId}
+                        onChange={(e) => setShippingForm({ ...shippingForm, transactionId: e.target.value })}
+                        className="w-full bg-white text-gray-800 px-4 py-3.5 rounded text-center mb-5 focus:outline-none focus:ring-2 focus:ring-pink-300 shadow-inner font-mono text-sm"
+                      />
+                      
+                      <div>
+                        <h4 className="font-bold text-sm tracking-wider mb-4 text-white">INSTRUCTIONS</h4>
+                        <ul className="space-y-4 text-xs sm:text-[13px] leading-relaxed">
+                          <li className="flex items-start gap-2.5">
+                            <div className="w-1.5 h-1.5 rounded-full bg-white mt-1.5 shrink-0" />
+                            <p><strong className="text-[#FDE047] font-semibold">*247#</strong> ডায়াল করে আপনার <strong className="text-[#FDE047] font-semibold">BKASH</strong> মোবাইল মেনুতে যান অথবা <strong className="text-[#FDE047] font-semibold">BKASH</strong> অ্যাপে যান।</p>
+                          </li>
+                          <li className="flex items-start gap-2.5">
+                            <div className="w-1.5 h-1.5 rounded-full bg-white mt-1.5 shrink-0" />
+                            <p><strong className="text-[#FDE047] font-semibold">"Send Money"</strong> -এ ক্লিক করুন।</p>
+                          </li>
+                          <li className="flex items-start gap-2.5">
+                            <div className="w-1.5 h-1.5 rounded-full bg-white mt-1.5 shrink-0" />
+                            <div className="flex flex-col gap-1.5 w-full">
+                              <p>প্রাপক নম্বর হিসেবে এই নম্বরটি লিখুন: </p>
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <strong className="text-[#FDE047] text-base font-semibold">01234567890</strong> 
+                                <button 
+                                  type="button"
+                                  onClick={() => {
+                                    navigator.clipboard.writeText('01234567890');
+                                    setCopiedNumber(true);
+                                    setTimeout(() => setCopiedNumber(false), 2000);
+                                  }}
+                                  className="inline-flex items-center gap-1 bg-black/20 px-2 py-1 rounded text-[10px] hover:bg-black/30 transition-colors uppercase font-mono tracking-wider font-semibold"
+                                >
+                                  <Copy className="w-3 h-3" /> {copiedNumber ? 'Copied!' : 'Copy'}
+                                </button>
+                              </div>
                             </div>
-                          </div>
-                        </li>
-                        <li className="flex items-start gap-2.5">
-                          <div className="w-1.5 h-1.5 rounded-full bg-white mt-1.5 shrink-0" />
-                          <p>পরিমাণ: <strong className="text-[#FDE047] text-base font-semibold">{shippingFee}</strong> টাকা দিয়ে <strong className="text-[#FDE047] font-semibold">SUBMIT</strong> করুন।</p>
-                        </li>
-                        <li className="flex items-start gap-2.5">
-                          <div className="w-1.5 h-1.5 rounded-full bg-white mt-1.5 shrink-0" />
-                          <p>এখন উপরের বক্সে আপনার <strong className="text-[#FDE047] font-semibold">Transaction ID</strong> দিন এবং <strong className="text-[#FDE047] font-semibold">VERIFY</strong> করুন।</p>
-                        </li>
-                      </ul>
+                          </li>
+                          <li className="flex items-start gap-2.5">
+                            <div className="w-1.5 h-1.5 rounded-full bg-white mt-1.5 shrink-0" />
+                            <p>পরিমাণ: <strong className="text-[#FDE047] text-base font-semibold">{shippingFee}</strong> টাকা দিয়ে <strong className="text-[#FDE047] font-semibold">SUBMIT</strong> করুন।</p>
+                          </li>
+                          <li className="flex items-start gap-2.5">
+                            <div className="w-1.5 h-1.5 rounded-full bg-white mt-1.5 shrink-0" />
+                            <p>এখন উপরের বক্সে আপনার <strong className="text-[#FDE047] font-semibold">Transaction ID</strong> দিন এবং <strong className="text-[#FDE047] font-semibold">VERIFY</strong> করুন।</p>
+                          </li>
+                        </ul>
+                      </div>
                     </div>
                   </div>
 
-                  {/* Verify Button */}
-                  <div className="px-4 pb-4">
+                  {/* Verify Button - Sticky */}
+                  <div className="p-4 bg-gray-50 border-t border-gray-100 shrink-0">
                     <button
                       type="button"
                       onClick={handleCheckoutSubmit}
-                      className="w-full py-4 bg-[#E2136E] hover:bg-[#c91162] text-white font-bold text-sm tracking-wider uppercase rounded-xl transition-colors shadow-lg text-center"
+                      className="w-full py-3.5 bg-[#E2136E] hover:bg-[#c91162] text-white font-bold text-sm tracking-wider uppercase rounded-xl transition-colors shadow-lg text-center"
                     >
                       VERIFY TRANSACTION
                     </button>
                   </div>
                 </div>
               ) : (
-                <div className="p-6 sm:p-8 text-center space-y-4">
-                  <CheckCircle className="w-12 h-12 text-white/80 mx-auto mb-2 animate-bounce" />
-                  <h4 className="font-serif italic text-2xl text-white">"Order Aligned"</h4>
-                  <p className="text-xs text-white/80 font-sans leading-relaxed max-w-sm mx-auto">
-                    Deep appreciation, <strong className="text-white">{shippingForm.name}</strong>. Flawed order credentials were sent to <strong className="text-white">{shippingForm.email}</strong>. Our weavers have begun custom preparation under clean ambient conditions.
-                  </p>
-                  <div className="p-4 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg text-[10px] font-mono text-white/70 tracking-wider uppercase text-left max-w-sm mx-auto space-y-1">
-                    <p>• Transport method: Carbon-Neutral Air Express</p>
-                    <p>• Estimated cycle: 4 to 6 sunrises</p>
-                    <p>• Track identifier: FLW-{(Math.random()*100000).toFixed(0)}</p>
+                <div className="p-6 sm:p-8 text-center space-y-6">
+                  <CheckCircle className="w-12 h-12 text-emerald-400 mx-auto mb-2 animate-pulse" />
+                  
+                  <div>
+                    <span className="text-xs font-mono tracking-widest text-emerald-400 uppercase block">── ORDER SECURED ──</span>
                   </div>
+
+                  <div className="text-xs sm:text-sm text-white/80 font-sans leading-relaxed max-w-sm mx-auto space-y-4 text-left border-y border-white/10 py-4">
+                    <p>
+                      Deep appreciation, <strong className="text-white">{shippingForm.name}</strong>. Your order details have been dispatched to <strong className="text-white">{shippingForm.email}</strong>.
+                    </p>
+                    <p>
+                      Your selected headwear is already secured and prepared. Your order is packaged and awaiting immediate dispatch.
+                    </p>
+                  </div>
+
+                  <div className="p-4 bg-white/5 border border-white/10 rounded-lg text-[11px] font-mono text-white/90 text-left max-w-sm mx-auto space-y-3">
+                    <div className="text-emerald-400 font-bold uppercase tracking-wider text-[10px] border-b border-white/10 pb-1.5">
+                      LOGISTICS OVERVIEW
+                    </div>
+                    <div className="space-y-1.5">
+                      <p className="flex justify-between"><span className="text-white/50">METHOD :</span> <span>Pathao Merchant Delivery</span></p>
+                      <p className="flex justify-between"><span className="text-white/50">TIMELINE (INSIDE DHAKA) :</span> <span>1 to 2 Days</span></p>
+                      <p className="flex justify-between"><span className="text-white/50">TIMELINE (OUTSIDE DHAKA) :</span> <span>2 to 3 Days</span></p>
+                      <p className="flex justify-between items-center pt-1.5 border-t border-white/10 text-white font-bold text-xs">
+                        <span className="text-white/50 font-normal text-[11px] uppercase">IDENTIFIER :</span> 
+                        <span className="font-mono text-emerald-400">{lastOrderId || `ORD-${Date.now().toString().slice(-6)}`}</span>
+                      </p>
+                    </div>
+                  </div>
+
                   <button
                     type="button"
                     onClick={() => {
@@ -954,7 +981,7 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
                     }}
                     className="w-full py-3.5 bg-white hover:bg-white/80 text-black font-display text-[10px] tracking-widest uppercase rounded-lg transition-colors mt-4 font-bold"
                   >
-                    Return to slowest browsing
+                    Return to browsing
                   </button>
                 </div>
               )}
