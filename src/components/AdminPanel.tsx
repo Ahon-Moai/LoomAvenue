@@ -142,7 +142,7 @@ export default function AdminPanel({ products, onUpdateProduct, onAddProduct, on
   }, {} as Record<string, { quantity: number; revenue: number }>);
   
   const topProducts = Object.entries(productSales)
-    .map(([name, stats]) => ({ name, ...stats }))
+    .map(([name, stats]: [string, any]) => ({ name, quantity: stats.quantity, revenue: stats.revenue }))
     .sort((a, b) => b.revenue - a.revenue)
     .slice(0, 5);
 

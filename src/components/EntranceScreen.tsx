@@ -165,9 +165,24 @@ export default function EntranceScreen({ onEnter, onAdmin }: EntranceScreenProps
             </a>
           </div>
 
-          <p className="font-mono text-[7px] tracking-[0.3em] text-[#8e897e] uppercase mt-2">
-            FOREVER EVOLVING.
-          </p>
+          <div className="relative mt-8 w-20 h-20 flex items-center justify-center text-[#8e897e] opacity-80 hover:opacity-100 transition-opacity">
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ repeat: Infinity, duration: 12, ease: "linear" }}
+              className="absolute inset-0 w-full h-full"
+            >
+              <svg viewBox="0 0 100 100" className="w-full h-full overflow-visible">
+                <path id="circlePath" d="M 50, 50 m -35, 0 a 35,35 0 1,1 70,0 a 35,35 0 1,1 -70,0" fill="transparent" />
+                <text className="text-[11.5px] font-mono uppercase fill-current" style={{ letterSpacing: '0.12em' }}>
+                  <textPath href="#circlePath" startOffset="0%">
+                    • LOOM AVENUE • PREMIUM CAPS
+                  </textPath>
+                </text>
+              </svg>
+            </motion.div>
+            {/* Center Cap / Dot Motif */}
+            <div className="w-1.5 h-1.5 rounded-full bg-[#8e897e]" />
+          </div>
         </motion.div>
       </main>
 

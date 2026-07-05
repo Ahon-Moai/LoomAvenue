@@ -255,13 +255,6 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
                 {col.name}
               </button>
             ))}
-
-            <button
-              onClick={() => setIsStoryOpen(true)}
-              className="px-3.5 py-1.5 text-[9.5px] font-mono font-bold tracking-[0.15em] uppercase rounded-full text-white/70 hover:text-white hover:bg-white/20 transition-all duration-150"
-            >
-              Manifesto
-            </button>
           </div>
 
           {/* Right Action Widgets Grid */}
@@ -455,11 +448,18 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
                 <div className="relative w-full mb-12 shadow-2xl border-b border-white/20 flex flex-col justify-between -mt-[116px] pt-[116px] bg-earth-900">
                   {/* Background Video */}
                   <video 
+                    key={activeCol.slug}
                     autoPlay loop muted playsInline preload="auto"
                     className="absolute inset-0 w-full h-full object-cover object-center z-0 filter brightness-[0.45]"
                   >
-                    <source src="https://res.cloudinary.com/deyatjand/video/upload/f_webm,q_auto,vc_vp9,ac_none,w_1920,c_limit/v1782572836/IMG_2439_lnghj5.webm" type="video/webm" />
-                    <source src="https://res.cloudinary.com/deyatjand/video/upload/f_mp4,q_auto,vc_h264,ac_none,w_1920,c_limit/v1782572836/IMG_2439_lnghj5.mp4" type="video/mp4" />
+                    {activeCol.slug === 'earth-clay' ? (
+                      <source src="https://res.cloudinary.com/deyatjand/video/upload/v1783269348/WhatsApp_Video_2026-06-16_at_22.36.54_nc2e9z.mp4" type="video/mp4" />
+                    ) : (
+                      <>
+                        <source src="https://res.cloudinary.com/deyatjand/video/upload/f_webm,q_auto,vc_vp9,ac_none,w_1920,c_limit/v1782572836/IMG_2439_lnghj5.webm" type="video/webm" />
+                        <source src="https://res.cloudinary.com/deyatjand/video/upload/f_mp4,q_auto,vc_h264,ac_none,w_1920,c_limit/v1782572836/IMG_2439_lnghj5.mp4" type="video/mp4" />
+                      </>
+                    )}
                   </video>
                   
                   {/* Gradient Overlay */}
