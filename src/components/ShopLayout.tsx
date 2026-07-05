@@ -9,7 +9,7 @@ import {
   ShoppingBag, Trash2, Heart, Search, 
   Sparkles, Check, ChevronRight, Menu, X, HelpCircle, 
   Volume2, CheckCircle, Smartphone, ArrowUpRight,
-  Disc
+  Disc, Copy, ArrowLeft
 } from 'lucide-react';
 import { Product, CartItem, Collection } from '../types';
 import { collections } from '../data';
@@ -49,13 +49,14 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
   
   // Checkout flow
   const [isCheckingOut, setIsCheckingOut] = useState<boolean>(false);
-  const [checkoutStep, setCheckoutStep] = useState<'info' | 'completed'>('info');
+  const [checkoutStep, setCheckoutStep] = useState<'info' | 'payment' | 'completed'>('info');
   const [shippingForm, setShippingForm] = useState({
     name: '',
     email: '',
     address: '',
-    city: '',
-    postalCode: ''
+    deliveryZone: 'inside', // 'inside' or 'outside'
+    phoneNumber: '',
+    transactionId: ''
   });
 
   // Story modal state
@@ -131,13 +132,19 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
   // Basket summary math
   const cartItemCount = cart.reduce((acc, item) => acc + item.quantity, 0);
   const cartSubtotal = cart.reduce((acc, item) => acc + (item.product.price * item.quantity), 0);
-  const shippingFee = cartSubtotal > 150 ? 0 : 9.50; // Free shipping over 150
+  const shippingFee = shippingForm.deliveryZone === 'inside' ? 60 : 120;
   const cartTotal = cartSubtotal + shippingFee;
+
+  const handleInfoSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!shippingForm.name || !shippingForm.email || !shippingForm.address || !shippingForm.phoneNumber) return;
+    setCheckoutStep('payment');
+  };
 
   // Handle order purchase trigger
   const handleCheckoutSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!shippingForm.name || !shippingForm.email || !shippingForm.address) return;
+    if (!shippingForm.transactionId) return;
 
     const orderId = `ORD-${Date.now().toString().slice(-6)}`;
     const items = cart.map(i => ({ productName: i.product.name, quantity: i.quantity, price: i.product.price }));
@@ -694,16 +701,12 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
                       <span className="font-bold text-white">TK {cartSubtotal.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span>Organic Shipping:</span>
-                      <span className="text-white">
-                        {shippingFee === 0 ? <span className="text-green-400">FREE</span> : `TK ${shippingFee.toFixed(2)}`}
-                      </span>
+                      <span>Delivery Charge:</span>
+                      <span className="text-white">TK {shippingFee.toFixed(2)}</span>
                     </div>
-                    {shippingFee > 0 && (
-                      <p className="text-[10px] text-white/50 italic">
-                        * Add <span className="font-bold">TK {(150 - cartSubtotal).toFixed(2)}</span> more to unlock complimentary carbon-neutral transport *
-                      </p>
-                    )}
+                    <p className="text-[10px] text-white/50 italic text-right mt-1 border-t border-white/10 pt-2">
+                      ({shippingForm.deliveryZone === 'inside' ? 'Inside Dhaka' : 'Outside Dhaka'})
+                    </p>
                     <div className="border-t border-white/20 pt-2 flex justify-between text-sm font-sans font-bold text-white mt-1">
                       <span>Total:</span>
                       <span>TK {cartTotal.toFixed(2)}</span>
@@ -735,7 +738,7 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
               className="bg-white/10 backdrop-blur-3xl border border-white/20 rounded-xl max-w-md w-full shadow-2xl overflow-hidden"
             >
               {checkoutStep === 'info' ? (
-                <form onSubmit={handleCheckoutSubmit} className="p-6 sm:p-8 space-y-5">
+                <form onSubmit={handleInfoSubmit} className="p-6 sm:p-8 space-y-5">
                   <div className="flex justify-between items-center pb-3 border-b border-white/20">
                     <div>
                       <h4 className="font-serif italic text-xl text-white">Shipping Details</h4>
@@ -789,26 +792,27 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
 
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <label className="block text-[10px] font-mono tracking-wider text-white/60 uppercase mb-1">City</label>
+                        <label className="block text-[10px] font-mono tracking-wider text-white/60 uppercase mb-1">Phone Number</label>
                         <input
-                          type="text"
+                          type="tel"
                           required
-                          placeholder="Kyoto Basin"
-                          value={shippingForm.city}
-                          onChange={(e) => setShippingForm({ ...shippingForm, city: e.target.value })}
+                          placeholder="017XXXXXXXX"
+                          value={shippingForm.phoneNumber}
+                          onChange={(e) => setShippingForm({ ...shippingForm, phoneNumber: e.target.value })}
                           className="w-full text-xs p-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg focus:outline-none focus:ring-1 focus:ring-white/50 text-white placeholder-white/40"
                         />
                       </div>
                       <div>
-                        <label className="block text-[10px] font-mono tracking-wider text-white/60 uppercase mb-1">Postal Code</label>
-                        <input
-                          type="text"
+                        <label className="block text-[10px] font-mono tracking-wider text-white/60 uppercase mb-1">Delivery Zone</label>
+                        <select
                           required
-                          placeholder="604-8091"
-                          value={shippingForm.postalCode}
-                          onChange={(e) => setShippingForm({ ...shippingForm, postalCode: e.target.value })}
-                          className="w-full text-xs p-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg focus:outline-none focus:ring-1 focus:ring-white/50 text-white placeholder-white/40"
-                        />
+                          value={shippingForm.deliveryZone}
+                          onChange={(e) => setShippingForm({ ...shippingForm, deliveryZone: e.target.value })}
+                          className="w-full text-xs p-3 bg-black/40 backdrop-blur-md border border-white/20 rounded-lg focus:outline-none focus:ring-1 focus:ring-white/50 text-white placeholder-white/40 appearance-none"
+                        >
+                          <option value="inside">Inside Dhaka (TK 60)</option>
+                          <option value="outside">Outside Dhaka (TK 120)</option>
+                        </select>
                       </div>
                     </div>
                   </div>
@@ -825,10 +829,109 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
                       type="submit"
                       className="flex-1 py-3 bg-white hover:bg-white/80 text-black font-mono text-[10px] tracking-widest uppercase rounded-lg transition-colors shadow-sm font-bold"
                     >
-                      Confirm order
+                      Proceed to Payment
                     </button>
                   </div>
                 </form>
+              ) : checkoutStep === 'payment' ? (
+                <div className="bg-[#f8fafc] text-[#334155] font-sans flex flex-col h-full overflow-hidden">
+                  {/* Header */}
+                  <div className="bg-white px-4 py-3 flex justify-between items-center shadow-sm">
+                    <button onClick={() => setCheckoutStep('info')} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+                      <ArrowLeft className="w-5 h-5 text-gray-700" />
+                    </button>
+                    <button onClick={() => setIsCheckingOut(false)} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+                      <X className="w-5 h-5 text-gray-700" />
+                    </button>
+                  </div>
+
+                  {/* Amount Section */}
+                  <div className="p-4">
+                    <div className="bg-white rounded-xl p-4 flex justify-between items-center shadow-sm border border-gray-100">
+                      <div className="flex items-center gap-2">
+                        {/* Mock bkash logo */}
+                        <div className="flex items-center gap-1.5">
+                          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 21.6444C17.3259 21.6444 21.6444 17.3259 21.6444 12C21.6444 6.67406 17.3259 2.35553 12 2.35553C6.67406 2.35553 2.35553 6.67406 2.35553 12C2.35553 17.3259 6.67406 21.6444 12 21.6444Z" fill="#E2136E"/>
+                            <path d="M10.8267 15.8267L14.7333 12L10.8267 8.17333L9.65332 9.34667L12.3067 12L9.65332 14.6533L10.8267 15.8267Z" fill="white"/>
+                          </svg>
+                          <span className="text-[#E2136E] font-bold text-xl tracking-tight">bKash</span>
+                        </div>
+                      </div>
+                      <div className="font-bold text-xl text-[#334155]">
+                        ৳ {shippingFee}.00
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Note Section */}
+                  <div className="px-4 pb-2">
+                    <div className="bg-[#fef9c3] border border-[#fef08a] text-[#854d0e] text-[11px] text-center py-2.5 rounded shadow-sm">
+                      <span className="font-bold">নোটঃ</span> টাকা পাঠানোর ৫-১০ সেকেন্ড পর ভেরিফাই করবেন।
+                    </div>
+                  </div>
+
+                  {/* Main Pink Box */}
+                  <div className="mx-4 mb-4 bg-[#E2136E] rounded-xl text-white p-5 shadow-lg flex-1">
+                    <h3 className="text-center text-lg font-bold mb-4 tracking-wide text-white">ট্রানজেকশন আইডি দিন</h3>
+                    <input
+                      type="text"
+                      placeholder="ট্রানজেকশন আইডি দিন"
+                      value={shippingForm.transactionId}
+                      onChange={(e) => setShippingForm({ ...shippingForm, transactionId: e.target.value })}
+                      className="w-full bg-white text-gray-800 px-4 py-3.5 rounded text-center mb-6 focus:outline-none focus:ring-2 focus:ring-pink-300 shadow-inner font-mono text-sm"
+                    />
+                    
+                    <div className="mb-4">
+                      <h4 className="font-bold text-sm tracking-wider mb-4 text-white">INSTRUCTIONS</h4>
+                      <ul className="space-y-4 text-[13px] leading-relaxed">
+                        <li className="flex items-start gap-2.5">
+                          <div className="w-1.5 h-1.5 rounded-full bg-white mt-1.5 shrink-0" />
+                          <p><strong className="text-[#FDE047] font-semibold">*247#</strong> ডায়াল করে আপনার <strong className="text-[#FDE047] font-semibold">BKASH</strong> মোবাইল মেনুতে যান অথবা <strong className="text-[#FDE047] font-semibold">BKASH</strong> অ্যাপে যান।</p>
+                        </li>
+                        <li className="flex items-start gap-2.5">
+                          <div className="w-1.5 h-1.5 rounded-full bg-white mt-1.5 shrink-0" />
+                          <p><strong className="text-[#FDE047] font-semibold">"Send Money"</strong> -এ ক্লিক করুন।</p>
+                        </li>
+                        <li className="flex items-start gap-2.5">
+                          <div className="w-1.5 h-1.5 rounded-full bg-white mt-1.5 shrink-0" />
+                          <div className="flex flex-col gap-1.5 w-full">
+                            <p>প্রাপক নম্বর হিসেবে এই নম্বরটি লিখুন: </p>
+                            <div className="flex items-center gap-2">
+                              <strong className="text-[#FDE047] text-base font-semibold">01234567890</strong> 
+                              <button 
+                                type="button"
+                                onClick={() => navigator.clipboard.writeText('01234567890')}
+                                className="inline-flex items-center gap-1 bg-black/20 px-2 py-1 rounded text-[10px] hover:bg-black/30 transition-colors uppercase font-mono tracking-wider font-semibold"
+                              >
+                                <Copy className="w-3 h-3" /> Copy
+                              </button>
+                            </div>
+                          </div>
+                        </li>
+                        <li className="flex items-start gap-2.5">
+                          <div className="w-1.5 h-1.5 rounded-full bg-white mt-1.5 shrink-0" />
+                          <p>পরিমাণ: <strong className="text-[#FDE047] text-base font-semibold">{shippingFee}</strong> টাকা দিয়ে <strong className="text-[#FDE047] font-semibold">SUBMIT</strong> করুন।</p>
+                        </li>
+                        <li className="flex items-start gap-2.5">
+                          <div className="w-1.5 h-1.5 rounded-full bg-white mt-1.5 shrink-0" />
+                          <p>এখন উপরের বক্সে আপনার <strong className="text-[#FDE047] font-semibold">Transaction ID</strong> দিন এবং <strong className="text-[#FDE047] font-semibold">VERIFY</strong> করুন।</p>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+
+                  {/* Verify Button */}
+                  <div className="px-4 pb-4">
+                    <button
+                      type="button"
+                      onClick={handleCheckoutSubmit}
+                      className="w-full py-4 bg-[#E2136E] hover:bg-[#c91162] text-white font-bold text-sm tracking-wider uppercase rounded-xl transition-colors shadow-lg text-center"
+                    >
+                      VERIFY TRANSACTION
+                    </button>
+                  </div>
+                </div>
               ) : (
                 <div className="p-6 sm:p-8 text-center space-y-4">
                   <CheckCircle className="w-12 h-12 text-white/80 mx-auto mb-2 animate-bounce" />
