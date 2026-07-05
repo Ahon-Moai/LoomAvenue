@@ -11,31 +11,19 @@ import CustomCursor from './components/CustomCursor';
 import SharedBackground from './components/SharedBackground';
 import AdminPanel from './components/AdminPanel';
 import { supabase } from './lib/supabase';
-import { products as initialProducts } from './data';
 import { Product } from './types';
 
 export default function App() {
   const [view, setView] = useState<'entrance' | 'shop' | 'admin'>('entrance');
-  const [products, setProducts] = useState<Product[]>(initialProducts);
+  const [products, setProducts] = useState<Product[]>([]);
 
   useEffect(() => {
-    // Local fallback
-    const saved = localStorage.getItem('loom_products_v2');
-    if (saved) {
-      try {
-        setProducts(JSON.parse(saved));
-      } catch (e) {}
-    }
-
     // Supabase sync (Low Usage: Fetch on mount only, no real-time subscriptions)
     const fetchProducts = async () => {
       if (supabase) {
         const { data, error } = await supabase.from('products').select('*');
         if (data && data.length > 0 && !error) {
           setProducts(data);
-        } else if (data && data.length === 0 && !error) {
-          // Seed the database if empty
-          await supabase.from('products').insert(initialProducts);
         }
       }
     };
@@ -45,11 +33,7 @@ export default function App() {
 
   const handleUpdateProduct = async (updatedProduct: Product) => {
     // Optimistic UI update
-    setProducts(prev => {
-      const next = prev.map(p => p.id === updatedProduct.id ? updatedProduct : p);
-      localStorage.setItem('loom_products_v2', JSON.stringify(next));
-      return next;
-    });
+    setProducts(prev => prev.map(p => p.id === updatedProduct.id ? updatedProduct : p));
 
     // Supabase persist
     if (supabase) {
@@ -60,22 +44,16 @@ export default function App() {
   };
 
   const handleAddProduct = async (newProduct: Product) => {
-    setProducts(prev => {
-      const next = [...prev, newProduct];
-      localStorage.setItem('loom_products_v2', JSON.stringify(next));
-      return next;
-    });
+    setProducts(prev => [...prev, newProduct]);
+
     if (supabase) {
       await supabase.from('products').insert([newProduct]);
     }
   };
 
   const handleDeleteProduct = async (productId: string) => {
-    setProducts(prev => {
-      const next = prev.filter(p => p.id !== productId);
-      localStorage.setItem('loom_products_v2', JSON.stringify(next));
-      return next;
-    });
+    setProducts(prev => prev.filter(p => p.id !== productId));
+
     if (supabase) {
       await supabase.from('products').delete().eq('id', productId);
     }
