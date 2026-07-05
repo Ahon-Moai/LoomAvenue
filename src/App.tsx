@@ -32,30 +32,51 @@ export default function App() {
   }, []);
 
   const handleUpdateProduct = async (updatedProduct: Product) => {
-    // Optimistic UI update
-    setProducts(prev => prev.map(p => p.id === updatedProduct.id ? updatedProduct : p));
-
-    // Supabase persist
     if (supabase) {
-      await supabase.from('products')
+      const { data, error } = await supabase.from('products')
         .update(updatedProduct)
-        .eq('id', updatedProduct.id);
+        .eq('id', updatedProduct.id)
+        .select();
+        
+      if (error) {
+        console.error('Update failed:', error);
+        alert(`Failed to update product: ${error.message}`);
+      } else if (data && data.length > 0) {
+        setProducts(prev => prev.map(p => p.id === updatedProduct.id ? data[0] : p));
+      }
+    } else {
+      setProducts(prev => prev.map(p => p.id === updatedProduct.id ? updatedProduct : p));
     }
   };
 
   const handleAddProduct = async (newProduct: Product) => {
-    setProducts(prev => [...prev, newProduct]);
-
     if (supabase) {
-      await supabase.from('products').insert([newProduct]);
+      // Omit the temporary ID so Supabase can generate a valid UUID
+      const { id, ...productToInsert } = newProduct;
+      const { data, error } = await supabase.from('products').insert([productToInsert]).select();
+      
+      if (error) {
+        console.error('Insert failed:', error);
+        alert(`Failed to add product: ${error.message}`);
+      } else if (data && data.length > 0) {
+        setProducts(prev => [...prev, data[0]]);
+      }
+    } else {
+      setProducts(prev => [...prev, newProduct]);
     }
   };
 
   const handleDeleteProduct = async (productId: string) => {
-    setProducts(prev => prev.filter(p => p.id !== productId));
-
     if (supabase) {
-      await supabase.from('products').delete().eq('id', productId);
+      const { error } = await supabase.from('products').delete().eq('id', productId);
+      if (error) {
+        console.error('Delete failed:', error);
+        alert(`Failed to delete product: ${error.message}`);
+      } else {
+        setProducts(prev => prev.filter(p => p.id !== productId));
+      }
+    } else {
+      setProducts(prev => prev.filter(p => p.id !== productId));
     }
   };
 
