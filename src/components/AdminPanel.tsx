@@ -436,6 +436,20 @@ export default function AdminPanel({ products, onUpdateProduct, onAddProduct, on
                 </div>
                 
                 <div>
+                  <label className="block text-[10px] font-mono text-white/50 uppercase tracking-widest mb-2 ml-1">Category</label>
+                  <select
+                    name="category"
+                    value={editForm.category}
+                    onChange={handleChange}
+                    className="w-full bg-black/30 border border-white/10 rounded-xl px-5 py-3.5 text-sm text-white focus:outline-none focus:border-white/30 transition-colors shadow-inner"
+                  >
+                    <option value="worn-textiles">Loom Avenue Caps</option>
+                    <option value="earth-clay">New Era Mastercopy</option>
+                    <option value="carry-core">Bundles</option>
+                  </select>
+                </div>
+                
+                <div>
                   <label className="block text-[10px] font-mono text-white/50 uppercase tracking-widest mb-2 ml-1">Description</label>
                   <textarea 
                     name="description" 
