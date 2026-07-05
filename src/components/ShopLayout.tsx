@@ -154,6 +154,7 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
         id: orderId,
         customerName: shippingForm.name,
         customerEmail: shippingForm.email,
+        transactionId: shippingForm.transactionId,
         status: 'Pending',
         date: new Date().toISOString(),
         total: cartTotal,

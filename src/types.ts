@@ -42,6 +42,7 @@ export interface Order {
   id: string;
   customerName: string;
   customerEmail: string;
+  transactionId?: string;
   status: 'Pending' | 'Processing' | 'Shipped' | 'Delivered' | 'Cancelled';
   date: string;
   total: number;
