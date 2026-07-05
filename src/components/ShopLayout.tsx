@@ -177,30 +177,18 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
         `}</style>
         <div className="animate-marquee-slow flex items-center gap-16 text-[9.5px] font-mono tracking-[0.22em] uppercase text-stone-300 font-semibold">
           <div className="flex items-center gap-2">
-            <span className="text-orange-400">🏷️</span> 10% OFF FOR TODAY ONLY
+            <span className="text-orange-400">✨</span> NEW WEBSITE. NEW PRIVILEGE. ENJOY A FLAT 7% OFF ALL ONLINE ORDERS THROUGHOUT JULY.
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-orange-400">🏷️</span> WABI-SABI ECO EMBROIDERY GOODS
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-orange-400">🏷️</span> 10% OFF FOR TODAY ONLY
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-orange-400">🏷️</span> ARTISANAL LOOMS & PIECES
+            <span className="text-orange-400">✨</span> NEW WEBSITE. NEW PRIVILEGE. ENJOY A FLAT 7% OFF ALL ONLINE ORDERS THROUGHOUT JULY.
           </div>
           
           {/* Loop copy for seamless infinity scrolling */}
           <div className="flex items-center gap-2">
-            <span className="text-orange-400">🏷️</span> 10% OFF FOR TODAY ONLY
+            <span className="text-orange-400">✨</span> NEW WEBSITE. NEW PRIVILEGE. ENJOY A FLAT 7% OFF ALL ONLINE ORDERS THROUGHOUT JULY.
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-orange-400">🏷️</span> WABI-SABI ECO EMBROIDERY GOODS
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-orange-400">🏷️</span> 10% OFF FOR TODAY ONLY
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-orange-400">🏷️</span> ARTISANAL LOOMS & PIECES
+            <span className="text-orange-400">✨</span> NEW WEBSITE. NEW PRIVILEGE. ENJOY A FLAT 7% OFF ALL ONLINE ORDERS THROUGHOUT JULY.
           </div>
         </div>
       </div>
@@ -528,22 +516,18 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
 
                   {/* Bottom Stats Bar */}
                   <div className="relative z-10 w-full bg-black/40 backdrop-blur-md border-t border-white/10">
-                    <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4">
-                      <div className="p-6 flex flex-col items-center justify-center text-center border-r border-white/10 border-b md:border-b-0">
-                        <span className="font-serif text-2xl font-bold text-[#e8dcc4] mb-1">100+</span>
-                        <span className="text-[9px] font-mono tracking-widest text-white/60 uppercase">Unique Pieces</span>
+                    <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-3">
+                      <div className="p-6 flex flex-col items-center justify-center text-center border-b sm:border-b-0 sm:border-r border-white/10">
+                        <span className="font-serif text-xl sm:text-2xl font-bold text-[#e8dcc4] mb-1">MULTI STAGE</span>
+                        <span className="text-[9px] font-mono tracking-widest text-white/60 uppercase">QUALITY CHECKS</span>
                       </div>
-                      <div className="p-6 flex flex-col items-center justify-center text-center border-r-0 md:border-r border-white/10 border-b md:border-b-0">
-                        <span className="font-serif text-2xl font-bold text-[#e8dcc4] mb-1">50+</span>
-                        <span className="text-[9px] font-mono tracking-widest text-white/60 uppercase">Artisan Weavers</span>
-                      </div>
-                      <div className="p-6 flex flex-col items-center justify-center text-center border-r border-white/10">
-                        <span className="font-serif text-2xl font-bold text-[#e8dcc4] mb-1">100%</span>
-                        <span className="text-[9px] font-mono tracking-widest text-white/60 uppercase">Organic Cotton</span>
+                      <div className="p-6 flex flex-col items-center justify-center text-center border-b sm:border-b-0 sm:border-r border-white/10">
+                        <span className="font-serif text-xl sm:text-2xl font-bold text-[#e8dcc4] mb-1">100%</span>
+                        <span className="text-[9px] font-mono tracking-widest text-white/60 uppercase">COMMUNITY TRUST</span>
                       </div>
                       <div className="p-6 flex flex-col items-center justify-center text-center">
-                        <span className="font-serif text-2xl font-bold text-[#e8dcc4] mb-1 flex items-center gap-1">4.9<span className="text-sm">★</span></span>
-                        <span className="text-[9px] font-mono tracking-widest text-white/60 uppercase">Top Rated</span>
+                        <span className="font-serif text-xl sm:text-2xl font-bold text-[#e8dcc4] mb-1">PRIORITY</span>
+                        <span className="text-[9px] font-mono tracking-widest text-white/60 uppercase">BUYER CARE</span>
                       </div>
                     </div>
                   </div>
@@ -557,7 +541,7 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
                 {filteredProducts.length > 0 ? (
                   <motion.div 
                     layout
-                    className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 w-full"
+                    className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 w-full"
                   >
                     {filteredProducts.map((product) => (
                       <ProductCard
@@ -896,8 +880,8 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
             >
               <div className="flex justify-between items-center border-b border-white/20 pb-3">
                 <div>
-                  <h4 className="font-serif italic text-2xl text-white">The LOOM Avenue Manifesto</h4>
-                  <p className="text-[9px] font-mono text-white/50 uppercase tracking-widest">loom avenue x venta studios</p>
+                  <h4 className="font-serif italic text-2xl text-white">The loomavenue.bd Blueprint</h4>
+                  <p className="text-[9px] font-mono text-white/50 uppercase tracking-widest">LOOM AVENUE x VENTA STUDIOS</p>
                 </div>
                 <button
                   onClick={() => setIsStoryOpen(false)}
@@ -910,16 +894,16 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
 
               <div className="space-y-4 text-xs sm:text-sm text-white/80 font-sans leading-relaxed">
                 <p>
-                  In a world obsessed with glossy automation and mass production, <strong className="text-white">LOOM Avenue</strong> operates as a quiet rebellion. We reject correct machine symmetry in favor of human trace elements.
+                  We don’t just drop products; we execute them after exhaustive research. From the hypersensitive selection of premium fabrics to the final stitch, every cap is engineered using the highest quality materials on the market. Our core philosophy is simple: delivering elite, uncompromised quality at a price point that defies industry norms.
                 </p>
                 <blockquote className="border-l-2 border-white/50 pl-4 py-2 italic text-white/90 bg-white/5 rounded-r-lg">
-                  "Only imperfect artifacts record the passage of heat, sun, and genuine attention. True quality comes not from sterile replication, but from slow, flawed maturation."
+                  "We refuse to inflate our prices. Our community deserves premium construction without the luxury markup, a commitment proven by our flawless record of zero negative feedback since day one."
                 </blockquote>
                 <p>
-                  Our linen is sun-bleached on grass fields, leaving miniature seed husks woven inside the fibers. Our ceramic glazing is fired in regional wood kilns, meaning no two pots share similar birthmarks.
+                  But we aren't stopping there. Something massive is shifting behind the scenes. We are currently architecting a covert sustainability initiative designed to tackle our carbon footprint and make a definitive impact on our country. We’re keeping the exact details under wraps for now...but a cleaner future is coming soon, and we’re going to need our community's full energy to pull it off.
                 </p>
                 <p className="font-semibold text-white">
-                  Wear it, live it, own it. Forever evolving.
+                  HIGHEST QUALITY. LIMITED PRICE. THE FUTURE IS COMING.
                 </p>
               </div>
 
@@ -942,8 +926,9 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4 text-xs font-mono">
           <p>© 2026 LOOM Avenue. All flaws perfected.</p>
           <div className="flex gap-6">
-            <a href="https://instagram.com" target="_blank" rel="noreferrer" className="hover:text-white/80 transition-colors">instagram</a>
-            <a href="https://tiktok.com" target="_blank" rel="noreferrer" className="hover:text-white/80 transition-colors">tiktok</a>
+            <a href="https://www.instagram.com/loomavenue.bd?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank" rel="noreferrer" className="hover:text-white/80 transition-colors">instagram</a>
+            <a href="https://www.facebook.com/share/1H5UCyX2cD/?mibextid=wwXIfr" target="_blank" rel="noreferrer" className="hover:text-white/80 transition-colors">facebook</a>
+            <a href="https://www.tiktok.com/@loomavenue?is_from_webapp=1&sender_device=pc" target="_blank" rel="noreferrer" className="hover:text-white/80 transition-colors">tiktok</a>
             <button onClick={() => setIsStoryOpen(true)} className="hover:text-white/80 transition-colors">concept manifesto</button>
           </div>
         </div>

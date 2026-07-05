@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Instagram, Smartphone, Disc, Volume2, ArrowRight, Sparkles } from 'lucide-react';
+import { Instagram, Smartphone, Disc, Volume2, ArrowRight, Sparkles, Facebook } from 'lucide-react';
 import AudioPlayer from './AudioPlayer';
 
 interface EntranceScreenProps {
@@ -150,14 +150,18 @@ export default function EntranceScreen({ onEnter, onAdmin }: EntranceScreenProps
 
           {/* Social symbols styled exactly like the provided mockup image */}
           <div className="flex items-center gap-3 mt-6 text-[#a09b8e] hover:text-[#dfd9cc] transition-colors duration-200">
-            <a href="https://instagram.com" target="_blank" rel="noreferrer" title="Instagram" className="hover:scale-105 transition-transform">
+            <a href="https://www.instagram.com/loomavenue.bd?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank" rel="noreferrer" title="Instagram" className="hover:scale-105 transition-transform">
               <Instagram className="w-4 h-4 opacity-70 hover:opacity-100" />
             </a>
             <span className="text-[10px] text-earth-550">•</span>
-            <a href="https://tiktok.com" target="_blank" rel="noreferrer" title="TikTok" className="hover:scale-105 transition-transform">
+            <a href="https://www.tiktok.com/@loomavenue?is_from_webapp=1&sender_device=pc" target="_blank" rel="noreferrer" title="TikTok" className="hover:scale-105 transition-transform">
               <svg className="w-3.5 h-3.5 opacity-70 hover:opacity-100 fill-current" viewBox="0 0 24 24">
                 <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.17-2.89-.6-4.09-1.5-.15-.11-.29-.24-.42-.37-.06 3.41-.03 6.82-.04 10.23-.09 1.18-.45 2.39-1.18 3.32-.97 1.35-2.5 2.22-4.14 2.39-1.92.25-3.95-.31-5.32-1.7-1.43-1.4-2.02-3.48-1.7-5.46.25-1.93 1.4-3.7 3.19-4.47 1.05-.47 2.21-.6 3.33-.42v4.03c-.92-.23-1.96-.06-2.73.53-.7.51-1.07 1.4-1.02 2.27.03.88.5 1.72 1.25 2.18.73.47 1.64.55 2.44.25.9-.31 1.53-1.15 1.63-2.09.11-2.09.04-4.18.06-6.27.01-4.05.01-8.1 0-12.15z"/>
               </svg>
+            </a>
+            <span className="text-[10px] text-earth-550">•</span>
+            <a href="https://www.facebook.com/share/1H5UCyX2cD/?mibextid=wwXIfr" target="_blank" rel="noreferrer" title="Facebook" className="hover:scale-105 transition-transform">
+              <Facebook className="w-4 h-4 opacity-70 hover:opacity-100" />
             </a>
           </div>
 

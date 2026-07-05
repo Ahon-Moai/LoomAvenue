@@ -3,7 +3,7 @@ import { Product, Collection } from './types';
 export const collections: Collection[] = [
   {
     id: 'col-1',
-    name: 'Worn Textiles',
+    name: 'LOOM AVENUE CAPS',
     slug: 'worn-textiles',
     description: 'Garments made to breathe and gracefully break in. Natural fibers, uneven weave, and honest wear.',
     tagline: 'Wear it, live it, own it.',
@@ -11,7 +11,7 @@ export const collections: Collection[] = [
   },
   {
     id: 'col-2',
-    name: 'Earth & Clay',
+    name: 'NEW ERA MASTERCOPY CAPS',
     slug: 'earth-clay',
     description: 'Uneven finishes, wood-fired tones, and speckled clays. Handmolded pieces that celebrate the hand of the maker.',
     tagline: 'Earthy, coarse, and timeless.',
@@ -19,7 +19,7 @@ export const collections: Collection[] = [
   },
   {
     id: 'col-3',
-    name: 'Carry & Core',
+    name: 'BUNDLES',
     slug: 'carry-core',
     description: 'Reclaimed and unbleached cotton goods designed for heavy daily utility under the sun.',
     tagline: 'Simple, raw, and enduring.'
