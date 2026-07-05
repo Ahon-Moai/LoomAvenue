@@ -59,6 +59,28 @@ export default function App() {
     }
   };
 
+  const handleAddProduct = async (newProduct: Product) => {
+    setProducts(prev => {
+      const next = [...prev, newProduct];
+      localStorage.setItem('loom_products_v2', JSON.stringify(next));
+      return next;
+    });
+    if (supabase) {
+      await supabase.from('products').insert([newProduct]);
+    }
+  };
+
+  const handleDeleteProduct = async (productId: string) => {
+    setProducts(prev => {
+      const next = prev.filter(p => p.id !== productId);
+      localStorage.setItem('loom_products_v2', JSON.stringify(next));
+      return next;
+    });
+    if (supabase) {
+      await supabase.from('products').delete().eq('id', productId);
+    }
+  };
+
   // Smoothly scroll window to the absolute top on view transitions
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior });
@@ -107,7 +129,13 @@ export default function App() {
             transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
             className="w-full min-h-screen"
           >
-            <AdminPanel products={products} onUpdateProduct={handleUpdateProduct} onBack={() => setView('entrance')} />
+            <AdminPanel 
+              products={products} 
+              onUpdateProduct={handleUpdateProduct} 
+              onAddProduct={handleAddProduct}
+              onDeleteProduct={handleDeleteProduct}
+              onBack={() => setView('entrance')} 
+            />
           </motion.div>
         )}
       </AnimatePresence>

@@ -15,7 +15,7 @@ export const collections: Collection[] = [
     slug: 'earth-clay',
     description: 'Uneven finishes, wood-fired tones, and speckled clays. Handmolded pieces that celebrate the hand of the maker.',
     tagline: 'Earthy, coarse, and timeless.',
-    imageUrl: 'https://res.cloudinary.com/deyatjand/image/upload/f_auto,q_auto/v1782924448/52273ddd-c1b5-45a0-b04b-702f4fc25807.png'
+    imageUrl: 'https://res.cloudinary.com/deyatjand/image/upload/v1783267778/new-era-logo-png_seeklogo-297534_gdeasw.png'
   },
   {
     id: 'col-3',

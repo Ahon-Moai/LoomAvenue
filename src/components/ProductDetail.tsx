@@ -70,7 +70,7 @@ export default function ProductDetail({ product, onClose, onAddToCart }: Product
               {product.name}
             </h2>
             <span className="font-mono text-lg font-semibold text-white">
-              ${product.price ? product.price.toFixed(2) : '0.00'}
+              TK {product.price ? product.price.toFixed(2) : '0.00'}
             </span>
           </div>
 

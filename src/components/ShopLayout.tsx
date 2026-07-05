@@ -175,21 +175,12 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
             animation: marquee 35s linear infinite;
           }
         `}</style>
-        <div className="animate-marquee-slow flex items-center gap-16 text-[9.5px] font-mono tracking-[0.22em] uppercase text-stone-300 font-semibold">
-          <div className="flex items-center gap-2">
-            <span className="text-orange-400">✨</span> NEW WEBSITE. NEW PRIVILEGE. ENJOY A FLAT 7% OFF ALL ONLINE ORDERS THROUGHOUT JULY.
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-orange-400">✨</span> NEW WEBSITE. NEW PRIVILEGE. ENJOY A FLAT 7% OFF ALL ONLINE ORDERS THROUGHOUT JULY.
-          </div>
-          
-          {/* Loop copy for seamless infinity scrolling */}
-          <div className="flex items-center gap-2">
-            <span className="text-orange-400">✨</span> NEW WEBSITE. NEW PRIVILEGE. ENJOY A FLAT 7% OFF ALL ONLINE ORDERS THROUGHOUT JULY.
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-orange-400">✨</span> NEW WEBSITE. NEW PRIVILEGE. ENJOY A FLAT 7% OFF ALL ONLINE ORDERS THROUGHOUT JULY.
-          </div>
+        <div className="animate-marquee-slow flex items-center gap-16 text-[9.5px] font-mono tracking-[0.22em] uppercase text-stone-300 font-semibold pr-16">
+          {[...Array(12)].map((_, i) => (
+            <div key={i} className="flex items-center gap-2 shrink-0">
+              <span className="text-orange-400">✨</span> NEW WEBSITE. NEW PRIVILEGE. ENJOY A FLAT 7% OFF ALL ONLINE ORDERS THROUGHOUT JULY.
+            </div>
+          ))}
         </div>
       </div>
 
@@ -661,7 +652,7 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
                         {/* Adjust details */}
                         <div className="flex justify-between items-center mt-2">
                           <span className="font-mono text-xs font-semibold text-white">
-                            ${(item.product.price * item.quantity).toFixed(2)}
+                            TK {(item.product.price * item.quantity).toFixed(2)}
                           </span>
 
                           <div className="flex items-center border border-white/20 rounded overflow-hidden bg-white/5 text-white">
@@ -700,22 +691,22 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
                   <div className="space-y-2 text-xs font-mono text-white/70">
                     <div className="flex justify-between">
                       <span>Subtotal:</span>
-                      <span className="font-bold text-white">${cartSubtotal.toFixed(2)}</span>
+                      <span className="font-bold text-white">TK {cartSubtotal.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between">
                       <span>Organic Shipping:</span>
                       <span className="text-white">
-                        {shippingFee === 0 ? <span className="text-green-400">FREE</span> : `$${shippingFee.toFixed(2)}`}
+                        {shippingFee === 0 ? <span className="text-green-400">FREE</span> : `TK ${shippingFee.toFixed(2)}`}
                       </span>
                     </div>
                     {shippingFee > 0 && (
                       <p className="text-[10px] text-white/50 italic">
-                        * Add <span className="font-bold">${(150 - cartSubtotal).toFixed(2)}</span> more to unlock complimentary carbon-neutral transport *
+                        * Add <span className="font-bold">TK {(150 - cartSubtotal).toFixed(2)}</span> more to unlock complimentary carbon-neutral transport *
                       </p>
                     )}
                     <div className="border-t border-white/20 pt-2 flex justify-between text-sm font-sans font-bold text-white mt-1">
                       <span>Total:</span>
-                      <span>${cartTotal.toFixed(2)}</span>
+                      <span>TK {cartTotal.toFixed(2)}</span>
                     </div>
                   </div>
 
