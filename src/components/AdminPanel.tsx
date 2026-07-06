@@ -96,7 +96,7 @@ export default function AdminPanel({ products, onUpdateProduct, onAddProduct, on
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     if (!editForm) return;
     const { name, value, type } = e.target;
     

@@ -16,6 +16,8 @@ import { collections } from '../data';
 import ProductCard from './ProductCard';
 import ProductDetail from './ProductDetail';
 import AudioPlayer from './AudioPlayer';
+import FAQSection from './FAQSection';
+import Chatbot from './Chatbot';
 import { supabase } from '../lib/supabase';
 
 interface ShopLayoutProps {
@@ -577,6 +579,8 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
         )}
       </main>
 
+      <FAQSection />
+
       {/* THE DETAILS EXPAND OVERLAY DRAWER */}
       <AnimatePresence>
         {selectedProductDetail && (
@@ -587,6 +591,9 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
           />
         )}
       </AnimatePresence>
+
+      {/* CHATBOT WIDGET */}
+      <Chatbot />
 
       {/* COZY AMBIENT RETRO TAPE CONTROLLER AVAILABLE DYNAMICALLY IN CORNER */}
       <div className="fixed bottom-4 right-4 left-4 xs:left-auto z-40 max-w-[calc(100vw-32px)] xs:max-w-[340px] ml-auto">
