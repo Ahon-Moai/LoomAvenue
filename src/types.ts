@@ -9,6 +9,7 @@ export interface Product {
   price: number;
   description: string;
   imageUrl: string;
+  additionalImages?: string[];
   category: string;
   sizes: string[];
   materials: string;

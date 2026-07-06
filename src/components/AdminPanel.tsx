@@ -85,10 +85,15 @@ export default function AdminPanel({ products, onUpdateProduct, onAddProduct, on
 
   const handleSave = () => {
     if (editForm) {
+      const cleanedForm = {
+        ...editForm,
+        additionalImages: editForm.additionalImages?.filter(url => url.trim() !== '') || []
+      };
+
       if (isAdding) {
-        onAddProduct(editForm);
+        onAddProduct(cleanedForm);
       } else {
-        onUpdateProduct(editForm);
+        onUpdateProduct(cleanedForm);
       }
       setEditingId(null);
       setEditForm(null);
@@ -437,6 +442,21 @@ export default function AdminPanel({ products, onUpdateProduct, onAddProduct, on
                     value={editForm.imageUrl} 
                     onChange={handleChange}
                     className="w-full bg-black/30 border border-white/10 rounded-xl px-5 py-3.5 text-sm text-white focus:outline-none focus:border-white/30 transition-colors shadow-inner"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-mono text-white/50 uppercase tracking-widest mb-2 ml-1">Additional Images (One URL per line)</label>
+                  <textarea 
+                    name="additionalImages" 
+                    value={editForm.additionalImages?.join('\n') || ''} 
+                    onChange={(e) => {
+                      if (!editForm) return;
+                      const urls = e.target.value.split('\n');
+                      setEditForm({ ...editForm, additionalImages: urls });
+                    }}
+                    rows={3}
+                    className="w-full bg-black/30 border border-white/10 rounded-xl px-5 py-3.5 text-sm text-white focus:outline-none focus:border-white/30 transition-colors resize-none shadow-inner"
                   />
                 </div>
                 

@@ -18,6 +18,7 @@ export default function ProductDetail({ product, onClose, onAddToCart }: Product
   const [selectedSize, setSelectedSize] = useState<string>(product.sizes[0] || 'One Size');
   const [activeTab, setActiveTab] = useState<'materials' | 'story' | 'care'>('materials');
   const [addedNotice, setAddedNotice] = useState<boolean>(false);
+  const [currentImage, setCurrentImage] = useState<string>(product.imageUrl);
 
   const handleAdd = () => {
     onAddToCart(product, selectedSize);
@@ -54,15 +55,36 @@ export default function ProductDetail({ product, onClose, onAddToCart }: Product
           </div>
 
           {/* Banner Product Image with organic grain effect */}
-          <div className="relative w-full aspect-[16/10] bg-white/5 rounded-lg overflow-hidden border border-white/10 mb-6">
+          <div className="relative w-full aspect-[16/10] bg-white/5 rounded-lg overflow-hidden border border-white/10 mb-3 transition-opacity duration-300">
             <img
-              src={product.imageUrl}
+              src={currentImage}
               alt={product.name}
               referrerPolicy="no-referrer"
               className="w-full h-full object-cover object-center"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />
           </div>
+
+          {/* Thumbnail Gallery */}
+          {(product.additionalImages && product.additionalImages.length > 0) && (
+            <div className="flex gap-2 mb-6 overflow-x-auto no-scrollbar pb-2">
+              <button 
+                onClick={() => setCurrentImage(product.imageUrl)}
+                className={`relative w-16 h-16 rounded-md overflow-hidden shrink-0 border-2 transition-all ${currentImage === product.imageUrl ? 'border-white' : 'border-transparent opacity-60 hover:opacity-100'}`}
+              >
+                <img src={product.imageUrl} alt={`${product.name} thumbnail`} className="w-full h-full object-cover" />
+              </button>
+              {product.additionalImages.map((imgUrl, idx) => (
+                <button 
+                  key={idx}
+                  onClick={() => setCurrentImage(imgUrl)}
+                  className={`relative w-16 h-16 rounded-md overflow-hidden shrink-0 border-2 transition-all ${currentImage === imgUrl ? 'border-white' : 'border-transparent opacity-60 hover:opacity-100'}`}
+                >
+                  <img src={imgUrl} alt={`${product.name} view ${idx + 1}`} className="w-full h-full object-cover" />
+                </button>
+              ))}
+            </div>
+          )}
 
           {/* Title & Price */}
           <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-1 mb-4">
