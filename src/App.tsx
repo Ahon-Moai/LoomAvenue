@@ -13,17 +13,46 @@ import AdminPanel from './components/AdminPanel';
 import { supabase } from './lib/supabase';
 import { Product } from './types';
 
+const CACHE_KEY = 'aether_products_cache';
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes cache TTL
+
+const updateCache = (data: Product[]) => {
+  try {
+    localStorage.setItem(CACHE_KEY, JSON.stringify({
+      timestamp: Date.now(),
+      data
+    }));
+  } catch (e) {
+    console.warn('Failed to update products cache in localStorage:', e);
+  }
+};
+
 export default function App() {
   const [view, setView] = useState<'entrance' | 'shop' | 'admin'>('entrance');
   const [products, setProducts] = useState<Product[]>([]);
 
   useEffect(() => {
-    // Supabase sync (Low Usage: Fetch on mount only, no real-time subscriptions)
+    // Supabase sync with client-side cache fallback for high efficiency
     const fetchProducts = async () => {
+      // Check cache first
+      try {
+        const cached = localStorage.getItem(CACHE_KEY);
+        if (cached) {
+          const { timestamp, data } = JSON.parse(cached);
+          if (Date.now() - timestamp < CACHE_TTL && data && data.length > 0) {
+            setProducts(data);
+            return; // Cache hit - avoid DB query completely
+          }
+        }
+      } catch (e) {
+        // Fallback to fresh fetch on parse error
+      }
+
       if (supabase) {
         const { data, error } = await supabase.from('products').select('*');
         if (data && data.length > 0 && !error) {
           setProducts(data);
+          updateCache(data);
         }
       }
     };
@@ -42,10 +71,18 @@ export default function App() {
         console.error('Update failed:', error);
         alert(`Failed to update product: ${error.message}`);
       } else if (data && data.length > 0) {
-        setProducts(prev => prev.map(p => p.id === updatedProduct.id ? data[0] : p));
+        setProducts(prev => {
+          const updated = prev.map(p => p.id === updatedProduct.id ? data[0] : p);
+          updateCache(updated);
+          return updated;
+        });
       }
     } else {
-      setProducts(prev => prev.map(p => p.id === updatedProduct.id ? updatedProduct : p));
+      setProducts(prev => {
+        const updated = prev.map(p => p.id === updatedProduct.id ? updatedProduct : p);
+        updateCache(updated);
+        return updated;
+      });
     }
   };
 
@@ -59,10 +96,18 @@ export default function App() {
         console.error('Insert failed:', error);
         alert(`Failed to add product: ${error.message}`);
       } else if (data && data.length > 0) {
-        setProducts(prev => [...prev, data[0]]);
+        setProducts(prev => {
+          const updated = [...prev, data[0]];
+          updateCache(updated);
+          return updated;
+        });
       }
     } else {
-      setProducts(prev => [...prev, newProduct]);
+      setProducts(prev => {
+        const updated = [...prev, newProduct];
+        updateCache(updated);
+        return updated;
+      });
     }
   };
 
@@ -73,10 +118,18 @@ export default function App() {
         console.error('Delete failed:', error);
         alert(`Failed to delete product: ${error.message}`);
       } else {
-        setProducts(prev => prev.filter(p => p.id !== productId));
+        setProducts(prev => {
+          const updated = prev.filter(p => p.id !== productId);
+          updateCache(updated);
+          return updated;
+        });
       }
     } else {
-      setProducts(prev => prev.filter(p => p.id !== productId));
+      setProducts(prev => {
+        const updated = prev.filter(p => p.id !== productId);
+        updateCache(updated);
+        return updated;
+      });
     }
   };
 
