@@ -44,7 +44,7 @@ export default function ProductCard({ product, onView, onQuickAdd }: ProductCard
         {/* Top Right Ribbon */}
         <div className="absolute top-0 right-0 overflow-hidden w-24 h-24 z-10">
           <div className="absolute bg-red-600/90 backdrop-blur-md border-b border-white/20 text-white font-mono font-bold text-[9px] sm:text-[10px] tracking-widest text-center w-36 py-1.5 top-5 -right-10 rotate-45 transform origin-center shadow-lg">
-            20% OFF
+            7% OFF
           </div>
         </div>
 
