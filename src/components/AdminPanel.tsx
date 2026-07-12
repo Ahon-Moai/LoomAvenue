@@ -122,6 +122,19 @@ export default function AdminPanel({ products, onUpdateProduct, onAddProduct, on
     }
   };
 
+  const handleDeleteOrder = async (orderId: string) => {
+    if (window.confirm('Are you sure you want to delete this order?')) {
+      setOrders(orders.filter(o => o.id !== orderId));
+      if (supabase) {
+        const { error } = await supabase.from('orders').delete().eq('id', orderId);
+        if (error) {
+          console.error('Failed to delete order:', error);
+          alert('Failed to delete order.');
+        }
+      }
+    }
+  };
+
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'Pending': return <Clock className="w-4 h-4 text-amber-400" />;
@@ -328,6 +341,12 @@ export default function AdminPanel({ products, onUpdateProduct, onAddProduct, on
                       <option value="Delivered">Delivered</option>
                       <option value="Cancelled">Cancelled</option>
                     </select>
+                    <button
+                      onClick={() => handleDeleteOrder(order.id)}
+                      className="w-full bg-red-950/30 hover:bg-red-900/50 text-red-400 border border-red-900/50 rounded-lg px-3 py-2 mt-1 text-[10px] font-mono uppercase tracking-widest transition-colors flex items-center justify-center gap-2"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" /> Delete
+                    </button>
                   </div>
                 </div>
               </div>
