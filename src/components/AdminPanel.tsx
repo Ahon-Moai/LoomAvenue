@@ -304,6 +304,8 @@ export default function AdminPanel({ products, onUpdateProduct, onAddProduct, on
                     </div>
                     <div className="font-serif text-lg text-white/90">{order.customerName}</div>
                     <div className="font-sans text-xs text-white/50">{order.customerEmail}</div>
+                    {order.customerPhone && <div className="font-sans text-xs text-white/50">{order.customerPhone}</div>}
+                    {order.customerAddress && <div className="font-sans text-xs text-white/50">{order.customerAddress}</div>}
                     {order.transactionId && (
                       <div className="font-mono text-xs text-emerald-400/80 mt-1">
                         Trx ID: {order.transactionId}
