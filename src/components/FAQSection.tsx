@@ -17,7 +17,7 @@ const faqs = [
   },
   {
     question: "Can I wash my Aether headwear?",
-    answer: "We recommend gentle hand-washing in cold water and air-drying to maintain the unique texture and distressing of the fabric. Do not bleach or tumble dry."
+    answer: "Only dry wash."
   },
   {
     question: "Do you offer international shipping?",

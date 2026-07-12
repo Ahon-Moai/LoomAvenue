@@ -17,8 +17,8 @@ interface ProductCardProps {
 
 export default function ProductCard({ product, onView, onQuickAdd }: ProductCardProps) {
   const defaultSize = product.sizes[0] || 'One Size';
-  // Compute fake original price for the UI based on 20% discount (product.price is the 80%)
-  const originalPrice = product.price / 0.8;
+  // Compute fake original price for the UI based on 7% discount (product.price is the 93%)
+  const originalPrice = product.price / 0.93;
 
   return (
     <motion.div

@@ -98,7 +98,13 @@ export default function ProductDetail({ product, onClose, onAddToCart }: Product
 
           {/* Text Description */}
           <p className="text-sm text-white/80 leading-relaxed font-sans mb-6">
-            {product.description}
+            {product.description ? product.description.replace(
+              'Meticulously sourced premium fabrics, perfected through strict quality control. Investing in a cap means securing a flawless win.',
+              'Meticulously sourced premium fabrics, perfected through strict quality control. Investing in a cap means securing a flawless win'
+            ).replace(
+              'Investing in a cap means securing a flawless win.',
+              'Investing in a cap means securing a flawless win'
+            ) : ''}
           </p>
 
           {/* Size Selectors */}

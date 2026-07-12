@@ -136,7 +136,7 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
   // Basket summary math
   const cartItemCount = cart.reduce((acc, item) => acc + item.quantity, 0);
   const cartSubtotal = cart.reduce((acc, item) => acc + (item.product.price * item.quantity), 0);
-  const shippingFee = shippingForm.deliveryZone === 'inside' ? 60 : 120;
+  const shippingFee = shippingForm.deliveryZone === 'inside' ? 70 : 130;
   const cartTotal = cartSubtotal + shippingFee;
 
   const handleInfoSubmit = (e: React.FormEvent) => {
@@ -821,8 +821,8 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
                           onChange={(e) => setShippingForm({ ...shippingForm, deliveryZone: e.target.value })}
                           className="w-full text-xs p-3 bg-black/40 backdrop-blur-md border border-white/20 rounded-lg focus:outline-none focus:ring-1 focus:ring-white/50 text-white placeholder-white/40 appearance-none"
                         >
-                          <option value="inside">Inside Dhaka (TK 60)</option>
-                          <option value="outside">Outside Dhaka (TK 120)</option>
+                          <option value="inside">Inside Dhaka (TK 70)</option>
+                          <option value="outside">Outside Dhaka (TK 130)</option>
                         </select>
                       </div>
                     </div>
@@ -908,11 +908,11 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
                             <div className="flex flex-col gap-1.5 w-full">
                               <p>প্রাপক নম্বর হিসেবে এই নম্বরটি লিখুন: </p>
                               <div className="flex items-center gap-2 flex-wrap">
-                                <strong className="text-[#FDE047] text-base font-semibold">01234567890</strong> 
+                                <strong className="text-[#FDE047] text-base font-semibold">01629178834</strong> 
                                 <button 
                                   type="button"
                                   onClick={() => {
-                                    navigator.clipboard.writeText('01234567890');
+                                    navigator.clipboard.writeText('01629178834');
                                     setCopiedNumber(true);
                                     setTimeout(() => setCopiedNumber(false), 2000);
                                   }}

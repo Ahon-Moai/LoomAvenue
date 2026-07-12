@@ -5,7 +5,7 @@ export const collections: Collection[] = [
     id: 'col-1',
     name: 'LOOM AVENUE CAPS',
     slug: 'worn-textiles',
-    description: 'Garments made to breathe and gracefully break in. Natural fibers, uneven weave, and honest wear.',
+    description: 'Meticulously sourced premium fabrics, perfected through strict quality control. Investing in a cap means securing a flawless win.',
     tagline: 'Wear it, live it, own it.',
     imageUrl: 'https://res.cloudinary.com/deyatjand/image/upload/f_auto,q_auto/v1782924586/a29a51d3-ae0e-4657-99ff-0e77e555807c.png'
   },
@@ -13,7 +13,7 @@ export const collections: Collection[] = [
     id: 'col-2',
     name: 'NEW ERA MASTERCOPY CAPS',
     slug: 'earth-clay',
-    description: 'Uneven finishes, wood-fired tones, and speckled clays. Handmolded pieces that celebrate the hand of the maker.',
+    description: 'Crafted with premium imported materials that rival and often surpass the originals. Loved by a growing community of international buyers who recognize pure quality. Secure yours and feel the upgrade.',
     tagline: 'Earthy, coarse, and timeless.',
     imageUrl: 'https://res.cloudinary.com/deyatjand/image/upload/v1783267778/new-era-logo-png_seeklogo-297534_gdeasw.png'
   },
