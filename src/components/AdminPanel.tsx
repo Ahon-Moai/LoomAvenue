@@ -252,7 +252,7 @@ export default function AdminPanel({ products, onUpdateProduct, onAddProduct, on
                 <div className="flex items-center gap-6">
                   <div className="w-20 h-20 rounded-xl overflow-hidden bg-white/5 flex-shrink-0">
                     {product.imageUrl.startsWith('http') || product.imageUrl.startsWith('/') ? (
-                       <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover" />
+                       <img src={product.imageUrl} alt={product.name} className="w-full h-full object-contain" />
                     ) : (
                        <div className="w-full h-full flex items-center justify-center text-white/20"><ImageIcon /></div>
                     )}

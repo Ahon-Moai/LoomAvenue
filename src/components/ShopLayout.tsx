@@ -647,7 +647,7 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
                           src={item.product.imageUrl}
                           alt={item.product.name}
                           referrerPolicy="no-referrer"
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-contain"
                         />
                       </div>
 

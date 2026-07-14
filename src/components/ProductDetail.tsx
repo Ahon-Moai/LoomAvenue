@@ -60,7 +60,7 @@ export default function ProductDetail({ product, onClose, onAddToCart }: Product
               src={currentImage}
               alt={product.name}
               referrerPolicy="no-referrer"
-              className="w-full h-full object-cover object-center"
+              className="w-full h-full object-contain object-center"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />
           </div>
@@ -70,17 +70,17 @@ export default function ProductDetail({ product, onClose, onAddToCart }: Product
             <div className="flex gap-2 mb-6 overflow-x-auto no-scrollbar pb-2">
               <button 
                 onClick={() => setCurrentImage(product.imageUrl)}
-                className={`relative w-16 h-16 rounded-md overflow-hidden shrink-0 border-2 transition-all ${currentImage === product.imageUrl ? 'border-white' : 'border-transparent opacity-60 hover:opacity-100'}`}
+                className={`relative w-16 h-16 rounded-md overflow-hidden shrink-0 border-2 transition-all bg-white/5 ${currentImage === product.imageUrl ? 'border-white' : 'border-transparent opacity-60 hover:opacity-100'}`}
               >
-                <img src={product.imageUrl} alt={`${product.name} thumbnail`} className="w-full h-full object-cover" />
+                <img src={product.imageUrl} alt={`${product.name} thumbnail`} className="w-full h-full object-contain" />
               </button>
               {product.additionalImages.map((imgUrl, idx) => (
                 <button 
                   key={idx}
                   onClick={() => setCurrentImage(imgUrl)}
-                  className={`relative w-16 h-16 rounded-md overflow-hidden shrink-0 border-2 transition-all ${currentImage === imgUrl ? 'border-white' : 'border-transparent opacity-60 hover:opacity-100'}`}
+                  className={`relative w-16 h-16 rounded-md overflow-hidden shrink-0 border-2 transition-all bg-white/5 ${currentImage === imgUrl ? 'border-white' : 'border-transparent opacity-60 hover:opacity-100'}`}
                 >
-                  <img src={imgUrl} alt={`${product.name} view ${idx + 1}`} className="w-full h-full object-cover" />
+                  <img src={imgUrl} alt={`${product.name} view ${idx + 1}`} className="w-full h-full object-contain" />
                 </button>
               ))}
             </div>
