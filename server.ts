@@ -19,6 +19,60 @@ async function startServer() {
 
   app.use(express.json());
 
+  // API route for Meta CAPI
+  app.post("/api/capi", async (req, res) => {
+    try {
+      const { eventName, eventData, eventId, url, userAgent, fbp, fbc, email, phone } = req.body;
+      const PIXEL_ID = '1769361844418864';
+      const ACCESS_TOKEN = 'EAAYNnHh3ICUBRxwXDpH8l158G3ZCSd3rWMcZBbrVvQhTaRIEQOuiZAqcuTHely2YsGWNZAEFZB9CtZB41N0slUSQir8VuSq4DaoG8RUEcZBsEdVbdmdcK3dZA7K2iAl67RB0tWxt33lMVYGnHZCN0pT5AeZC9VJTMUjuruuipXW2MZA2I2Aqv9mePPtv0QqSXHLxMmXZBwZDZD';
+      const TEST_EVENT_CODE = 'TEST70193';
+      
+      const clientIpAddress = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+
+      // Basic hashing for user data (email, phone)
+      const crypto = await import('crypto');
+      const hash = (str: string) => crypto.createHash('sha256').update(str.trim().toLowerCase()).digest('hex');
+
+      const userData: any = {
+        client_ip_address: clientIpAddress,
+        client_user_agent: userAgent,
+      };
+
+      if (fbp) userData.fbp = fbp;
+      if (fbc) userData.fbc = fbc;
+      if (email) userData.em = [hash(email)];
+      if (phone) userData.ph = [hash(phone)];
+
+      const payload = {
+        data: [
+          {
+            event_name: eventName,
+            event_time: Math.floor(Date.now() / 1000),
+            action_source: 'website',
+            event_source_url: url,
+            event_id: eventId, // Used for deduplication
+            user_data: userData,
+            custom_data: eventData
+          }
+        ],
+        test_event_code: TEST_EVENT_CODE
+      };
+
+      const response = await fetch(`https://graph.facebook.com/v19.0/${PIXEL_ID}/events?access_token=${ACCESS_TOKEN}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      const responseData = await response.json();
+      console.log('CAPI Response:', responseData);
+      res.json({ success: true, response: responseData });
+    } catch (error) {
+      console.error('CAPI Error:', error);
+      res.status(500).json({ error: 'Failed to send CAPI event' });
+    }
+  });
+
   // API route for chatbot
   app.post("/api/gemini/chat", async (req, res) => {
     try {

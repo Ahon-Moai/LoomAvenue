@@ -19,6 +19,7 @@ import AudioPlayer from './AudioPlayer';
 import FAQSection from './FAQSection';
 import Chatbot from './Chatbot';
 import { supabase } from '../lib/supabase';
+import { trackEvent } from '../pixel';
 
 interface ShopLayoutProps {
   onBackToEntrance: () => void;
@@ -82,6 +83,11 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Track PageView on mount
+  useEffect(() => {
+    trackEvent('PageView');
+  }, []);
+
   // Sync cart to local storage and update header counters
   useEffect(() => {
     localStorage.setItem('flawed_basket', JSON.stringify(cart));
@@ -89,6 +95,13 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
 
   // Handle adding item
   const handleAddToCart = (product: Product, size: string) => {
+    trackEvent('AddToCart', {
+      content_ids: [product.id],
+      content_name: product.name,
+      content_type: 'product',
+      currency: 'BDT',
+      value: product.price
+    });
     setCart((prevCart) => {
       const matchIndex = prevCart.findIndex(
         (item) => item.product.id === product.id && item.selectedSize === size
@@ -142,6 +155,14 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
   const handleInfoSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!shippingForm.name || !shippingForm.email || !shippingForm.address || !shippingForm.phoneNumber) return;
+    trackEvent('InitiateCheckout', {
+      currency: 'BDT',
+      value: cartTotal,
+      num_items: cartItemCount
+    }, {
+      email: shippingForm.email,
+      phone: shippingForm.phoneNumber
+    });
     setCheckoutStep('payment');
   };
 
@@ -153,6 +174,17 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
     const orderId = `ORD-${Date.now().toString().slice(-6)}`;
     setLastOrderId(orderId);
     const items = cart.map(i => ({ productName: i.product.name, quantity: i.quantity, price: i.product.price }));
+
+    trackEvent('Purchase', {
+      currency: 'BDT',
+      value: cartTotal,
+      transaction_id: orderId,
+      content_ids: cart.map(i => i.product.id),
+      content_type: 'product'
+    }, {
+      email: shippingForm.email,
+      phone: shippingForm.phoneNumber
+    });
 
     if (supabase) {
       await supabase.from('orders').insert([{

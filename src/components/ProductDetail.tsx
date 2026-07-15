@@ -3,10 +3,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, ShoppingBag, Leaf, BookOpen, Star, Sparkles, CheckCircle2 } from 'lucide-react';
 import { Product } from '../types';
+import { trackEvent } from '../pixel';
 
 interface ProductDetailProps {
   product: Product;
@@ -19,6 +20,16 @@ export default function ProductDetail({ product, onClose, onAddToCart }: Product
   const [activeTab, setActiveTab] = useState<'materials' | 'story' | 'care'>('materials');
   const [addedNotice, setAddedNotice] = useState<boolean>(false);
   const [currentImage, setCurrentImage] = useState<string>(product.imageUrl);
+
+  useEffect(() => {
+    trackEvent('ViewContent', {
+      content_ids: [product.id],
+      content_name: product.name,
+      content_type: 'product',
+      currency: 'BDT',
+      value: product.price
+    });
+  }, [product]);
 
   const handleAdd = () => {
     onAddToCart(product, selectedSize);
