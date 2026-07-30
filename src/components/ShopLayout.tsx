@@ -11,7 +11,7 @@ import {
   Volume2, CheckCircle, Smartphone, ArrowUpRight,
   Disc, Copy, ArrowLeft
 } from 'lucide-react';
-import { Product, CartItem, Collection } from '../types';
+import { Product, CartItem, Collection, Offer } from '../types';
 import { collections } from '../data';
 import ProductCard from './ProductCard';
 import ProductDetail from './ProductDetail';
@@ -94,27 +94,39 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
   }, [cart]);
 
   // Handle adding item
-  const handleAddToCart = (product: Product, size: string) => {
+  const handleAddToCart = (product: Product, size: string, offer?: Offer, bundleSelections?: Product[]) => {
+    // If offer has fixed quantity, use it, else 1
+    const addQuantity = offer ? offer.quantity : 1;
+    
+    // Calculate final price with offer
+    const finalPrice = offer
+      ? offer.fixedDiscount
+        ? (product.price * offer.quantity) - offer.fixedDiscount
+        : offer.discountPercentage
+        ? (product.price * offer.quantity) * (1 - offer.discountPercentage / 100)
+        : (product.price * offer.quantity)
+      : product.price;
+
     trackEvent('AddToCart', {
       content_ids: [product.id],
       content_name: product.name,
       content_type: 'product',
       currency: 'BDT',
-      value: product.price
+      value: finalPrice
     });
+
     setCart((prevCart) => {
       const matchIndex = prevCart.findIndex(
-        (item) => item.product.id === product.id && item.selectedSize === size
+        (item) => item.product.id === product.id && item.selectedSize === size && item.selectedOffer?.id === offer?.id && JSON.stringify(item.bundleSelections?.map(p => p.id)) === JSON.stringify(bundleSelections?.map(p => p.id))
       );
-
       if (matchIndex > -1) {
-        // Increment quantity
+        // Increment quantity by offer quantity (or 1)
         const updated = [...prevCart];
-        updated[matchIndex].quantity += 1;
+        updated[matchIndex].quantity += addQuantity;
         return updated;
       } else {
-        // Add fresh item
-        return [...prevCart, { product, selectedSize: size, quantity: 1 }];
+        // Add fresh item with quantity equal to offer quantity
+        return [...prevCart, { product, selectedSize: size, quantity: addQuantity, selectedOffer: offer, bundleSelections }];
       }
     });
   };
@@ -123,11 +135,13 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
   const handleUpdateQuantity = (idx: number, change: number) => {
     setCart((prevCart) => {
       const updated = [...prevCart];
-      const newQty = updated[idx].quantity + change;
+      const item = updated[idx];
+      const step = item.selectedOffer ? item.selectedOffer.quantity : 1;
+      const newQty = item.quantity + (change * step);
       if (newQty <= 0) {
         updated.splice(idx, 1);
       } else {
-        updated[idx].quantity = newQty;
+        item.quantity = newQty;
       }
       return updated;
     });
@@ -148,8 +162,22 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
 
   // Basket summary math
   const cartItemCount = cart.reduce((acc, item) => acc + item.quantity, 0);
-  const cartSubtotal = cart.reduce((acc, item) => acc + (item.product.price * item.quantity), 0);
-  const shippingFee = shippingForm.deliveryZone === 'inside' ? 70 : 130;
+  const cartSubtotal = cart.reduce((acc, item) => {
+    const offer = item.selectedOffer;
+    if (offer) {
+      const sets = Math.floor(item.quantity / offer.quantity);
+      let offerPrice = item.product.price * offer.quantity;
+      if (offer.fixedDiscount) {
+        offerPrice -= offer.fixedDiscount;
+      } else if (offer.discountPercentage) {
+        offerPrice *= (1 - offer.discountPercentage / 100);
+      }
+      return acc + (offerPrice * sets);
+    }
+    return acc + (item.product.price * item.quantity);
+  }, 0);
+  const hasFreeShipping = cart.some(item => item.selectedOffer?.freeShipping);
+  const shippingFee = hasFreeShipping ? 0 : (shippingForm.deliveryZone === 'inside' ? 70 : 130);
   const cartTotal = cartSubtotal + shippingFee;
 
   const handleInfoSubmit = (e: React.FormEvent) => {
@@ -173,7 +201,36 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
 
     const orderId = `ORD-${Date.now().toString().slice(-6)}`;
     setLastOrderId(orderId);
-    const items = cart.map(i => ({ productName: i.product.name, quantity: i.quantity, price: i.product.price }));
+    
+    const items = cart.map(i => {
+      const offer = i.selectedOffer;
+      let finalPaidAmount = i.product.price * i.quantity;
+      let discountApplied = 0;
+      
+      if (offer) {
+        const sets = Math.floor(i.quantity / offer.quantity);
+        if (offer.fixedDiscount) {
+          discountApplied = offer.fixedDiscount * sets;
+          finalPaidAmount = (i.product.price * i.quantity) - discountApplied;
+        } else if (offer.discountPercentage) {
+          discountApplied = (i.product.price * i.quantity) * (offer.discountPercentage / 100);
+          finalPaidAmount = (i.product.price * i.quantity) - discountApplied;
+        }
+      }
+
+      return { 
+        productName: i.product.name, 
+        quantity: i.quantity, 
+        price: i.product.price,
+        selectedOfferName: offer ? offer.title : undefined,
+        discountApplied: discountApplied,
+        originalTotal: i.product.price * i.quantity,
+        finalPaidAmount: finalPaidAmount,
+        savings: discountApplied,
+        freeShipping: offer?.freeShipping,
+        bundleSelections: i.bundleSelections?.map(p => p.name)
+      };
+    });
 
     trackEvent('Purchase', {
       currency: 'BDT',
@@ -620,8 +677,14 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
         {selectedProductDetail && (
           <ProductDetail
             product={selectedProductDetail}
+            allProducts={products}
             onClose={() => setSelectedProductDetail(null)}
             onAddToCart={handleAddToCart}
+            onBuyNow={(product, size, offer, bundleSelections) => {
+              handleAddToCart(product, size, offer, bundleSelections);
+              setIsCartOpen(true);
+              setSelectedProductDetail(null);
+            }}
           />
         )}
       </AnimatePresence>
@@ -701,11 +764,40 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
                           </button>
                         </div>
 
-                        {/* Adjust details */}
                         <div className="flex justify-between items-center mt-2">
-                          <span className="font-mono text-xs font-semibold text-white">
-                            TK {(item.product.price * item.quantity).toFixed(2)}
-                          </span>
+                          <div className="flex flex-col">
+                            {item.selectedOffer && (
+                              <span className="text-[10px] bg-white/20 px-1.5 py-0.5 rounded text-white mb-1 w-fit">
+                                {item.selectedOffer.title}
+                              </span>
+                            )}
+                            {item.bundleSelections && item.bundleSelections.length > 0 && (
+                              <div className="flex flex-col gap-0.5 mb-2 mt-1">
+                                {item.bundleSelections.map((sel, idx) => (
+                                  <span key={idx} className="text-[9px] text-white/70 font-mono flex items-center gap-1">
+                                    <span className="w-1 h-1 rounded-full bg-white/40"></span>
+                                    + {sel.name}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
+                            <span className="font-mono text-xs font-semibold text-white">
+                              TK {(() => {
+                                const offer = item.selectedOffer;
+                                if (offer) {
+                                  const sets = Math.floor(item.quantity / offer.quantity);
+                                  let offerPrice = item.product.price * offer.quantity;
+                                  if (offer.fixedDiscount) {
+                                    offerPrice -= offer.fixedDiscount;
+                                  } else if (offer.discountPercentage) {
+                                    offerPrice *= (1 - offer.discountPercentage / 100);
+                                  }
+                                  return (offerPrice * sets).toFixed(2);
+                                }
+                                return (item.product.price * item.quantity).toFixed(2);
+                              })()}
+                            </span>
+                          </div>
 
                           <div className="flex items-center border border-white/20 rounded overflow-hidden bg-white/5 text-white">
                             <button

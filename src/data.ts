@@ -16,13 +16,6 @@ export const collections: Collection[] = [
     description: 'Crafted with premium imported materials that rival and often surpass the originals. Loved by a growing community of international buyers who recognize pure quality. Secure yours and feel the upgrade.',
     tagline: 'Earthy, coarse, and timeless.',
     imageUrl: 'https://ik.imagekit.io/t1q0n1ovm/WhatsApp%20Image%202026-06-17%20at%2023.40.37.jpeg?tr=w-800,f-auto,q-auto'
-  },
-  {
-    id: 'col-3',
-    name: 'BUNDLES',
-    slug: 'carry-core',
-    description: 'Reclaimed and unbleached cotton goods designed for heavy daily utility under the sun.',
-    tagline: 'Simple, raw, and enduring.'
   }
 ];
 
@@ -43,7 +36,29 @@ export const products: Product[] = [
       'Hand-sewn coconut shell buttons',
       'Pre-washed with volcanic stones for softness'
     ],
-    inStock: true
+    inStock: true,
+    offers: [
+      {
+        id: 'off-1-1',
+        title: 'GET 2 SHIRTS 15% OFF',
+        quantity: 2,
+        discountPercentage: 15,
+        freeShipping: false,
+        badgeText: 'MOST POPULAR 🔥',
+        badgeColor: 'bg-black text-white',
+        highlightColor: 'bg-red-500 text-white'
+      },
+      {
+        id: 'off-1-2',
+        title: 'GET 3 SHIRTS 30% OFF',
+        quantity: 3,
+        discountPercentage: 30,
+        freeShipping: true,
+        badgeText: 'EXCLUSIVE DEAL',
+        badgeColor: 'bg-black text-white',
+        highlightColor: 'bg-red-500 text-white'
+      }
+    ]
   },
   {
     id: 'prd-2',
@@ -78,24 +93,6 @@ export const products: Product[] = [
       'Unique flame-kissed blemishes and iron spotting',
       'Watertight interior glaze for fresh botanicals',
       'Subtle stamped maker stamp on bottom rim'
-    ],
-    inStock: true
-  },
-  {
-    id: 'prd-4',
-    name: 'Unbleached Canvas Field Tote',
-    price: 45.00,
-    description: 'An oversized, exceptionally durable carry-all designed for daily forage, books, and laptops. Features double-layered stitch points and contrast dark-olive plant-dyed shoulder straps.',
-    imageUrl: '/src/assets/images/lofi_canvas_tote_1781445732842.jpg',
-    category: 'carry-core',
-    sizes: ['One Size'],
-    materials: '18oz Hand-woven Recycled Cotton Duck',
-    story: 'Crafted without chemical bleach, this canvas retains its original seed husks and oatmeal tint. It will soften, crease, and record your travels with every trip taken.',
-    features: [
-      'Reinforced box-stitch construction on handles',
-      'Hidden interior zippered key & phone pocket',
-      'Raw cotton texture with organic seed-fleck inclusions',
-      'Ample 24L storage capacity'
     ],
     inStock: true
   },

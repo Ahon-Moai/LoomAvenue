@@ -314,11 +314,39 @@ export default function AdminPanel({ products, onUpdateProduct, onAddProduct, on
                   </div>
                   
                   <div className="flex-1 bg-black/20 rounded-xl p-4 border border-white/5">
-                    <div className="space-y-2 mb-3">
+                    <div className="space-y-3 mb-3">
                       {order.items.map((item, idx) => (
-                        <div key={idx} className="flex justify-between items-center font-sans text-sm">
-                          <span className="text-white/80"><span className="text-white/40 mr-2">{item.quantity}x</span> {item.productName}</span>
-                          <span className="font-mono text-white/70">TK {item.price.toFixed(2)}</span>
+                        <div key={idx} className="flex flex-col font-sans text-sm">
+                          <div className="flex justify-between items-start">
+                            <span className="text-white/80"><span className="text-white/40 mr-2">{item.quantity}x</span> {item.productName}</span>
+                            <span className="font-mono text-white/70">TK {item.originalTotal ? item.originalTotal.toFixed(2) : (item.price * item.quantity).toFixed(2)}</span>
+                          </div>
+                          {item.selectedOfferName && (
+                            <div className="flex justify-between items-center mt-1 pl-6">
+                              <span className="text-xs text-white/50 bg-white/10 px-1.5 py-0.5 rounded uppercase font-mono tracking-wider">{item.selectedOfferName}</span>
+                              <div className="text-xs font-mono text-right">
+                                {item.savings && item.savings > 0 ? (
+                                  <span className="text-green-400 mr-2">SAVE TK {item.savings.toFixed(2)}</span>
+                                ) : null}
+                                <span className="text-white font-bold">TK {item.finalPaidAmount ? item.finalPaidAmount.toFixed(2) : (item.price * item.quantity).toFixed(2)}</span>
+                              </div>
+                            </div>
+                          )}
+                          {item.bundleSelections && item.bundleSelections.length > 0 && (
+                            <div className="pl-6 mt-1 flex flex-col gap-0.5">
+                              {item.bundleSelections.map((sel, idx2) => (
+                                <span key={idx2} className="text-[10px] text-white/60 font-mono flex items-center gap-1">
+                                  <span className="w-1 h-1 rounded-full bg-white/40"></span>
+                                  + {sel}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                          {item.freeShipping && (
+                            <div className="pl-6 mt-1 text-[10px] text-green-400 font-mono tracking-widest uppercase">
+                              + Free Shipping
+                            </div>
+                          )}
                         </div>
                       ))}
                     </div>
@@ -491,7 +519,6 @@ export default function AdminPanel({ products, onUpdateProduct, onAddProduct, on
                   >
                     <option value="worn-textiles">Loom Avenue Caps</option>
                     <option value="earth-clay">New Era Mastercopy</option>
-                    <option value="carry-core">Bundles</option>
                   </select>
                 </div>
                 
@@ -520,6 +547,138 @@ export default function AdminPanel({ products, onUpdateProduct, onAddProduct, on
                     <div className={`absolute left-1 top-1 w-5 h-5 rounded-full bg-white transition-transform ${editForm.inStock ? 'translate-x-5' : 'translate-x-0'} shadow-sm`}></div>
                   </div>
                 </label>
+
+                {/* Offer Management Section */}
+                <div className="pt-6 border-t border-white/10 mt-6 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <label className="block text-[10px] font-mono text-white/50 uppercase tracking-widest ml-1">Offers</label>
+                    <button
+                      onClick={() => {
+                        if (!editForm) return;
+                        const newOffer: import('../types').Offer = {
+                          id: `off-${Date.now()}`,
+                          title: 'NEW OFFER',
+                          quantity: 2,
+                          freeShipping: false
+                        };
+                        setEditForm({ ...editForm, offers: [...(editForm.offers || []), newOffer] });
+                      }}
+                      className="text-xs text-white/70 hover:text-white flex items-center gap-1 bg-white/10 px-2 py-1 rounded"
+                    >
+                      <Plus className="w-3 h-3" /> Add Offer
+                    </button>
+                  </div>
+                  {editForm.offers?.map((offer, idx) => (
+                    <div key={offer.id} className="p-4 bg-white/5 border border-white/10 rounded-xl space-y-3 relative group">
+                      <button
+                        onClick={() => {
+                          const newOffers = editForm.offers?.filter(o => o.id !== offer.id);
+                          setEditForm({ ...editForm, offers: newOffers });
+                        }}
+                        className="absolute top-2 right-2 text-white/40 hover:text-red-400 p-1 bg-black/40 rounded opacity-0 group-hover:opacity-100 transition-opacity"
+                        title="Delete Offer"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                      
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-[10px] font-mono text-white/40 uppercase mb-1">Title</label>
+                          <input
+                            value={offer.title}
+                            onChange={e => {
+                              const newOffers = [...(editForm.offers || [])];
+                              newOffers[idx].title = e.target.value;
+                              setEditForm({ ...editForm, offers: newOffers });
+                            }}
+                            className="w-full bg-black/30 border border-white/10 rounded p-2 text-xs text-white"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] font-mono text-white/40 uppercase mb-1">Quantity</label>
+                          <input
+                            type="number"
+                            value={offer.quantity}
+                            onChange={e => {
+                              const newOffers = [...(editForm.offers || [])];
+                              newOffers[idx].quantity = parseInt(e.target.value) || 1;
+                              setEditForm({ ...editForm, offers: newOffers });
+                            }}
+                            className="w-full bg-black/30 border border-white/10 rounded p-2 text-xs text-white"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] font-mono text-white/40 uppercase mb-1">Discount %</label>
+                          <input
+                            type="number"
+                            value={offer.discountPercentage || ''}
+                            onChange={e => {
+                              const newOffers = [...(editForm.offers || [])];
+                              newOffers[idx].discountPercentage = e.target.value ? parseFloat(e.target.value) : undefined;
+                              setEditForm({ ...editForm, offers: newOffers });
+                            }}
+                            className="w-full bg-black/30 border border-white/10 rounded p-2 text-xs text-white"
+                            placeholder="e.g. 15"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] font-mono text-white/40 uppercase mb-1">Fixed Discount (TK)</label>
+                          <input
+                            type="number"
+                            value={offer.fixedDiscount || ''}
+                            onChange={e => {
+                              const newOffers = [...(editForm.offers || [])];
+                              newOffers[idx].fixedDiscount = e.target.value ? parseFloat(e.target.value) : undefined;
+                              setEditForm({ ...editForm, offers: newOffers });
+                            }}
+                            className="w-full bg-black/30 border border-white/10 rounded p-2 text-xs text-white"
+                            placeholder="e.g. 200"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] font-mono text-white/40 uppercase mb-1">Badge Text</label>
+                          <input
+                            value={offer.badgeText || ''}
+                            onChange={e => {
+                              const newOffers = [...(editForm.offers || [])];
+                              newOffers[idx].badgeText = e.target.value;
+                              setEditForm({ ...editForm, offers: newOffers });
+                            }}
+                            className="w-full bg-black/30 border border-white/10 rounded p-2 text-xs text-white"
+                            placeholder="e.g. MOST POPULAR 🔥"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] font-mono text-white/40 uppercase mb-1">Badge Color</label>
+                          <input
+                            value={offer.badgeColor || ''}
+                            onChange={e => {
+                              const newOffers = [...(editForm.offers || [])];
+                              newOffers[idx].badgeColor = e.target.value;
+                              setEditForm({ ...editForm, offers: newOffers });
+                            }}
+                            className="w-full bg-black/30 border border-white/10 rounded p-2 text-xs text-white"
+                            placeholder="e.g. bg-black text-white"
+                          />
+                        </div>
+                      </div>
+                      
+                      <label className="flex items-center gap-2 cursor-pointer pt-1">
+                        <input
+                          type="checkbox"
+                          checked={offer.freeShipping}
+                          onChange={e => {
+                            const newOffers = [...(editForm.offers || [])];
+                            newOffers[idx].freeShipping = e.target.checked;
+                            setEditForm({ ...editForm, offers: newOffers });
+                          }}
+                        />
+                        <span className="text-xs text-white/80">Free Shipping</span>
+                      </label>
+                    </div>
+                  ))}
+                </div>
+
               </div>
               
               <button 
