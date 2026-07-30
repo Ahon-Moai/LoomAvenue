@@ -60,8 +60,7 @@ export default function SharedBackground() {
           videoLoaded ? 'opacity-80 scale-100' : 'opacity-0 scale-102'
         }`}
       >
-        <source src="https://res.cloudinary.com/deyatjand/video/upload/f_webm,q_auto:eco,vc_vp9,ac_none,w_1920,c_limit/v1781444886/the-hidden-ivy-cafe-moewalls-com_yrdaqh.webm" type="video/webm" />
-        <source src="https://res.cloudinary.com/deyatjand/video/upload/f_mp4,q_auto:eco,vc_h264,ac_none,w_1920,c_limit/v1781444886/the-hidden-ivy-cafe-moewalls-com_yrdaqh.mp4" type="video/mp4" />
+        <source src="/entrance-video.mp4" type="video/mp4" />
       </video>
 
       {/* Earthy Muted Overlay from Design HTML */}

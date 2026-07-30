@@ -7,7 +7,7 @@ export const collections: Collection[] = [
     slug: 'worn-textiles',
     description: 'Meticulously sourced premium fabrics, perfected through strict quality control. Investing in a cap means securing a flawless win.',
     tagline: 'Wear it, live it, own it.',
-    imageUrl: 'https://res.cloudinary.com/deyatjand/image/upload/f_auto,q_auto/v1782924586/a29a51d3-ae0e-4657-99ff-0e77e555807c.png'
+    imageUrl: '/loom-avenue.jpeg'
   },
   {
     id: 'col-2',
@@ -15,7 +15,7 @@ export const collections: Collection[] = [
     slug: 'earth-clay',
     description: 'Crafted with premium imported materials that rival and often surpass the originals. Loved by a growing community of international buyers who recognize pure quality. Secure yours and feel the upgrade.',
     tagline: 'Earthy, coarse, and timeless.',
-    imageUrl: 'https://res.cloudinary.com/deyatjand/image/upload/v1783267778/new-era-logo-png_seeklogo-297534_gdeasw.png'
+    imageUrl: '/new-era.jpeg'
   },
   {
     id: 'col-3',
