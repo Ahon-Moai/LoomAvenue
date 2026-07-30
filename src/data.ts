@@ -1,6 +1,4 @@
 import { Product, Collection } from './types';
-import loomAvenueImage from './assets/loom-avenue.jpeg';
-import newEraImage from './assets/new-era.jpeg';
 
 export const collections: Collection[] = [
   {
@@ -9,7 +7,7 @@ export const collections: Collection[] = [
     slug: 'worn-textiles',
     description: 'Meticulously sourced premium fabrics, perfected through strict quality control. Investing in a cap means securing a flawless win.',
     tagline: 'Wear it, live it, own it.',
-    imageUrl: loomAvenueImage
+    imageUrl: 'https://ik.imagekit.io/t1q0n1ovm/WhatsApp%20Image%202026-07-14%20at%2023.26.55(1).jpeg?tr=w-800,f-auto,q-auto'
   },
   {
     id: 'col-2',
@@ -17,7 +15,7 @@ export const collections: Collection[] = [
     slug: 'earth-clay',
     description: 'Crafted with premium imported materials that rival and often surpass the originals. Loved by a growing community of international buyers who recognize pure quality. Secure yours and feel the upgrade.',
     tagline: 'Earthy, coarse, and timeless.',
-    imageUrl: newEraImage
+    imageUrl: 'https://ik.imagekit.io/t1q0n1ovm/WhatsApp%20Image%202026-06-17%20at%2023.40.37.jpeg?tr=w-800,f-auto,q-auto'
   },
   {
     id: 'col-3',
