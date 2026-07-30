@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import entranceVideo from '../assets/entrance-video.mp4';
 
 export default function SharedBackground() {
   const [videoLoaded, setVideoLoaded] = useState(false);
@@ -60,7 +61,7 @@ export default function SharedBackground() {
           videoLoaded ? 'opacity-80 scale-100' : 'opacity-0 scale-102'
         }`}
       >
-        <source src="/entrance-video.mp4" type="video/mp4" />
+        <source src={entranceVideo} type="video/mp4" />
       </video>
 
       {/* Earthy Muted Overlay from Design HTML */}
