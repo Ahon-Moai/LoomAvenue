@@ -60,8 +60,7 @@ export default function SharedBackground() {
           videoLoaded ? 'opacity-80 scale-100' : 'opacity-0 scale-102'
         }`}
       >
-        <source src="https://ik.imagekit.io/t1q0n1ovm/the-hidden-ivy-cafe-moewalls-com.mp4?tr=f-webm,q-auto" type="video/webm" />
-        <source src="https://ik.imagekit.io/t1q0n1ovm/the-hidden-ivy-cafe-moewalls-com.mp4?tr=f-mp4,q-auto" type="video/mp4" />
+        <source src="https://ik.imagekit.io/t1q0n1ovm/the-hidden-ivy-cafe-moewalls-com.mp4" type="video/mp4" />
       </video>
 
       {/* Earthy Muted Overlay from Design HTML */}
