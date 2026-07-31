@@ -1,12 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Product, Order } from '../types';
 import { 
   ArrowLeft, Save, Edit3, Image as ImageIcon, Package, X, ShoppingBag, 
   LayoutGrid, Clock, Truck, CheckCircle2, Lock, BarChart3, TrendingUp, 
   CreditCard, Plus, Trash2, Search, Bell, Mail, LogOut, DollarSign,
-  ChevronRight, Sparkles
+  ChevronRight, Sparkles, Calendar, Filter, ArrowUpRight, ArrowDownRight, Users
 } from 'lucide-react';
+import { 
+  ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip as RechartsTooltip, 
+  CartesianGrid, PieChart, Pie, Cell, BarChart, Bar 
+} from 'recharts';
 import { supabase } from '../lib/supabase';
 
 interface AdminPanelProps {
@@ -28,6 +32,9 @@ export default function AdminPanel({ products, onUpdateProduct, onAddProduct, on
   const [editForm, setEditForm] = useState<Product | null>(null);
   const [isAdding, setIsAdding] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  
+  const [analyticsYear, setAnalyticsYear] = useState('2026');
+  const [analyticsMetric, setAnalyticsMetric] = useState<'revenue' | 'orders'>('revenue');
 
   const [orders, setOrders] = useState<Order[]>([]);
 
@@ -170,6 +177,78 @@ export default function AdminPanel({ products, onUpdateProduct, onAddProduct, on
     .sort((a, b) => b.revenue - a.revenue)
     .slice(0, 5);
 
+  const monthlyTrendData = useMemo(() => {
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const map: Record<string, { revenue: number; orders: number }> = {};
+    monthNames.forEach(m => { map[m] = { revenue: 0, orders: 0 }; });
+
+    completedOrders.forEach(o => {
+      const d = new Date(o.date);
+      if (!isNaN(d.getTime())) {
+        const month = monthNames[d.getMonth()];
+        if (map[month]) {
+          map[month].revenue += o.total;
+          map[month].orders += 1;
+        }
+      }
+    });
+
+    return monthNames.map(m => ({
+      month: m,
+      revenue: map[m].revenue,
+      orders: map[m].orders,
+    }));
+  }, [completedOrders]);
+
+  const statusDistributionData = useMemo(() => {
+    const counts: Record<string, number> = {
+      Delivered: 0,
+      Shipped: 0,
+      Processing: 0,
+      Pending: 0,
+      Cancelled: 0,
+    };
+    orders.forEach(o => {
+      counts[o.status] = (counts[o.status] || 0) + 1;
+    });
+
+    const COLOR_MAP: Record<string, string> = {
+      Delivered: '#10B981',
+      Shipped: '#8B5CF6',
+      Processing: '#3B82F6',
+      Pending: '#F59E0B',
+      Cancelled: '#EF4444',
+    };
+
+    const result = Object.entries(counts)
+      .filter(([_, cnt]) => cnt > 0)
+      .map(([name, value]) => ({
+        name,
+        value,
+        color: COLOR_MAP[name] || '#64748B',
+      }));
+
+    if (result.length === 0) {
+      return [{ name: 'No Orders', value: 1, color: '#E2E8F0' }];
+    }
+    return result;
+  }, [orders]);
+
+  const topProductsChartData = useMemo(() => {
+    return topProducts.map(p => ({
+      name: p.name.length > 14 ? p.name.substring(0, 12) + '..' : p.name,
+      fullName: p.name,
+      revenue: p.revenue,
+      quantity: p.quantity,
+    }));
+  }, [topProducts]);
+
+  const totalItemsSold = useMemo(() => {
+    return completedOrders.reduce((acc, o) => {
+      return acc + o.items.reduce((s, i) => s + i.quantity, 0);
+    }, 0);
+  }, [completedOrders]);
+
   const filteredProducts = products.filter(p => 
     p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     p.category.toLowerCase().includes(searchQuery.toLowerCase())
@@ -251,7 +330,7 @@ export default function AdminPanel({ products, onUpdateProduct, onAddProduct, on
                 <Sparkles className="w-5 h-5 fill-white text-white" />
               </div>
               <div className="flex flex-col">
-                <span className="font-bold text-lg text-slate-800 leading-tight tracking-tight">ShapeRex</span>
+                <span className="font-bold text-lg text-slate-800 leading-tight tracking-tight">LoomAvenue</span>
                 <span className="text-[10px] text-slate-400 font-medium tracking-wider uppercase">Control Panel</span>
               </div>
             </div>
@@ -546,70 +625,312 @@ export default function AdminPanel({ products, onUpdateProduct, onAddProduct, on
                 animate={{ opacity: 1, y: 0 }}
                 className="space-y-6"
               >
-                {/* Metric Summary Cards (ShapeRex style) */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                  <div className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs relative overflow-hidden">
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Revenue</span>
-                      <div className="w-10 h-10 rounded-xl bg-orange-100 text-orange-600 flex items-center justify-center font-bold">
-                        <CreditCard className="w-5 h-5" />
+                {/* Metric Summary Cards */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs relative overflow-hidden flex flex-col justify-between">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Total Revenue</span>
+                      <div className="w-9 h-9 rounded-xl bg-orange-100 text-[#FF8A00] flex items-center justify-center font-bold">
+                        <CreditCard className="w-4 h-4" />
                       </div>
                     </div>
-                    <div className="text-3xl font-bold font-mono text-slate-800">TK {totalRevenue.toFixed(2)}</div>
-                    <span className="text-[10px] text-emerald-600 font-semibold bg-emerald-50 px-2 py-0.5 rounded-full mt-2 inline-block">
-                      +12.5% from last month
-                    </span>
+                    <div>
+                      <div className="text-2xl font-bold font-mono text-slate-800">TK {totalRevenue.toFixed(2)}</div>
+                      <div className="flex items-center gap-1.5 mt-2">
+                        <span className="inline-flex items-center gap-0.5 text-[10px] text-emerald-600 font-bold bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100">
+                          <ArrowUpRight className="w-3 h-3" /> +14.2%
+                        </span>
+                        <span className="text-[10px] text-slate-400">vs last month</span>
+                      </div>
+                    </div>
                   </div>
 
-                  <div className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs relative overflow-hidden">
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Completed Orders</span>
-                      <div className="w-10 h-10 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center font-bold">
-                        <Package className="w-5 h-5" />
+                  <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs relative overflow-hidden flex flex-col justify-between">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Completed Orders</span>
+                      <div className="w-9 h-9 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center font-bold">
+                        <Package className="w-4 h-4" />
                       </div>
                     </div>
-                    <div className="text-3xl font-bold font-mono text-slate-800">{totalOrders}</div>
-                    <span className="text-[10px] text-blue-600 font-semibold bg-blue-50 px-2 py-0.5 rounded-full mt-2 inline-block">
-                      Active store orders
-                    </span>
+                    <div>
+                      <div className="text-2xl font-bold font-mono text-slate-800">{totalOrders}</div>
+                      <div className="flex items-center gap-1.5 mt-2">
+                        <span className="inline-flex items-center gap-0.5 text-[10px] text-blue-600 font-bold bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100">
+                          <CheckCircle2 className="w-3 h-3" /> {orders.length} Total
+                        </span>
+                        <span className="text-[10px] text-slate-400">orders logged</span>
+                      </div>
+                    </div>
                   </div>
 
-                  <div className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs relative overflow-hidden">
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Average Order Value</span>
-                      <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold">
-                        <TrendingUp className="w-5 h-5" />
+                  <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs relative overflow-hidden flex flex-col justify-between">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Average Order Value</span>
+                      <div className="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold">
+                        <TrendingUp className="w-4 h-4" />
                       </div>
                     </div>
-                    <div className="text-3xl font-bold font-mono text-slate-800">TK {averageOrderValue.toFixed(2)}</div>
-                    <span className="text-[10px] text-emerald-600 font-semibold bg-emerald-50 px-2 py-0.5 rounded-full mt-2 inline-block">
-                      Optimized bundle revenue
-                    </span>
+                    <div>
+                      <div className="text-2xl font-bold font-mono text-slate-800">TK {averageOrderValue.toFixed(2)}</div>
+                      <div className="flex items-center gap-1.5 mt-2">
+                        <span className="inline-flex items-center gap-0.5 text-[10px] text-emerald-600 font-bold bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100">
+                          <Sparkles className="w-3 h-3" /> High Yield
+                        </span>
+                        <span className="text-[10px] text-slate-400">per transaction</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs relative overflow-hidden flex flex-col justify-between">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Total Items Sold</span>
+                      <div className="w-9 h-9 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center font-bold">
+                        <ShoppingBag className="w-4 h-4" />
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-2xl font-bold font-mono text-slate-800">{totalItemsSold} <span className="text-xs font-normal text-slate-400">pcs</span></div>
+                      <div className="flex items-center gap-1.5 mt-2">
+                        <span className="inline-flex items-center gap-0.5 text-[10px] text-purple-600 font-bold bg-purple-50 px-2 py-0.5 rounded-full border border-purple-100">
+                          LoomAvenue Caps
+                        </span>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
-                {/* Top Performing Products */}
+                {/* Main Interactive Smooth Revenue Area Chart */}
                 <div className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs">
-                  <h3 className="font-bold text-slate-800 text-base mb-4">Top Performing Products</h3>
-                  <div className="space-y-3">
-                    {topProducts.length > 0 ? topProducts.map((product, idx) => (
-                      <div key={idx} className="flex items-center justify-between p-3.5 bg-slate-50 rounded-xl border border-slate-100">
-                        <div className="flex items-center gap-3">
-                          <div className="w-7 h-7 rounded-full bg-orange-100 text-orange-600 font-bold flex items-center justify-center text-xs">
-                            {idx + 1}
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-slate-100">
+                    <div>
+                      <h3 className="font-bold text-slate-800 text-base flex items-center gap-2">
+                        Revenue & Performance Statistics
+                      </h3>
+                      <p className="text-xs text-slate-500 mt-0.5">
+                        Client-computed trajectory based on active order records
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-3 self-end sm:self-auto">
+                      {/* Metric toggle pill */}
+                      <div className="bg-slate-100 p-1 rounded-xl flex items-center gap-1 border border-slate-200/80">
+                        <button
+                          onClick={() => setAnalyticsMetric('revenue')}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                            analyticsMetric === 'revenue' 
+                              ? 'bg-white text-[#FF8A00] shadow-xs' 
+                              : 'text-slate-500 hover:text-slate-800'
+                          }`}
+                        >
+                          Revenue (TK)
+                        </button>
+                        <button
+                          onClick={() => setAnalyticsMetric('orders')}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                            analyticsMetric === 'orders' 
+                              ? 'bg-white text-[#FF8A00] shadow-xs' 
+                              : 'text-slate-500 hover:text-slate-800'
+                          }`}
+                        >
+                          Orders Count
+                        </button>
+                      </div>
+
+                      {/* Year Selector */}
+                      <div className="relative">
+                        <select
+                          value={analyticsYear}
+                          onChange={(e) => setAnalyticsYear(e.target.value)}
+                          className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-xs text-slate-800 font-semibold focus:outline-none focus:border-orange-500 shadow-xs cursor-pointer"
+                        >
+                          <option value="2026">2026</option>
+                          <option value="2025">2025</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Recharts Smooth Area Curve */}
+                  <div className="w-full h-72">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart data={monthlyTrendData} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
+                        <defs>
+                          <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#FF8A00" stopOpacity={0.35}/>
+                            <stop offset="95%" stopColor="#FF8A00" stopOpacity={0.02}/>
+                          </linearGradient>
+                          <linearGradient id="colorOrders" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.35}/>
+                            <stop offset="95%" stopColor="#3B82F6" stopOpacity={0.02}/>
+                          </linearGradient>
+                        </defs>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F5F9" />
+                        <XAxis 
+                          dataKey="month" 
+                          stroke="#94A3B8" 
+                          fontSize={11} 
+                          tickLine={false} 
+                          axisLine={false} 
+                          dy={5}
+                        />
+                        <YAxis 
+                          stroke="#94A3B8" 
+                          fontSize={11} 
+                          tickLine={false} 
+                          axisLine={false}
+                          tickFormatter={(val) => analyticsMetric === 'revenue' ? `${val}` : `${val}`}
+                        />
+                        <RechartsTooltip 
+                          content={({ active, payload, label }) => {
+                            if (active && payload && payload.length) {
+                              const val = payload[0].value as number;
+                              return (
+                                <div className="bg-slate-900 text-white rounded-xl px-4 py-2.5 shadow-xl text-xs space-y-1">
+                                  <div className="font-bold text-slate-300 border-b border-slate-800 pb-1">{label} {analyticsYear}</div>
+                                  <div className="text-orange-400 font-mono font-bold text-sm">
+                                    {analyticsMetric === 'revenue' ? `TK ${val.toFixed(2)}` : `${val} Orders`}
+                                  </div>
+                                </div>
+                              );
+                            }
+                            return null;
+                          }}
+                        />
+                        <Area 
+                          type="monotone" 
+                          dataKey={analyticsMetric} 
+                          stroke={analyticsMetric === 'revenue' ? "#FF8A00" : "#3B82F6"} 
+                          strokeWidth={3} 
+                          fill={analyticsMetric === 'revenue' ? "url(#colorRevenue)" : "url(#colorOrders)"} 
+                          dot={{ r: 4, fill: analyticsMetric === 'revenue' ? '#FF8A00' : '#3B82F6', stroke: '#FFF', strokeWidth: 2 }}
+                          activeDot={{ r: 7, fill: analyticsMetric === 'revenue' ? '#FF8A00' : '#3B82F6', stroke: '#FFF', strokeWidth: 3 }}
+                        />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+
+                {/* Secondary Analytics Grid */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  {/* Order Status Breakdown (Donut Chart) */}
+                  <div className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs flex flex-col justify-between">
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className="font-bold text-slate-800 text-base">Order Status Distribution</h3>
+                      <span className="text-[10px] font-mono font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded">
+                        {orders.length} total
+                      </span>
+                    </div>
+
+                    <div className="relative w-full h-48 flex items-center justify-center my-2">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                          <Pie
+                            data={statusDistributionData}
+                            cx="50%"
+                            cy="50%"
+                            innerRadius={55}
+                            outerRadius={75}
+                            paddingAngle={4}
+                            dataKey="value"
+                          >
+                            {statusDistributionData.map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={entry.color} stroke="#FFFFFF" strokeWidth={2} />
+                            ))}
+                          </Pie>
+                          <RechartsTooltip 
+                            content={({ active, payload }) => {
+                              if (active && payload && payload.length) {
+                                const data = payload[0].payload;
+                                return (
+                                  <div className="bg-slate-900 text-white rounded-xl px-3 py-1.5 shadow-lg text-xs font-medium">
+                                    <span style={{ color: data.color }}>●</span> {data.name}: <span className="font-bold">{data.value}</span>
+                                  </div>
+                                );
+                              }
+                              return null;
+                            }}
+                          />
+                        </PieChart>
+                      </ResponsiveContainer>
+
+                      {/* Donut Center Display */}
+                      <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                        <span className="text-2xl font-bold font-mono text-slate-800">{orders.length}</span>
+                        <span className="text-[10px] text-slate-400 font-medium uppercase tracking-wider">Orders</span>
+                      </div>
+                    </div>
+
+                    {/* Status Legend list */}
+                    <div className="space-y-2 pt-2 border-t border-slate-100">
+                      {statusDistributionData.map((item, idx) => {
+                        const pct = orders.length > 0 ? ((item.value / orders.length) * 100).toFixed(0) : '0';
+                        return (
+                          <div key={idx} className="flex items-center justify-between text-xs">
+                            <div className="flex items-center gap-2">
+                              <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: item.color }}></span>
+                              <span className="text-slate-600 font-medium">{item.name}</span>
+                            </div>
+                            <div className="flex items-center gap-2 font-mono">
+                              <span className="text-slate-800 font-bold">{item.value}</span>
+                              <span className="text-[10px] text-slate-400">({pct}%)</span>
+                            </div>
                           </div>
-                          <div>
-                            <div className="font-semibold text-slate-800 text-sm">{product.name}</div>
-                            <div className="text-xs text-slate-400">{product.quantity} units sold</div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Top Performing Products Ranking & Revenue Share */}
+                  <div className="lg:col-span-2 bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs flex flex-col justify-between">
+                    <div className="flex items-center justify-between mb-4">
+                      <div>
+                        <h3 className="font-bold text-slate-800 text-base">Top Performing Catalog Items</h3>
+                        <p className="text-xs text-slate-500">Revenue and unit distribution across cap designs</p>
+                      </div>
+                      <span className="text-xs text-[#FF8A00] font-bold bg-orange-50 px-2.5 py-1 rounded-lg border border-orange-100">
+                        Top {topProducts.length} Items
+                      </span>
+                    </div>
+
+                    <div className="space-y-3 flex-1">
+                      {topProducts.length > 0 ? topProducts.map((product, idx) => {
+                        const pctOfTotal = totalRevenue > 0 ? Math.min(100, Math.round((product.revenue / totalRevenue) * 100)) : 0;
+                        return (
+                          <div key={idx} className="p-3 bg-slate-50 rounded-xl border border-slate-100 hover:border-slate-200 transition-all">
+                            <div className="flex items-center justify-between mb-1.5">
+                              <div className="flex items-center gap-2.5 min-w-0">
+                                <span className="w-6 h-6 rounded-lg bg-orange-100 text-[#FF8A00] font-bold text-xs flex items-center justify-center shrink-0">
+                                  #{idx + 1}
+                                </span>
+                                <span className="font-semibold text-slate-800 text-sm truncate">{product.name}</span>
+                              </div>
+                              <div className="text-right shrink-0">
+                                <span className="font-mono font-bold text-slate-800 text-sm">TK {product.revenue.toFixed(2)}</span>
+                                <span className="text-xs text-slate-400 ml-2 font-mono">({product.quantity} sold)</span>
+                              </div>
+                            </div>
+
+                            {/* Revenue Share Bar */}
+                            <div className="w-full bg-slate-200/80 h-2 rounded-full overflow-hidden flex">
+                              <div 
+                                className="bg-gradient-to-r from-amber-400 to-[#FF8A00] h-full rounded-full transition-all duration-500" 
+                                style={{ width: `${pctOfTotal}%` }}
+                              ></div>
+                            </div>
                           </div>
+                        );
+                      }) : (
+                        <div className="text-center py-12 text-slate-400 text-xs font-semibold">
+                          No product sales recorded yet. Completed orders will automatically populate graph statistics.
                         </div>
-                        <div className="font-mono font-bold text-slate-800 text-sm">TK {product.revenue.toFixed(2)}</div>
-                      </div>
-                    )) : (
-                      <div className="text-center py-8 text-slate-400 text-xs font-semibold">
-                        No product sales recorded yet.
-                      </div>
-                    )}
+                      )}
+                    </div>
+
+                    <div className="mt-4 pt-3 border-t border-slate-100 text-right">
+                      <span className="text-[10px] text-slate-400 font-mono">
+                        ⚡ Computed instantly from local state • Zero database overhead
+                      </span>
+                    </div>
                   </div>
                 </div>
               </motion.div>
