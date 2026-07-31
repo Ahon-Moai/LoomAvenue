@@ -69,44 +69,45 @@ export default function ProductDetail({ product, allProducts, onClose, onAddToCa
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.98, y: 20 }}
         transition={{ type: 'spring', damping: 26, stiffness: 220 }}
-        className="relative w-full h-full max-w-6xl mx-auto sm:h-[90vh] sm:rounded-2xl bg-[#13110d]/95 backdrop-blur-3xl shadow-2xl flex flex-col md:flex-row overflow-hidden z-10 border border-white/20"
+        className="relative w-full h-full max-w-6xl mx-auto sm:h-[90vh] sm:rounded-2xl bg-[#13110d]/95 backdrop-blur-3xl shadow-2xl flex flex-col md:flex-row overflow-y-auto md:overflow-hidden z-10 border border-white/20"
       >
         {/* Close Button Mobile (Absolute) */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 z-50 p-2 bg-black/40 hover:bg-black/60 rounded-full text-white transition-colors md:hidden"
+          className="absolute top-3 right-3 z-50 p-2.5 bg-black/60 hover:bg-black/80 rounded-full text-white transition-colors md:hidden border border-white/20 shadow-lg"
+          title="Close"
         >
           <X className="w-5 h-5" />
         </button>
 
         {/* Left Side: Images */}
-        <div className="w-full md:w-1/2 h-[45vh] md:h-full bg-black/20 flex flex-col p-6 sm:p-8">
-          <div className="flex-1 relative w-full rounded-lg overflow-hidden bg-white/5 border border-white/10 mb-4 transition-opacity duration-300">
+        <div className="w-full md:w-1/2 min-h-[58vh] sm:min-h-[50vh] md:h-full bg-black/30 flex flex-col p-3 sm:p-8 shrink-0">
+          <div className="flex-1 relative w-full min-h-[320px] sm:min-h-[380px] rounded-xl overflow-hidden bg-white/5 border border-white/10 mb-3 sm:mb-4 flex items-center justify-center transition-opacity duration-300">
             <img
               src={currentImage}
               alt={product.name}
               referrerPolicy="no-referrer"
-              className="w-full h-full object-contain p-4"
+              className="w-full h-full object-contain p-1 sm:p-4"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
           </div>
 
           {/* Thumbnail Gallery */}
           {(product.additionalImages && product.additionalImages.length > 0) && (
-            <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2">
+            <div className="flex gap-2.5 sm:gap-3 overflow-x-auto no-scrollbar pb-1">
               <button 
                 onClick={() => setCurrentImage(product.imageUrl)}
-                className={`relative w-20 h-20 rounded-xl overflow-hidden shrink-0 border-2 transition-all bg-white/5 ${currentImage === product.imageUrl ? 'border-white' : 'border-transparent opacity-60 hover:opacity-100'}`}
+                className={`relative w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden shrink-0 border-2 transition-all bg-white/5 ${currentImage === product.imageUrl ? 'border-white ring-2 ring-white/30' : 'border-transparent opacity-60 hover:opacity-100'}`}
               >
-                <img src={product.imageUrl} alt={`${product.name} thumbnail`} className="w-full h-full object-contain" />
+                <img src={product.imageUrl} alt={`${product.name} thumbnail`} className="w-full h-full object-contain p-1" />
               </button>
               {product.additionalImages.map((imgUrl, idx) => (
                 <button 
                   key={idx}
                   onClick={() => setCurrentImage(imgUrl)}
-                  className={`relative w-20 h-20 rounded-xl overflow-hidden shrink-0 border-2 transition-all bg-white/5 ${currentImage === imgUrl ? 'border-white' : 'border-transparent opacity-60 hover:opacity-100'}`}
+                  className={`relative w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden shrink-0 border-2 transition-all bg-white/5 ${currentImage === imgUrl ? 'border-white ring-2 ring-white/30' : 'border-transparent opacity-60 hover:opacity-100'}`}
                 >
-                  <img src={imgUrl} alt={`${product.name} view ${idx + 1}`} className="w-full h-full object-contain" />
+                  <img src={imgUrl} alt={`${product.name} view ${idx + 1}`} className="w-full h-full object-contain p-1" />
                 </button>
               ))}
             </div>
