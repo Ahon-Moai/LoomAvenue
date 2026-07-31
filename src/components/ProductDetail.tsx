@@ -196,9 +196,28 @@ export default function ProductDetail({ product, allProducts, onClose, onAddToCa
                   {/* Offers */}
                   {product.offers.map(offer => {
                     const isSelected = selectedOfferId === offer.id;
-                    const originalPrice = product.price * offer.quantity;
-                    const discount = offer.fixedDiscount || (originalPrice * (offer.discountPercentage || 0) / 100);
-                    const finalPrice = originalPrice - discount;
+
+                    // Calculate combined original price of main cap + selected bundle caps
+                    let originalPrice = product.price;
+                    const hasAllSelections = !isSelected || offer.quantity <= 1 || bundleSelections.length >= offer.quantity - 1;
+
+                    if (isSelected && offer.quantity > 1) {
+                      for (let i = 0; i < offer.quantity - 1; i++) {
+                        if (bundleSelections[i]) {
+                          originalPrice += bundleSelections[i].price;
+                        } else {
+                          originalPrice += product.price; // fallback estimate before choice
+                        }
+                      }
+                    } else {
+                      originalPrice = product.price * offer.quantity;
+                    }
+
+                    const discountPercentage = offer.discountPercentage || 0;
+                    const discount = offer.fixedDiscount 
+                      ? offer.fixedDiscount 
+                      : (discountPercentage > 0 ? (originalPrice * (discountPercentage / 100)) : 0);
+                    const finalPrice = Math.max(0, originalPrice - discount);
 
                     return (
                       <div key={offer.id} className={`block relative border rounded-lg p-4 transition-all ${
@@ -224,19 +243,24 @@ export default function ProductDetail({ product, allProducts, onClose, onAddToCa
                                 {offer.title}
                               </span>
                             </div>
-                            <span className={`font-mono text-sm font-bold ${
-                              isSelected ? 'text-black' : 'text-white'
-                            }`}>
-                              TK {finalPrice.toFixed(2)}
-                            </span>
+                            <div className="text-right">
+                              <span className={`font-mono text-sm font-bold ${
+                                isSelected ? 'text-black' : 'text-white'
+                              }`}>
+                                TK {finalPrice.toFixed(2)}
+                              </span>
+                            </div>
                           </div>
 
                           <div className="flex items-center justify-between ml-7">
                             <div className="flex flex-col">
                               <span className={`text-xs ${
-                                isSelected ? 'text-black/60' : 'text-white/60'
+                                isSelected ? 'text-black/70 font-medium' : 'text-white/60'
                               }`}>
-                                Choose {offer.quantity} {offer.quantity > 1 ? 'caps' : 'cap'} here 👇
+                                {offer.quantity > 1 
+                                  ? `Choose ${offer.quantity} caps (${discountPercentage}% OFF) 👇`
+                                  : `Special Deal (${discountPercentage}% OFF)`
+                                }
                               </span>
                             </div>
                             <div className="flex flex-col items-end">
@@ -247,7 +271,7 @@ export default function ProductDetail({ product, allProducts, onClose, onAddToCa
                               </span>
                               {discount > 0 && (
                                 <span className={`text-[10px] px-1.5 py-0.5 rounded font-mono mt-1 ${offer.highlightColor || 'bg-red-500 text-white'}`}>
-                                  SAVE TK {discount.toFixed(0)}
+                                  SAVE TK {discount.toFixed(0)} ({discountPercentage}% OFF)
                                 </span>
                               )}
                             </div>
@@ -267,45 +291,79 @@ export default function ProductDetail({ product, allProducts, onClose, onAddToCa
 
                         {isSelected && offer.quantity > 1 && (
                            <div className="mt-4 pt-4 border-t border-black/10 ml-7 space-y-3">
-                             <div className="flex items-center justify-between">
+                             <div className="text-[11px] font-mono font-bold uppercase text-black/70">
+                               Selected Bundle Items ({1 + bundleSelections.length}/{offer.quantity}):
+                             </div>
+
+                             {/* Cap 1: Main Product */}
+                             <div className="flex items-center justify-between bg-black/5 p-2 rounded-lg">
                                <div className="flex items-center gap-3">
-                                 <img src={product.imageUrl} className="w-10 h-10 rounded object-contain bg-black/5 p-1" alt={product.name} />
-                                 <span className="text-black text-[11px] font-bold uppercase">{product.name}</span>
+                                 <img src={product.imageUrl} className="w-10 h-10 rounded object-contain bg-white p-1 border border-black/10" alt={product.name} />
+                                 <div className="flex flex-col">
+                                   <span className="text-black text-[11px] font-bold uppercase">{product.name}</span>
+                                   <span className="text-black/60 text-[10px] font-mono">TK {product.price.toFixed(2)}</span>
+                                 </div>
                                </div>
+                               <span className="text-[10px] font-mono bg-black/10 text-black px-2 py-0.5 rounded font-bold">Cap 1</span>
                              </div>
                              
+                             {/* Cap 2..N: Selected bundle caps */}
                              {bundleSelections.map((sel, idx) => (
-                               <div key={idx} className="flex items-center justify-between">
+                               <div key={idx} className="flex items-center justify-between bg-black/5 p-2 rounded-lg">
                                  <div className="flex items-center gap-3">
-                                   <img src={sel.imageUrl} className="w-10 h-10 rounded object-contain bg-black/5 p-1" alt={sel.name} />
-                                   <span className="text-black text-[11px] font-bold uppercase">{sel.name}</span>
+                                   <img src={sel.imageUrl} className="w-10 h-10 rounded object-contain bg-white p-1 border border-black/10" alt={sel.name} />
+                                   <div className="flex flex-col">
+                                     <span className="text-black text-[11px] font-bold uppercase">{sel.name}</span>
+                                     <span className="text-black/60 text-[10px] font-mono">TK {sel.price.toFixed(2)}</span>
+                                   </div>
                                  </div>
-                                 <button onClick={() => {
-                                    const newSel = [...bundleSelections];
-                                    newSel.splice(idx, 1);
-                                    setBundleSelections(newSel);
-                                 }} className="text-black/50 hover:text-black">
-                                   <X className="w-4 h-4" />
-                                 </button>
+                                 <div className="flex items-center gap-2">
+                                   <span className="text-[10px] font-mono bg-black/10 text-black px-2 py-0.5 rounded font-bold">Cap {idx + 2}</span>
+                                   <button onClick={() => {
+                                      const newSel = [...bundleSelections];
+                                      newSel.splice(idx, 1);
+                                      setBundleSelections(newSel);
+                                   }} className="p-1 text-black/50 hover:text-black hover:bg-black/10 rounded transition-colors" title="Remove cap">
+                                     <X className="w-4 h-4" />
+                                   </button>
+                                 </div>
                                </div>
                              ))}
 
+                             {/* Button to choose next cap if needed */}
                              {bundleSelections.length < offer.quantity - 1 && (
-                               <div className="flex items-center gap-3">
+                               <div className="flex items-center gap-3 pt-1">
                                  <button 
                                     onClick={() => setIsBundleModalOpen(true)}
-                                    className="w-10 h-10 rounded border border-black/20 flex items-center justify-center hover:bg-black/5 text-black"
+                                    className="w-10 h-10 rounded-lg border-2 border-dashed border-black/30 flex items-center justify-center hover:bg-black/5 text-black transition-colors"
                                  >
-                                   <span className="text-xl leading-none font-light">+</span>
+                                   <span className="text-xl leading-none font-bold">+</span>
                                  </button>
                                  <button 
                                     onClick={() => setIsBundleModalOpen(true)}
-                                    className="bg-black text-white text-[10px] font-bold px-4 py-2 rounded-lg uppercase tracking-wider hover:bg-black/80 transition-colors"
+                                    className="bg-black text-white text-[11px] font-bold px-4 py-2.5 rounded-lg uppercase tracking-wider hover:bg-black/80 transition-all shadow-sm flex items-center gap-2"
                                  >
-                                   Select here
+                                   <span>Select Cap {bundleSelections.length + 2}</span>
+                                   <span className="text-xs">👉</span>
                                  </button>
                                </div>
                              )}
+
+                             {/* Real-time total breakdown summary box */}
+                             <div className="mt-3 p-3 bg-black/5 rounded-lg border border-black/10 space-y-1 font-mono text-[11px]">
+                               <div className="flex justify-between text-black/70">
+                                 <span>Combined Price:</span>
+                                 <span>TK {originalPrice.toFixed(2)}</span>
+                               </div>
+                               <div className="flex justify-between text-red-600 font-bold">
+                                 <span>Discount ({discountPercentage}% OFF):</span>
+                                 <span>- TK {discount.toFixed(2)}</span>
+                               </div>
+                               <div className="flex justify-between text-black font-bold text-xs pt-1 border-t border-black/10">
+                                 <span>Final Offer Price:</span>
+                                 <span>TK {finalPrice.toFixed(2)}</span>
+                               </div>
+                             </div>
                            </div>
                         )}
                       </div>

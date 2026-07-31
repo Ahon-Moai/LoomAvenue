@@ -160,22 +160,38 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
     return collectionMatch && searchMatch;
   });
 
+  // Helper function for cart item pricing with offer and bundle selections
+  const getItemPricing = (item: CartItem) => {
+    const offer = item.selectedOffer;
+    if (!offer) {
+      const originalTotal = item.product.price * item.quantity;
+      return { originalTotal, finalPaidAmount: originalTotal, savings: 0, sets: item.quantity };
+    }
+    const offerQty = offer.quantity > 0 ? offer.quantity : 1;
+    const sets = Math.max(1, Math.floor(item.quantity / offerQty));
+    let singleSetOriginal = item.product.price;
+    const bundles = item.bundleSelections || [];
+    for (let b = 0; b < offerQty - 1; b++) {
+      if (bundles[b]) {
+        singleSetOriginal += bundles[b].price;
+      } else {
+        singleSetOriginal += item.product.price;
+      }
+    }
+    const originalTotal = singleSetOriginal * sets;
+    let savings = 0;
+    if (offer.fixedDiscount) {
+      savings = offer.fixedDiscount * sets;
+    } else if (offer.discountPercentage) {
+      savings = (singleSetOriginal * (offer.discountPercentage / 100)) * sets;
+    }
+    const finalPaidAmount = Math.max(0, originalTotal - savings);
+    return { originalTotal, finalPaidAmount, savings, sets };
+  };
+
   // Basket summary math
   const cartItemCount = cart.reduce((acc, item) => acc + item.quantity, 0);
-  const cartSubtotal = cart.reduce((acc, item) => {
-    const offer = item.selectedOffer;
-    if (offer) {
-      const sets = Math.floor(item.quantity / offer.quantity);
-      let offerPrice = item.product.price * offer.quantity;
-      if (offer.fixedDiscount) {
-        offerPrice -= offer.fixedDiscount;
-      } else if (offer.discountPercentage) {
-        offerPrice *= (1 - offer.discountPercentage / 100);
-      }
-      return acc + (offerPrice * sets);
-    }
-    return acc + (item.product.price * item.quantity);
-  }, 0);
+  const cartSubtotal = cart.reduce((acc, item) => acc + getItemPricing(item).finalPaidAmount, 0);
   const hasFreeShipping = cart.some(item => item.selectedOffer?.freeShipping);
   const shippingFee = hasFreeShipping ? 0 : (shippingForm.deliveryZone === 'inside' ? 70 : 130);
   const cartTotal = cartSubtotal + shippingFee;
@@ -204,29 +220,17 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
     
     const items = cart.map(i => {
       const offer = i.selectedOffer;
-      let finalPaidAmount = i.product.price * i.quantity;
-      let discountApplied = 0;
-      
-      if (offer) {
-        const sets = Math.floor(i.quantity / offer.quantity);
-        if (offer.fixedDiscount) {
-          discountApplied = offer.fixedDiscount * sets;
-          finalPaidAmount = (i.product.price * i.quantity) - discountApplied;
-        } else if (offer.discountPercentage) {
-          discountApplied = (i.product.price * i.quantity) * (offer.discountPercentage / 100);
-          finalPaidAmount = (i.product.price * i.quantity) - discountApplied;
-        }
-      }
+      const pricing = getItemPricing(i);
 
       return { 
         productName: i.product.name, 
         quantity: i.quantity, 
         price: i.product.price,
         selectedOfferName: offer ? offer.title : undefined,
-        discountApplied: discountApplied,
-        originalTotal: i.product.price * i.quantity,
-        finalPaidAmount: finalPaidAmount,
-        savings: discountApplied,
+        discountApplied: pricing.savings,
+        originalTotal: pricing.originalTotal,
+        finalPaidAmount: pricing.finalPaidAmount,
+        savings: pricing.savings,
         freeShipping: offer?.freeShipping,
         bundleSelections: i.bundleSelections?.map(p => p.name)
       };
@@ -556,8 +560,10 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
                     autoPlay loop muted playsInline preload="auto"
                     className="absolute inset-0 w-full h-full object-cover object-center z-0 filter brightness-[0.45]"
                   >
-                    {activeCol.slug === 'earth-clay' ? (
-                      <source src="https://res.cloudinary.com/deyatjand/video/upload/v1783269348/WhatsApp_Video_2026-06-16_at_22.36.54_nc2e9z.mp4" type="video/mp4" />
+                    {activeCol.videoUrl ? (
+                      <source src={activeCol.videoUrl} type="video/mp4" />
+                    ) : activeCol.slug === 'earth-clay' ? (
+                      <source src="https://ik.imagekit.io/t1q0n1ovm/WhatsApp%20Video%202026-06-16%20at%2022.36.54(1).mp4" type="video/mp4" />
                     ) : (
                       <>
                         <source src="https://res.cloudinary.com/deyatjand/video/upload/f_webm,q_auto,vc_vp9,ac_none,w_1920,c_limit/v1782572836/IMG_2439_lnghj5.webm" type="video/webm" />
@@ -731,95 +737,125 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
               {/* Items List area */}
               <div className="flex-1 overflow-y-auto no-scrollbar p-6 space-y-4">
                 {cart.length > 0 ? (
-                  cart.map((item, idx) => (
-                    <div 
-                      key={`${item.product.id}-${item.selectedSize}`}
-                      className="flex gap-4 p-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg shadow-sm hover:shadow-md transition-shadow"
-                    >
-                      {/* Product thumbnail thumbnail */}
-                      <div className="w-16 h-20 bg-white/5 rounded overflow-hidden flex-shrink-0">
-                        <img
-                          src={item.product.imageUrl}
-                          alt={item.product.name}
-                          referrerPolicy="no-referrer"
-                          className="w-full h-full object-contain"
-                        />
-                      </div>
+                  cart.map((item, idx) => {
+                    const pricing = getItemPricing(item);
+                    const offer = item.selectedOffer;
+                    const bundles = item.bundleSelections || [];
 
-                      {/* Stack information details */}
-                      <div className="flex-1 flex flex-col justify-between py-0.5">
-                        <div className="flex justify-between items-start gap-1">
-                          <div>
-                            <h4 className="font-serif text-sm font-medium leading-snug text-white">{item.product.name}</h4>
-                            <p className="text-[10px] font-mono text-white/50 mt-1 uppercase">
-                              size: <span className="text-white font-bold">{item.selectedSize}</span>
-                            </p>
+                    return (
+                      <div 
+                        key={`${item.product.id}-${item.selectedSize}-${idx}`}
+                        className="p-3.5 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl shadow-sm hover:shadow-md transition-all space-y-3"
+                      >
+                        {/* Top Info Row */}
+                        <div className="flex gap-3 items-start">
+                          <div className="w-16 h-18 bg-white/10 rounded-lg overflow-hidden border border-white/10 p-1 shrink-0 flex items-center justify-center">
+                            <img
+                              src={item.product.imageUrl}
+                              alt={item.product.name}
+                              referrerPolicy="no-referrer"
+                              className="w-full h-full object-contain"
+                            />
                           </div>
-                          <button
-                            onClick={() => handleRemoveItem(idx)}
-                            className="p-1 hover:bg-red-500/20 text-white/40 hover:text-red-400 rounded transition-colors"
-                            title="Remove stack"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
+
+                          <div className="flex-1 flex flex-col justify-between min-w-0">
+                            <div className="flex justify-between items-start gap-1">
+                              <div>
+                                <h4 className="font-serif text-sm font-semibold leading-snug text-white truncate">{item.product.name}</h4>
+                                <div className="flex items-center gap-2 mt-1 flex-wrap">
+                                  <span className="text-[10px] font-mono text-white/60 uppercase">
+                                    SIZE: <span className="text-white font-bold">{item.selectedSize}</span>
+                                  </span>
+                                  {offer && (
+                                    <span className="text-[9px] font-mono bg-white/20 text-white px-2 py-0.5 rounded uppercase font-bold tracking-wider">
+                                      {offer.title}
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                              <button
+                                onClick={() => handleRemoveItem(idx)}
+                                className="p-1 hover:bg-red-500/20 text-white/40 hover:text-red-400 rounded transition-colors"
+                                title="Remove item"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          </div>
                         </div>
 
-                        <div className="flex justify-between items-center mt-2">
+                        {/* Bundle Included Items Details */}
+                        {offer && offer.quantity > 1 && (
+                          <div className="p-2.5 bg-black/25 rounded-lg border border-white/10 space-y-2">
+                            <div className="text-[10px] font-mono font-bold text-white/80 uppercase tracking-wider">
+                              Included Items ({1 + bundles.length} Caps):
+                            </div>
+                            
+                            {/* Main Cap */}
+                            <div className="flex items-center justify-between text-xs bg-white/5 p-1.5 rounded">
+                              <div className="flex items-center gap-2 min-w-0">
+                                <img src={item.product.imageUrl} alt={item.product.name} className="w-6 h-6 object-contain bg-white/10 rounded p-0.5 border border-white/10 shrink-0" />
+                                <span className="text-white/90 text-[11px] font-medium truncate">{item.product.name}</span>
+                              </div>
+                              <span className="text-[10px] font-mono text-white/60 shrink-0">TK {item.product.price.toFixed(0)}</span>
+                            </div>
+
+                            {/* Bundled Selected Caps */}
+                            {bundles.map((bItem, bIdx) => (
+                              <div key={bIdx} className="flex items-center justify-between text-xs bg-white/5 p-1.5 rounded">
+                                <div className="flex items-center gap-2 min-w-0">
+                                  <img src={bItem.imageUrl} alt={bItem.name} className="w-6 h-6 object-contain bg-white/10 rounded p-0.5 border border-white/10 shrink-0" />
+                                  <span className="text-white/90 text-[11px] font-medium truncate">{bItem.name}</span>
+                                </div>
+                                <span className="text-[10px] font-mono text-white/60 shrink-0">TK {bItem.price.toFixed(0)}</span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Pricing & Quantity Stepper Footer */}
+                        <div className="flex items-center justify-between pt-2 border-t border-white/10">
                           <div className="flex flex-col">
-                            {item.selectedOffer && (
-                              <span className="text-[10px] bg-white/20 px-1.5 py-0.5 rounded text-white mb-1 w-fit">
-                                {item.selectedOffer.title}
+                            <div className="flex items-center gap-2">
+                              <span className="font-mono text-xs font-bold text-white">
+                                TK {pricing.finalPaidAmount.toFixed(2)}
+                              </span>
+                              {pricing.savings > 0 && (
+                                <span className="font-mono text-[10px] text-white/40 line-through">
+                                  TK {pricing.originalTotal.toFixed(2)}
+                                </span>
+                              )}
+                            </div>
+                            {pricing.savings > 0 && (
+                              <span className="text-[9px] text-emerald-400 font-mono font-bold mt-0.5">
+                                SAVE TK {pricing.savings.toFixed(0)} ({offer?.discountPercentage || 0}% OFF)
                               </span>
                             )}
-                            {item.bundleSelections && item.bundleSelections.length > 0 && (
-                              <div className="flex flex-col gap-0.5 mb-2 mt-1">
-                                {item.bundleSelections.map((sel, idx) => (
-                                  <span key={idx} className="text-[9px] text-white/70 font-mono flex items-center gap-1">
-                                    <span className="w-1 h-1 rounded-full bg-white/40"></span>
-                                    + {sel.name}
-                                  </span>
-                                ))}
-                              </div>
-                            )}
-                            <span className="font-mono text-xs font-semibold text-white">
-                              TK {(() => {
-                                const offer = item.selectedOffer;
-                                if (offer) {
-                                  const sets = Math.floor(item.quantity / offer.quantity);
-                                  let offerPrice = item.product.price * offer.quantity;
-                                  if (offer.fixedDiscount) {
-                                    offerPrice -= offer.fixedDiscount;
-                                  } else if (offer.discountPercentage) {
-                                    offerPrice *= (1 - offer.discountPercentage / 100);
-                                  }
-                                  return (offerPrice * sets).toFixed(2);
-                                }
-                                return (item.product.price * item.quantity).toFixed(2);
-                              })()}
-                            </span>
                           </div>
 
-                          <div className="flex items-center border border-white/20 rounded overflow-hidden bg-white/5 text-white">
+                          <div className="flex items-center border border-white/20 rounded-lg overflow-hidden bg-white/10 text-white">
                             <button
                               type="button"
                               onClick={() => handleUpdateQuantity(idx, -1)}
-                              className="px-2 py-1 text-xs hover:bg-white/20 text-white/70 hover:text-white"
+                              className="px-2 py-1 text-xs hover:bg-white/20 text-white/80 hover:text-white transition-colors"
                             >
                               -
                             </button>
-                            <span className="px-2 font-mono text-xs text-white">{item.quantity}</span>
+                            <span className="px-2 font-mono text-xs font-bold text-white">
+                              {pricing.sets} {offer ? (pricing.sets > 1 ? 'Sets' : 'Set') : ''}
+                            </span>
                             <button
                               type="button"
                               onClick={() => handleUpdateQuantity(idx, 1)}
-                              className="px-2 py-1 text-xs hover:bg-white/20 text-white/70 hover:text-white"
+                              className="px-2 py-1 text-xs hover:bg-white/20 text-white/80 hover:text-white transition-colors"
                             >
                               +
                             </button>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  ))
+                    );
+                  })
                 ) : (
                   <div className="text-center py-20 px-4">
                     <ShoppingBag className="w-10 h-10 text-white/20 mx-auto mb-3" />

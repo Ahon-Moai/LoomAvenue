@@ -7,7 +7,8 @@ export const collections: Collection[] = [
     slug: 'worn-textiles',
     description: 'Meticulously sourced premium fabrics, perfected through strict quality control. Investing in a cap means securing a flawless win.',
     tagline: 'Wear it, live it, own it.',
-    imageUrl: 'https://ik.imagekit.io/t1q0n1ovm/WhatsApp%20Image%202026-07-14%20at%2023.26.55(1).jpeg?tr=w-800,f-auto,q-auto'
+    imageUrl: 'https://ik.imagekit.io/t1q0n1ovm/WhatsApp%20Image%202026-07-14%20at%2023.26.55(1).jpeg?tr=w-800,f-auto,q-auto',
+    videoUrl: 'https://res.cloudinary.com/deyatjand/video/upload/f_mp4,q_auto,vc_h264,ac_none,w_1920,c_limit/v1782572836/IMG_2439_lnghj5.mp4'
   },
   {
     id: 'col-2',
@@ -15,7 +16,8 @@ export const collections: Collection[] = [
     slug: 'earth-clay',
     description: 'Crafted with premium imported materials that rival and often surpass the originals. Loved by a growing community of international buyers who recognize pure quality. Secure yours and feel the upgrade.',
     tagline: 'Earthy, coarse, and timeless.',
-    imageUrl: 'https://ik.imagekit.io/t1q0n1ovm/WhatsApp%20Image%202026-06-17%20at%2023.40.37.jpeg?tr=w-800,f-auto,q-auto'
+    imageUrl: 'https://ik.imagekit.io/t1q0n1ovm/WhatsApp%20Image%202026-06-17%20at%2023.40.37.jpeg?tr=w-800,f-auto,q-auto',
+    videoUrl: 'https://ik.imagekit.io/t1q0n1ovm/WhatsApp%20Video%202026-06-16%20at%2022.36.54(1).mp4'
   }
 ];
 

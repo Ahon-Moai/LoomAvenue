@@ -142,9 +142,7 @@ export default function App() {
     <div className="w-full min-h-screen bg-transparent overflow-x-clip selection:bg-earth-300 selection:text-earth-950">
       {/* Hidden preloaded video to ensure instant playback when navigating to Worn Textiles/Earth & Clay */}
       <video autoPlay loop muted playsInline preload="auto" className="fixed w-0 h-0 opacity-0 pointer-events-none z-[-9999]">
-        {/* Optimized WebM for Chrome/Firefox: explicit codec, strip audio, auto quality */}
-        <source src="https://res.cloudinary.com/deyatjand/video/upload/f_webm,q_auto,vc_vp9,ac_none,w_1920,c_limit/v1782572836/IMG_2439_lnghj5.webm" type="video/webm" />
-        {/* Optimized MP4 for Safari/iOS: explicit codec, strip audio, auto quality */}
+        <source src="https://ik.imagekit.io/t1q0n1ovm/WhatsApp%20Video%202026-06-16%20at%2022.36.54(1).mp4" type="video/mp4" />
         <source src="https://res.cloudinary.com/deyatjand/video/upload/f_mp4,q_auto,vc_h264,ac_none,w_1920,c_limit/v1782572836/IMG_2439_lnghj5.mp4" type="video/mp4" />
       </video>
       <CustomCursor />

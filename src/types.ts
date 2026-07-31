@@ -46,6 +46,7 @@ export interface Collection {
   description: string;
   tagline: string;
   imageUrl?: string;
+  videoUrl?: string;
 }
 
 export interface OrderItem {
