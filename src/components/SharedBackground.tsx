@@ -6,7 +6,7 @@ export default function SharedBackground() {
 
   useEffect(() => {
     const img = new Image();
-    img.src = "https://res.cloudinary.com/deyatjand/image/upload/f_auto,q_auto:good,w_1400/v1781448482/a7eaa09f-329a-4bcc-bdc3-69e76ede4b37.png";
+    img.src = "https://ik.imagekit.io/t1q0n1ovm/image.png";
     img.onload = () => setImageLoaded(true);
 
     const preloadFallback = setTimeout(() => {
@@ -20,20 +20,20 @@ export default function SharedBackground() {
 
   return (
     <div className="fixed inset-0 w-full h-full z-0 overflow-hidden pointer-events-none bg-[#1e1a15]">
-      {/* 1. Low-res Blurred Instant Placeholder Background (< 2KB) */}
+      {/* 1. Low-res Instant Placeholder Background */}
       <div 
         className="absolute inset-0 bg-[#1e1a15] bg-cover bg-center filter brightness-[0.55] contrast-[1.05] grayscale-[20%] transition-opacity duration-1000 z-0"
         style={{
-          backgroundImage: `url('https://res.cloudinary.com/deyatjand/image/upload/f_auto,q_auto:low,w_80,e_blur:400/v1781448482/a7eaa09f-329a-4bcc-bdc3-69e76ede4b37.png')`,
+          backgroundImage: `url('https://ik.imagekit.io/t1q0n1ovm/image.png')`,
           opacity: videoLoaded ? 0 : 1,
         }}
       />
 
-      {/* 2. Highly Optimized Full Screen Background (WebP/AVIF auto, compressed) */}
+      {/* 2. Full Screen Background Image */}
       <div 
         className="absolute inset-0 bg-cover bg-center filter brightness-[0.55] contrast-[1.05] grayscale-[20%] transition-all duration-[1200ms] ease-out z-0"
         style={{
-          backgroundImage: `url('https://res.cloudinary.com/deyatjand/image/upload/f_auto,q_auto:good,w_1400/v1781448482/a7eaa09f-329a-4bcc-bdc3-69e76ede4b37.png')`,
+          backgroundImage: `url('https://ik.imagekit.io/t1q0n1ovm/image.png')`,
           opacity: (!videoLoaded && imageLoaded) ? 1 : 0,
           transform: imageLoaded ? 'scale(1)' : 'scale(1.03)',
         }}
@@ -46,7 +46,7 @@ export default function SharedBackground() {
         muted
         playsInline
         preload="auto"
-        poster="https://res.cloudinary.com/deyatjand/image/upload/f_auto,q_auto:good,w_1200/v1781448482/a7eaa09f-329a-4bcc-bdc3-69e76ede4b37.png"
+        poster="https://ik.imagekit.io/t1q0n1ovm/image.png"
         controls={false}
         disablePictureInPicture
         disableRemotePlayback

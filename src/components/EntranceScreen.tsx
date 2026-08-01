@@ -23,7 +23,7 @@ export default function EntranceScreen({ onEnter, onAdmin }: EntranceScreenProps
   useEffect(() => {
     // Preload highly optimized main image to trigger instant reveal
     const img = new Image();
-    img.src = "https://res.cloudinary.com/deyatjand/image/upload/f_auto,q_auto:good,w_1400/v1781448482/a7eaa09f-329a-4bcc-bdc3-69e76ede4b37.png";
+    img.src = "https://ik.imagekit.io/t1q0n1ovm/image.png";
     img.onload = () => {
       setImageLoaded(true);
       // Brief aesthetic delay before fading out black screen for silk-smooth release transition
