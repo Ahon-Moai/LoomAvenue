@@ -716,18 +716,18 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 26, stiffness: 220 }}
-              className="relative w-full max-w-md h-full bg-white/10 backdrop-blur-3xl shadow-2xl flex flex-col justify-between z-10 border-l border-white/20"
+              className="relative w-full max-w-md h-full bg-[#fcfbfa] text-stone-900 shadow-2xl flex flex-col justify-between z-10 border-l border-stone-200"
             >
               {/* Header */}
-              <div className="p-6 border-b border-white/20 flex items-center justify-between bg-white/5">
-                <div className="flex items-center gap-2 text-white">
-                  <ShoppingBag className="w-5 h-5 text-white/80" />
-                  <h3 className="font-serif italic text-xl">My Custom Basket</h3>
-                  <span className="text-[10px] font-mono text-white/50">({cartItemCount} stack)</span>
+              <div className="p-6 border-b border-stone-200 flex items-center justify-between bg-stone-50">
+                <div className="flex items-center gap-2 text-stone-900">
+                  <ShoppingBag className="w-5 h-5 text-stone-800" />
+                  <h3 className="font-serif italic text-xl font-bold">My Custom Basket</h3>
+                  <span className="text-[10px] font-mono text-stone-500">({cartItemCount} stack)</span>
                 </div>
                 <button
                   onClick={() => setIsCartOpen(false)}
-                  className="p-1.5 hover:bg-white/20 rounded-full text-white/80 hover:text-white transition-colors"
+                  className="p-1.5 hover:bg-stone-200 rounded-full text-stone-600 hover:text-stone-900 transition-colors"
                   title="Close basket"
                 >
                   <X className="w-5 h-5" />
@@ -745,11 +745,11 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
                     return (
                       <div 
                         key={`${item.product.id}-${item.selectedSize}-${idx}`}
-                        className="p-3.5 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl shadow-sm hover:shadow-md transition-all space-y-3"
+                        className="p-4 bg-white border border-stone-200 rounded-xl shadow-sm hover:shadow-md transition-all space-y-3"
                       >
                         {/* Top Info Row */}
                         <div className="flex gap-3 items-start">
-                          <div className="w-16 h-18 bg-white/10 rounded-lg overflow-hidden border border-white/10 p-1 shrink-0 flex items-center justify-center">
+                          <div className="w-16 h-18 bg-stone-50 rounded-lg overflow-hidden border border-stone-200 p-1 shrink-0 flex items-center justify-center">
                             <img
                               src={item.product.imageUrl}
                               alt={item.product.name}
@@ -761,13 +761,13 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
                           <div className="flex-1 flex flex-col justify-between min-w-0">
                             <div className="flex justify-between items-start gap-1">
                               <div>
-                                <h4 className="font-serif text-sm font-semibold leading-snug text-white truncate">{item.product.name}</h4>
+                                <h4 className="font-serif text-sm font-bold leading-snug text-stone-950 truncate">{item.product.name}</h4>
                                 <div className="flex items-center gap-2 mt-1 flex-wrap">
-                                  <span className="text-[10px] font-mono text-white/60 uppercase">
-                                    SIZE: <span className="text-white font-bold">{item.selectedSize}</span>
+                                  <span className="text-[10px] font-mono text-stone-500 uppercase">
+                                    SIZE: <span className="text-stone-900 font-bold">{item.selectedSize}</span>
                                   </span>
                                   {offer && (
-                                    <span className="text-[9px] font-mono bg-white/20 text-white px-2 py-0.5 rounded uppercase font-bold tracking-wider">
+                                    <span className="text-[9px] font-mono bg-black text-white px-2 py-0.5 rounded uppercase font-bold tracking-wider">
                                       {offer.title}
                                     </span>
                                   )}
@@ -775,7 +775,7 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
                               </div>
                               <button
                                 onClick={() => handleRemoveItem(idx)}
-                                className="p-1 hover:bg-red-500/20 text-white/40 hover:text-red-400 rounded transition-colors"
+                                className="p-1 hover:bg-rose-50 text-stone-400 hover:text-rose-600 rounded transition-colors"
                                 title="Remove item"
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
@@ -786,68 +786,68 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
 
                         {/* Bundle Included Items Details */}
                         {offer && offer.quantity > 1 && (
-                          <div className="p-2.5 bg-black/25 rounded-lg border border-white/10 space-y-2">
-                            <div className="text-[10px] font-mono font-bold text-white/80 uppercase tracking-wider">
+                          <div className="p-2.5 bg-stone-50 rounded-lg border border-stone-200 space-y-2">
+                            <div className="text-[10px] font-mono font-bold text-stone-700 uppercase tracking-wider">
                               Included Items ({1 + bundles.length} Caps):
                             </div>
                             
                             {/* Main Cap */}
-                            <div className="flex items-center justify-between text-xs bg-white/5 p-1.5 rounded">
+                            <div className="flex items-center justify-between text-xs bg-white p-1.5 rounded border border-stone-200/50">
                               <div className="flex items-center gap-2 min-w-0">
-                                <img src={item.product.imageUrl} alt={item.product.name} className="w-6 h-6 object-contain bg-white/10 rounded p-0.5 border border-white/10 shrink-0" />
-                                <span className="text-white/90 text-[11px] font-medium truncate">{item.product.name}</span>
+                                <img src={item.product.imageUrl} alt={item.product.name} className="w-6 h-6 object-contain bg-stone-50 rounded p-0.5 border border-stone-200 shrink-0" />
+                                <span className="text-stone-800 text-[11px] font-semibold truncate">{item.product.name}</span>
                               </div>
-                              <span className="text-[10px] font-mono text-white/60 shrink-0">TK {item.product.price.toFixed(0)}</span>
+                              <span className="text-[10px] font-mono text-stone-500 shrink-0">TK {item.product.price.toFixed(0)}</span>
                             </div>
 
                             {/* Bundled Selected Caps */}
                             {bundles.map((bItem, bIdx) => (
-                              <div key={bIdx} className="flex items-center justify-between text-xs bg-white/5 p-1.5 rounded">
+                              <div key={bIdx} className="flex items-center justify-between text-xs bg-white p-1.5 rounded border border-stone-200/50">
                                 <div className="flex items-center gap-2 min-w-0">
-                                  <img src={bItem.imageUrl} alt={bItem.name} className="w-6 h-6 object-contain bg-white/10 rounded p-0.5 border border-white/10 shrink-0" />
-                                  <span className="text-white/90 text-[11px] font-medium truncate">{bItem.name}</span>
+                                  <img src={bItem.imageUrl} alt={bItem.name} className="w-6 h-6 object-contain bg-stone-50 rounded p-0.5 border border-stone-200 shrink-0" />
+                                  <span className="text-stone-800 text-[11px] font-semibold truncate">{bItem.name}</span>
                                 </div>
-                                <span className="text-[10px] font-mono text-white/60 shrink-0">TK {bItem.price.toFixed(0)}</span>
+                                <span className="text-[10px] font-mono text-stone-500 shrink-0">TK {bItem.price.toFixed(0)}</span>
                               </div>
                             ))}
                           </div>
                         )}
 
                         {/* Pricing & Quantity Stepper Footer */}
-                        <div className="flex items-center justify-between pt-2 border-t border-white/10">
+                        <div className="flex items-center justify-between pt-2 border-t border-stone-150">
                           <div className="flex flex-col">
                             <div className="flex items-center gap-2">
-                              <span className="font-mono text-xs font-bold text-white">
+                              <span className="font-mono text-xs font-bold text-stone-900">
                                 TK {pricing.finalPaidAmount.toFixed(2)}
                               </span>
                               {pricing.savings > 0 && (
-                                <span className="font-mono text-[10px] text-white/40 line-through">
+                                <span className="font-mono text-[10px] text-stone-400 line-through">
                                   TK {pricing.originalTotal.toFixed(2)}
                                 </span>
                               )}
                             </div>
                             {pricing.savings > 0 && (
-                              <span className="text-[9px] text-emerald-400 font-mono font-bold mt-0.5">
+                              <span className="text-[9px] text-emerald-700 font-mono font-bold mt-0.5">
                                 SAVE TK {pricing.savings.toFixed(0)} ({offer?.discountPercentage || 0}% OFF)
                               </span>
                             )}
                           </div>
 
-                          <div className="flex items-center border border-white/20 rounded-lg overflow-hidden bg-white/10 text-white">
+                          <div className="flex items-center border border-stone-200 rounded-lg overflow-hidden bg-stone-50 text-stone-800">
                             <button
                               type="button"
                               onClick={() => handleUpdateQuantity(idx, -1)}
-                              className="px-2 py-1 text-xs hover:bg-white/20 text-white/80 hover:text-white transition-colors"
+                              className="px-2 py-1 text-xs hover:bg-stone-150 text-stone-700 hover:text-stone-900 transition-colors"
                             >
                               -
                             </button>
-                            <span className="px-2 font-mono text-xs font-bold text-white">
+                            <span className="px-2.5 font-mono text-xs font-bold text-stone-900">
                               {pricing.sets} {offer ? (pricing.sets > 1 ? 'Sets' : 'Set') : ''}
                             </span>
                             <button
                               type="button"
                               onClick={() => handleUpdateQuantity(idx, 1)}
-                              className="px-2 py-1 text-xs hover:bg-white/20 text-white/80 hover:text-white transition-colors"
+                              className="px-2 py-1 text-xs hover:bg-stone-150 text-stone-700 hover:text-stone-900 transition-colors"
                             >
                               +
                             </button>
@@ -858,29 +858,29 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
                   })
                 ) : (
                   <div className="text-center py-20 px-4">
-                    <ShoppingBag className="w-10 h-10 text-white/20 mx-auto mb-3" />
-                    <p className="font-mono text-xs tracking-wider text-white/60 uppercase">Your basket is empty</p>
-                    <p className="text-xs text-white/40 mt-1 font-sans">Celebrate slow selection. Add some fine imperfect wear.</p>
+                    <ShoppingBag className="w-10 h-10 text-stone-300 mx-auto mb-3" />
+                    <p className="font-mono text-xs tracking-wider text-stone-500 uppercase font-semibold">Your basket is empty</p>
+                    <p className="text-xs text-stone-400 mt-1 font-sans">Celebrate slow selection. Add some fine premium wear.</p>
                   </div>
                 )}
               </div>
 
               {/* Drawer footer containing pricing summary and checkout drawer activator */}
               {cart.length > 0 && (
-                <div className="bg-white/5 border-t border-white/20 p-6 space-y-4">
-                  <div className="space-y-2 text-xs font-mono text-white/70">
+                <div className="bg-stone-50 border-t border-stone-200 p-6 space-y-4">
+                  <div className="space-y-2 text-xs font-mono text-stone-600">
                     <div className="flex justify-between">
                       <span>Subtotal:</span>
-                      <span className="font-bold text-white">TK {cartSubtotal.toFixed(2)}</span>
+                      <span className="font-bold text-stone-900">TK {cartSubtotal.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between">
                       <span>Delivery Charge:</span>
-                      <span className="text-white">TK {shippingFee.toFixed(2)}</span>
+                      <span className="text-stone-900">TK {shippingFee.toFixed(2)}</span>
                     </div>
-                    <p className="text-[10px] text-white/50 italic text-right mt-1 border-t border-white/10 pt-2">
+                    <p className="text-[10px] text-stone-400 italic text-right mt-1 border-t border-stone-200 pt-2">
                       ({shippingForm.deliveryZone === 'inside' ? 'Inside Dhaka' : 'Outside Dhaka'})
                     </p>
-                    <div className="border-t border-white/20 pt-2 flex justify-between text-sm font-sans font-bold text-white mt-1">
+                    <div className="border-t border-stone-200 pt-2 flex justify-between text-sm font-sans font-bold text-stone-900 mt-1">
                       <span>Total:</span>
                       <span>TK {cartTotal.toFixed(2)}</span>
                     </div>
@@ -888,9 +888,9 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
 
                   <button
                     onClick={() => setIsCheckingOut(true)}
-                    className="w-full py-4 bg-white text-black hover:bg-white/80 font-display text-xs tracking-widest uppercase rounded-lg shadow-md transition-colors duration-200 flex items-center justify-center gap-2"
+                    className="w-full py-4 bg-black text-white hover:bg-stone-900 font-display text-xs tracking-widest uppercase rounded-lg shadow-md transition-colors duration-200 flex items-center justify-center gap-2 cursor-pointer"
                   >
-                    <span>Proceed to alignment</span>
+                    <span>Proceed to Checkout</span>
                     <ChevronRight className="w-4 h-4" />
                   </button>
                 </div>
@@ -900,177 +900,182 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
         )}
       </AnimatePresence>
 
-      {/* HIGH-QUALITY CLIENT SIDE SIMULATED CHECKOUT DIALOG */}
+      {/* SOLID WHITE SIMPLIFIED CHECKOUT DIALOG */}
       <AnimatePresence>
         {isCheckingOut && (
-          <div id="checkout-modal" className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-md p-4">
+          <div id="checkout-modal" className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-md p-4">
             <motion.div
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-white/10 backdrop-blur-3xl border border-white/20 rounded-xl max-w-md w-full shadow-2xl overflow-hidden max-h-[95vh] flex flex-col"
+              className="bg-white border border-stone-200 rounded-2xl max-w-md w-full shadow-2xl overflow-hidden max-h-[95vh] flex flex-col text-stone-900"
             >
               {checkoutStep === 'info' ? (
                 <form onSubmit={handleInfoSubmit} className="p-6 sm:p-8 space-y-5 overflow-y-auto">
-                  <div className="flex justify-between items-center pb-3 border-b border-white/20">
+                  <div className="flex justify-between items-center pb-3 border-b border-stone-250">
                     <div>
-                      <h4 className="font-serif italic text-xl text-white">Shipping Details</h4>
-                      <p className="text-[10px] font-mono text-white/50 uppercase">carbon-neutral slow transport alignment</p>
+                      <h4 className="font-serif italic text-xl font-bold text-stone-900">Shipping Details</h4>
+                      <p className="text-[9px] font-mono text-stone-500 uppercase tracking-widest">secure immediate logistics alignment</p>
                     </div>
                     <button
                       type="button"
                       onClick={() => setIsCheckingOut(false)}
-                      className="p-1 hover:bg-white/10 rounded-full text-white/60 hover:text-white"
+                      className="p-1.5 hover:bg-stone-100 rounded-full text-stone-500 hover:text-stone-900"
                     >
                       <X className="w-5 h-5" />
                     </button>
                   </div>
 
-                  <div className="space-y-3.5">
+                  <div className="space-y-4">
                     <div>
-                      <label className="block text-[10px] font-mono tracking-wider text-white/60 uppercase mb-1">Full Name</label>
+                      <label className="block text-[10px] font-mono tracking-wider text-stone-500 uppercase mb-1 font-bold">Full Name</label>
                       <input
                         type="text"
                         required
-                        placeholder="Laurence Miller"
+                        placeholder="John Doe"
                         value={shippingForm.name}
                         onChange={(e) => setShippingForm({ ...shippingForm, name: e.target.value })}
-                        className="w-full text-xs p-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg focus:outline-none focus:ring-1 focus:ring-white/50 text-white placeholder-white/40"
+                        className="w-full text-xs p-3 bg-white border border-stone-300 rounded-lg focus:outline-none focus:border-black focus:ring-1 focus:ring-black text-stone-900 placeholder-stone-400"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-[10px] font-mono tracking-wider text-white/60 uppercase mb-1">Email Coordinates</label>
+                      <label className="block text-[10px] font-mono tracking-wider text-stone-500 uppercase mb-1 font-bold">Email Address</label>
                       <input
                         type="email"
                         required
-                        placeholder="laurence@evolving.com"
+                        placeholder="johndoe@example.com"
                         value={shippingForm.email}
                         onChange={(e) => setShippingForm({ ...shippingForm, email: e.target.value })}
-                        className="w-full text-xs p-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg focus:outline-none focus:ring-1 focus:ring-white/50 text-white placeholder-white/40"
+                        className="w-full text-xs p-3 bg-white border border-stone-300 rounded-lg focus:outline-none focus:border-black focus:ring-1 focus:ring-black text-stone-900 placeholder-stone-400"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-[10px] font-mono tracking-wider text-white/60 uppercase mb-1">Wabi-Sabi Delivery Location</label>
+                      <label className="block text-[10px] font-mono tracking-wider text-stone-500 uppercase mb-1 font-bold">Shipping Address</label>
                       <input
                         type="text"
                         required
-                        placeholder="104 Stone pathway, Mossy Creek"
+                        placeholder="House 12, Road 5, Sector 3, Uttara"
                         value={shippingForm.address}
                         onChange={(e) => setShippingForm({ ...shippingForm, address: e.target.value })}
-                        className="w-full text-xs p-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg focus:outline-none focus:ring-1 focus:ring-white/50 text-white placeholder-white/40"
+                        className="w-full text-xs p-3 bg-white border border-stone-300 rounded-lg focus:outline-none focus:border-black focus:ring-1 focus:ring-black text-stone-900 placeholder-stone-400"
                       />
                     </div>
 
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <label className="block text-[10px] font-mono tracking-wider text-white/60 uppercase mb-1">Phone Number</label>
+                        <label className="block text-[10px] font-mono tracking-wider text-stone-500 uppercase mb-1 font-bold">Phone Number</label>
                         <input
                           type="tel"
                           required
                           placeholder="017XXXXXXXX"
                           value={shippingForm.phoneNumber}
                           onChange={(e) => setShippingForm({ ...shippingForm, phoneNumber: e.target.value })}
-                          className="w-full text-xs p-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg focus:outline-none focus:ring-1 focus:ring-white/50 text-white placeholder-white/40"
+                          className="w-full text-xs p-3 bg-white border border-stone-300 rounded-lg focus:outline-none focus:border-black focus:ring-1 focus:ring-black text-stone-900 placeholder-stone-400 font-mono"
                         />
                       </div>
                       <div>
-                        <label className="block text-[10px] font-mono tracking-wider text-white/60 uppercase mb-1">Delivery Zone</label>
-                        <select
-                          required
-                          value={shippingForm.deliveryZone}
-                          onChange={(e) => setShippingForm({ ...shippingForm, deliveryZone: e.target.value })}
-                          className="w-full text-xs p-3 bg-black/40 backdrop-blur-md border border-white/20 rounded-lg focus:outline-none focus:ring-1 focus:ring-white/50 text-white placeholder-white/40 appearance-none"
-                        >
-                          <option value="inside">Inside Dhaka (TK 70)</option>
-                          <option value="outside">Outside Dhaka (TK 130)</option>
-                        </select>
+                        <label className="block text-[10px] font-mono tracking-wider text-stone-500 uppercase mb-1 font-bold">Delivery Zone</label>
+                        <div className="relative">
+                          <select
+                            required
+                            value={shippingForm.deliveryZone}
+                            onChange={(e) => setShippingForm({ ...shippingForm, deliveryZone: e.target.value })}
+                            className="w-full text-xs p-3 bg-white border border-stone-300 rounded-lg focus:outline-none focus:border-black focus:ring-1 focus:ring-black text-stone-900 placeholder-stone-400 appearance-none pr-8 font-semibold cursor-pointer"
+                          >
+                            <option value="inside">Inside Dhaka (TK 70)</option>
+                            <option value="outside">Outside Dhaka (TK 130)</option>
+                          </select>
+                          <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-stone-500 text-xs">▼</span>
+                        </div>
                       </div>
                     </div>
                   </div>
 
-                  <div className="border-t border-white/20 pt-4 flex gap-3">
+                  <div className="border-t border-stone-200 pt-4 flex gap-3">
                     <button
                       type="button"
                       onClick={() => setIsCheckingOut(false)}
-                      className="flex-1 py-3 bg-white/5 border border-white/20 text-white/80 hover:bg-white/10 hover:text-white font-mono text-[10px] tracking-widest uppercase rounded-lg transition-colors"
+                      className="flex-1 py-3 bg-stone-100 border border-stone-200 text-stone-700 hover:bg-stone-200 font-mono text-[10px] tracking-widest uppercase rounded-lg transition-colors font-bold cursor-pointer"
                     >
                       Back
                     </button>
                     <button
                       type="submit"
-                      className="flex-1 py-3 bg-white hover:bg-white/80 text-black font-mono text-[10px] tracking-widest uppercase rounded-lg transition-colors shadow-sm font-bold"
+                      className="flex-1 py-3 bg-black hover:bg-stone-950 text-white font-mono text-[10px] tracking-widest uppercase rounded-lg transition-colors shadow-sm font-bold cursor-pointer"
                     >
                       Proceed to Payment
                     </button>
                   </div>
                 </form>
               ) : checkoutStep === 'payment' ? (
-                <div className="bg-[#f8fafc] text-[#334155] font-sans flex flex-col h-[580px] max-h-[85vh] sm:max-h-[80vh] overflow-hidden">
+                <div className="bg-[#fcfbfa] text-stone-900 font-sans flex flex-col h-[580px] max-h-[85vh] sm:max-h-[80vh] overflow-hidden">
                   {/* Header - Sticky */}
-                  <div className="bg-white px-4 py-3 flex justify-between items-center shadow-sm border-b border-gray-100 shrink-0">
-                    <button type="button" onClick={() => setCheckoutStep('info')} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-                      <ArrowLeft className="w-5 h-5 text-gray-700" />
+                  <div className="bg-stone-50 px-4 py-3.5 flex justify-between items-center shadow-xs border-b border-stone-200 shrink-0">
+                    <button type="button" onClick={() => setCheckoutStep('info')} className="p-2 hover:bg-stone-200 rounded-full transition-colors">
+                      <ArrowLeft className="w-5 h-5 text-stone-800" />
                     </button>
-                    <span className="font-bold text-gray-800 text-sm">bKash Payment Verification</span>
-                    <button type="button" onClick={() => setIsCheckingOut(false)} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-                      <X className="w-5 h-5 text-gray-700" />
+                    <span className="font-bold text-stone-800 text-sm">bKash Payment Verification</span>
+                    <button type="button" onClick={() => setIsCheckingOut(false)} className="p-2 hover:bg-stone-200 rounded-full transition-colors">
+                      <X className="w-5 h-5 text-stone-800" />
                     </button>
                   </div>
 
                   {/* Scrollable Content */}
-                  <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                  <div className="flex-1 overflow-y-auto p-5 space-y-4">
                     {/* Amount Section */}
-                    <div className="bg-white rounded-xl p-4 flex justify-between items-center shadow-sm border border-gray-100">
+                    <div className="bg-white rounded-xl p-4 flex justify-between items-center shadow-sm border border-stone-200">
                       <div className="flex items-center gap-2">
                         {/* Mock bkash logo */}
-                        <div className="flex items-center gap-1.5">
-                          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <div className="flex items-center gap-2">
+                          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="shrink-0">
                             <path d="M12 21.6444C17.3259 21.6444 21.6444 17.3259 21.6444 12C21.6444 6.67406 17.3259 2.35553 12 2.35553C6.67406 2.35553 2.35553 6.67406 2.35553 12C2.35553 17.3259 6.67406 21.6444 12 21.6444Z" fill="#E2136E"/>
                             <path d="M10.8267 15.8267L14.7333 12L10.8267 8.17333L9.65332 9.34667L12.3067 12L9.65332 14.6533L10.8267 15.8267Z" fill="white"/>
                           </svg>
                           <span className="text-[#E2136E] font-bold text-xl tracking-tight">bKash</span>
                         </div>
                       </div>
-                      <div className="font-bold text-xl text-[#334155]">
-                        ৳ {shippingFee}.00
+                      <div className="font-bold text-xl text-stone-900 font-mono">
+                        ৳ {cartTotal.toFixed(0)}.00
                       </div>
                     </div>
 
                     {/* Note Section */}
-                    <div className="bg-[#fef9c3] border border-[#fef08a] text-[#854d0e] text-[11px] text-center py-2.5 rounded shadow-sm">
+                    <div className="bg-[#fef9c3] border border-[#fef08a] text-[#854d0e] text-xs text-center py-2.5 px-4 rounded shadow-2xs leading-relaxed">
                       <span className="font-bold">নোটঃ</span> টাকা পাঠানোর ৫-১০ সেকেন্ড পর ভেরিফাই করবেন।
                     </div>
 
-                    {/* Main Pink Box */}
-                    <div className="bg-[#E2136E] rounded-xl text-white p-5 shadow-lg">
-                      <h3 className="text-center text-lg font-bold mb-4 tracking-wide text-white">ট্রানজেকশন আইডি দিন</h3>
-                      <input
-                        type="text"
-                        placeholder="ট্রানজেকশন আইডি দিন"
-                        value={shippingForm.transactionId}
-                        onChange={(e) => setShippingForm({ ...shippingForm, transactionId: e.target.value })}
-                        className="w-full bg-white text-gray-800 px-4 py-3.5 rounded text-center mb-5 focus:outline-none focus:ring-2 focus:ring-pink-300 shadow-inner font-mono text-sm"
-                      />
+                    {/* Main Instructions & Input Pink Box */}
+                    <div className="bg-[#E2136E] rounded-xl text-white p-5 shadow-lg space-y-4">
+                      <div className="text-center">
+                        <h3 className="text-sm font-bold tracking-wider mb-2 uppercase">ট্রানজেকশন আইডি দিন</h3>
+                        <input
+                          type="text"
+                          placeholder="TrxID (যেমন: K8H7G6F5D4)"
+                          value={shippingForm.transactionId}
+                          onChange={(e) => setShippingForm({ ...shippingForm, transactionId: e.target.value })}
+                          className="w-full bg-white text-gray-900 px-4 py-3.5 rounded-lg text-center focus:outline-none focus:ring-4 focus:ring-pink-300 shadow-inner font-mono text-base tracking-widest font-bold placeholder-stone-400 uppercase"
+                        />
+                      </div>
                       
-                      <div>
-                        <h4 className="font-bold text-sm tracking-wider mb-4 text-white">INSTRUCTIONS</h4>
-                        <ul className="space-y-4 text-xs sm:text-[13px] leading-relaxed">
+                      <div className="border-t border-white/20 pt-4">
+                        <h4 className="font-bold text-xs tracking-wider mb-3 uppercase text-white">INSTRUCTIONS</h4>
+                        <ul className="space-y-3.5 text-xs leading-relaxed text-white/95">
                           <li className="flex items-start gap-2.5">
                             <div className="w-1.5 h-1.5 rounded-full bg-white mt-1.5 shrink-0" />
-                            <p><strong className="text-[#FDE047] font-semibold">*247#</strong> ডায়াল করে আপনার <strong className="text-[#FDE047] font-semibold">BKASH</strong> মোবাইল মেনুতে যান অথবা <strong className="text-[#FDE047] font-semibold">BKASH</strong> অ্যাপে যান।</p>
+                            <p><strong className="text-[#FDE047] font-bold">*247#</strong> ডায়াল করে অথবা আপনার <strong className="text-[#FDE047] font-bold">BKASH APP</strong> ব্যবহার করুন।</p>
                           </li>
                           <li className="flex items-start gap-2.5">
                             <div className="w-1.5 h-1.5 rounded-full bg-white mt-1.5 shrink-0" />
-                            <p><strong className="text-[#FDE047] font-semibold">"Send Money"</strong> -এ ক্লিক করুন।</p>
+                            <p><strong className="text-[#FDE047] font-bold">"Send Money"</strong> অপশন সিলেক্ট করুন।</p>
                           </li>
                           <li className="flex items-start gap-2.5">
                             <div className="w-1.5 h-1.5 rounded-full bg-white mt-1.5 shrink-0" />
-                            <div className="flex flex-col gap-1.5 w-full">
+                            <div className="flex flex-col gap-1 w-full">
                               <p>প্রাপক নম্বর হিসেবে এই নম্বরটি লিখুন: </p>
                               <div className="flex items-center gap-2 flex-wrap">
-                                <strong className="text-[#FDE047] text-base font-semibold">01629178834</strong> 
+                                <strong className="text-[#FDE047] text-base font-bold font-mono">01629178834</strong>
                                 <button 
                                   type="button"
                                   onClick={() => {
@@ -1087,11 +1092,11 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
                           </li>
                           <li className="flex items-start gap-2.5">
                             <div className="w-1.5 h-1.5 rounded-full bg-white mt-1.5 shrink-0" />
-                            <p>পরিমাণ: <strong className="text-[#FDE047] text-base font-semibold">{shippingFee}</strong> টাকা দিয়ে <strong className="text-[#FDE047] font-semibold">SUBMIT</strong> করুন।</p>
+                            <p>পরিমাণ: <strong className="text-[#FDE047] text-base font-bold font-mono">{cartTotal.toFixed(0)}</strong> টাকা দিয়ে <strong className="text-[#FDE047] font-bold">SUBMIT</strong> করুন।</p>
                           </li>
                           <li className="flex items-start gap-2.5">
                             <div className="w-1.5 h-1.5 rounded-full bg-white mt-1.5 shrink-0" />
-                            <p>এখন উপরের বক্সে আপনার <strong className="text-[#FDE047] font-semibold">Transaction ID</strong> দিন এবং <strong className="text-[#FDE047] font-semibold">VERIFY</strong> করুন।</p>
+                            <p>টাকা পাঠানো সফল হলে এসএমএস বা অ্যাপের প্রাপ্ত <strong className="text-[#FDE047] font-bold">Transaction ID</strong> টি উপরের বক্সে লিখে ভেরিফাই বাটন চাপুন।</p>
                           </li>
                         </ul>
                       </div>
@@ -1099,11 +1104,11 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
                   </div>
 
                   {/* Verify Button - Sticky */}
-                  <div className="p-4 bg-gray-50 border-t border-gray-100 shrink-0">
+                  <div className="p-4 bg-stone-50 border-t border-stone-200 shrink-0">
                     <button
                       type="button"
                       onClick={handleCheckoutSubmit}
-                      className="w-full py-3.5 bg-[#E2136E] hover:bg-[#c91162] text-white font-bold text-sm tracking-wider uppercase rounded-xl transition-colors shadow-lg text-center"
+                      className="w-full py-4 bg-[#E2136E] hover:bg-[#c91162] text-white font-bold text-xs tracking-widest uppercase rounded-xl transition-all shadow-lg text-center cursor-pointer"
                     >
                       VERIFY TRANSACTION
                     </button>
@@ -1111,32 +1116,32 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
                 </div>
               ) : (
                 <div className="p-6 sm:p-8 text-center space-y-6">
-                  <CheckCircle className="w-12 h-12 text-emerald-400 mx-auto mb-2 animate-pulse" />
+                  <CheckCircle className="w-12 h-12 text-emerald-600 mx-auto mb-2 animate-pulse" />
                   
                   <div>
-                    <span className="text-xs font-mono tracking-widest text-emerald-400 uppercase block">── ORDER SECURED ──</span>
+                    <span className="text-xs font-mono tracking-widest text-emerald-600 font-bold uppercase block">── ORDER SECURED ──</span>
                   </div>
 
-                  <div className="text-xs sm:text-sm text-white/80 font-sans leading-relaxed max-w-sm mx-auto space-y-4 text-left border-y border-white/10 py-4">
+                  <div className="text-xs sm:text-sm text-stone-700 font-sans leading-relaxed max-w-sm mx-auto space-y-4 text-left border-y border-stone-200 py-4">
                     <p>
-                      Deep appreciation, <strong className="text-white">{shippingForm.name}</strong>. Your order details have been dispatched to <strong className="text-white">{shippingForm.email}</strong>.
+                      Deep appreciation, <strong className="text-stone-900 font-bold">{shippingForm.name}</strong>. Your order details have been dispatched to <strong className="text-stone-900 font-bold">{shippingForm.email}</strong>.
                     </p>
                     <p>
-                      Your selected headwear is already secured and prepared. Your order is packaged and awaiting immediate dispatch.
+                      Your selected premium caps have been secured. Your package is currently being processed and prepared for swift dispatch.
                     </p>
                   </div>
 
-                  <div className="p-4 bg-white/5 border border-white/10 rounded-lg text-[11px] font-mono text-white/90 text-left max-w-sm mx-auto space-y-3">
-                    <div className="text-emerald-400 font-bold uppercase tracking-wider text-[10px] border-b border-white/10 pb-1.5">
+                  <div className="p-4 bg-stone-50 border border-stone-200 rounded-lg text-[11px] font-mono text-stone-800 text-left max-w-sm mx-auto space-y-3">
+                    <div className="text-emerald-700 font-bold uppercase tracking-wider text-[10px] border-b border-stone-200 pb-1.5">
                       LOGISTICS OVERVIEW
                     </div>
                     <div className="space-y-1.5">
-                      <p className="flex justify-between"><span className="text-white/50">METHOD :</span> <span>Pathao Merchant Delivery</span></p>
-                      <p className="flex justify-between"><span className="text-white/50">TIMELINE (INSIDE DHAKA) :</span> <span>1 to 2 Days</span></p>
-                      <p className="flex justify-between"><span className="text-white/50">TIMELINE (OUTSIDE DHAKA) :</span> <span>2 to 3 Days</span></p>
-                      <p className="flex justify-between items-center pt-1.5 border-t border-white/10 text-white font-bold text-xs">
-                        <span className="text-white/50 font-normal text-[11px] uppercase">IDENTIFIER :</span> 
-                        <span className="font-mono text-emerald-400">{lastOrderId || `ORD-${Date.now().toString().slice(-6)}`}</span>
+                      <p className="flex justify-between"><span className="text-stone-500">DELIVERY METHOD :</span> <span>Pathao Courier Service</span></p>
+                      <p className="flex justify-between"><span className="text-stone-500">TIMELINE (INSIDE DHAKA) :</span> <span>1 to 2 Days</span></p>
+                      <p className="flex justify-between"><span className="text-stone-500">TIMELINE (OUTSIDE DHAKA) :</span> <span>2 to 3 Days</span></p>
+                      <p className="flex justify-between items-center pt-1.5 border-t border-stone-200 text-stone-900 font-bold text-xs">
+                        <span className="text-stone-500 font-normal text-[11px] uppercase">ORDER ID :</span>
+                        <span className="font-mono text-emerald-700">{lastOrderId || `ORD-${Date.now().toString().slice(-6)}`}</span>
                       </p>
                     </div>
                   </div>
@@ -1148,7 +1153,7 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
                       setCheckoutStep('info');
                       setIsCartOpen(false);
                     }}
-                    className="w-full py-3.5 bg-white hover:bg-white/80 text-black font-display text-[10px] tracking-widest uppercase rounded-lg transition-colors mt-4 font-bold"
+                    className="w-full py-3.5 bg-black hover:bg-stone-900 text-white font-sans text-xs tracking-widest uppercase rounded-lg transition-colors mt-4 font-bold cursor-pointer"
                   >
                     Return to browsing
                   </button>
