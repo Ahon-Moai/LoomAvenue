@@ -64,6 +64,28 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
   });
   const [copiedNumber, setCopiedNumber] = useState<boolean>(false);
   const [lastOrderId, setLastOrderId] = useState<string>('');
+  const [completedOrderSummary, setCompletedOrderSummary] = useState<{
+    orderId: string;
+    items: Array<{
+      productName: string;
+      imageUrl?: string;
+      selectedSize: string;
+      quantity: number;
+      price: number;
+      finalPaidAmount: number;
+      selectedOfferName?: string;
+      bundleSelections?: string[];
+    }>;
+    subtotal: number;
+    shippingFee: number;
+    total: number;
+    paymentMethod: string;
+    transactionId: string;
+    customerName: string;
+    customerEmail: string;
+    customerPhone: string;
+    customerAddress: string;
+  } | null>(null);
 
   // Story modal state
   const [isStoryOpen, setIsStoryOpen] = useState<boolean>(false);
@@ -217,6 +239,36 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
         freeShipping: offer?.freeShipping,
         bundleSelections: i.bundleSelections?.map(p => p.name)
       };
+    });
+
+    const summaryItems = cart.map(i => {
+      const offer = i.selectedOffer;
+      const pricing = getItemPricing(i);
+
+      return { 
+        productName: i.product.name, 
+        imageUrl: i.product.imageUrl,
+        selectedSize: i.selectedSize,
+        quantity: i.quantity, 
+        price: i.product.price,
+        selectedOfferName: offer ? offer.title : undefined,
+        finalPaidAmount: pricing.finalPaidAmount,
+        bundleSelections: i.bundleSelections?.map(p => p.name)
+      };
+    });
+
+    setCompletedOrderSummary({
+      orderId,
+      items: summaryItems,
+      subtotal: cartSubtotal,
+      shippingFee: shippingFee,
+      total: cartTotal,
+      paymentMethod: shippingForm.paymentMethod === 'cod' ? 'Cash on Delivery' : 'Pay with bKash',
+      transactionId: transactionId,
+      customerName: shippingForm.name,
+      customerEmail: shippingForm.email,
+      customerPhone: shippingForm.phoneNumber,
+      customerAddress: shippingForm.address
     });
 
     trackEvent('Purchase', {
@@ -1155,34 +1207,93 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
                   </div>
                 </div>
               ) : (
-                <div className="p-6 sm:p-8 text-center space-y-6">
-                  <CheckCircle className="w-12 h-12 text-emerald-400 mx-auto mb-2 animate-pulse" />
-                  
-                  <div>
-                    <span className="text-xs font-mono tracking-widest text-emerald-400 uppercase block">── ORDER SECURED ──</span>
+                <div className="p-6 sm:p-8 space-y-6 text-left max-w-lg mx-auto overflow-y-auto max-h-[85vh]">
+                  <div className="text-center space-y-2">
+                    <CheckCircle className="w-12 h-12 text-emerald-400 mx-auto animate-pulse" />
+                    <span className="text-xs font-mono tracking-widest text-emerald-400 uppercase block font-bold">── ORDER CONFIRMED ──</span>
+                    <span className="inline-block bg-white/10 text-emerald-400 font-mono text-xs px-3 py-1 rounded-full font-bold border border-emerald-400/30">
+                      ID: {completedOrderSummary?.orderId || lastOrderId}
+                    </span>
                   </div>
 
-                  <div className="text-xs sm:text-sm text-white/80 font-sans leading-relaxed max-w-sm mx-auto space-y-4 text-left border-y border-white/10 py-4">
-                    <p>
-                      Deep appreciation, <strong className="text-white">{shippingForm.name}</strong>. Your order details have been dispatched to <strong className="text-white">{shippingForm.email}</strong>.
-                    </p>
-                    <p>
-                      Your selected headwear is already secured and prepared. Your order is packaged and awaiting immediate dispatch.
-                    </p>
+                  <div className="text-xs text-white/80 font-sans leading-relaxed text-center border-b border-white/10 pb-4">
+                    Deep appreciation, <strong className="text-white">{completedOrderSummary?.customerName || shippingForm.name}</strong>. Your order is confirmed and currently being prepared for dispatch.
                   </div>
 
-                  <div className="p-4 bg-white/5 border border-white/10 rounded-lg text-[11px] font-mono text-white/90 text-left max-w-sm mx-auto space-y-3">
-                    <div className="text-emerald-400 font-bold uppercase tracking-wider text-[10px] border-b border-white/10 pb-1.5">
-                      LOGISTICS OVERVIEW
+                  {/* Order Items Breakdown */}
+                  {completedOrderSummary && completedOrderSummary.items.length > 0 && (
+                    <div className="space-y-3">
+                      <h4 className="text-[11px] font-mono tracking-wider text-emerald-400 uppercase font-bold border-b border-white/10 pb-1">
+                        ORDERED ITEMS
+                      </h4>
+                      <div className="space-y-2.5">
+                        {completedOrderSummary.items.map((item, idx) => (
+                          <div key={idx} className="flex gap-3 bg-white/5 p-2.5 rounded-lg border border-white/10 text-xs">
+                            {item.imageUrl && (
+                              <img src={item.imageUrl} alt={item.productName} className="w-12 h-12 object-contain bg-white/5 rounded border border-white/10 shrink-0" />
+                            )}
+                            <div className="flex-1 min-w-0">
+                              <div className="font-bold text-white truncate">{item.productName}</div>
+                              <div className="text-[10px] text-white/60 font-mono">
+                                Size: {item.selectedSize} {item.quantity > 1 ? `| Qty: ${item.quantity}` : ''}
+                              </div>
+                              {item.selectedOfferName && (
+                                <div className="text-[10px] text-yellow-400 font-mono mt-0.5">
+                                  Deal: {item.selectedOfferName}
+                                </div>
+                              )}
+                              {item.bundleSelections && item.bundleSelections.length > 0 && (
+                                <div className="text-[10px] text-white/50 font-mono mt-0.5">
+                                  Included: {item.bundleSelections.join(', ')}
+                                </div>
+                              )}
+                            </div>
+                            <div className="text-right font-mono font-bold text-white shrink-0">
+                              TK {item.finalPaidAmount.toFixed(2)}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                    <div className="space-y-1.5">
-                      <p className="flex justify-between"><span className="text-white/50">METHOD :</span> <span>Pathao Merchant Delivery</span></p>
-                      <p className="flex justify-between"><span className="text-white/50">TIMELINE (INSIDE DHAKA) :</span> <span>1 to 2 Days</span></p>
-                      <p className="flex justify-between"><span className="text-white/50">TIMELINE (OUTSIDE DHAKA) :</span> <span>2 to 3 Days</span></p>
-                      <p className="flex justify-between items-center pt-1.5 border-t border-white/10 text-white font-bold text-xs">
-                        <span className="text-white/50 font-normal text-[11px] uppercase">IDENTIFIER :</span> 
-                        <span className="font-mono text-emerald-400">{lastOrderId || `ORD-${Date.now().toString().slice(-6)}`}</span>
-                      </p>
+                  )}
+
+                  {/* Full Price Breakdown */}
+                  <div className="p-4 bg-white/5 border border-white/10 rounded-lg space-y-2 font-mono text-xs">
+                    <h4 className="text-[11px] tracking-wider text-emerald-400 uppercase font-bold border-b border-white/10 pb-1.5 mb-2">
+                      PAYMENT SUMMARY
+                    </h4>
+                    <div className="flex justify-between text-white/70">
+                      <span>Items Subtotal:</span>
+                      <span>TK {(completedOrderSummary?.subtotal || cartSubtotal).toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between text-white/70">
+                      <span>Delivery Fee:</span>
+                      <span>
+                        {(completedOrderSummary?.shippingFee ?? shippingFee) === 0 
+                          ? 'FREE' 
+                          : `TK ${(completedOrderSummary?.shippingFee ?? shippingFee).toFixed(2)}`}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-white font-bold text-sm pt-2 border-t border-white/10">
+                      <span>Total Paid / Due:</span>
+                      <span className="text-emerald-400">TK {(completedOrderSummary?.total || cartTotal).toFixed(2)}</span>
+                    </div>
+                  </div>
+
+                  {/* Customer & Shipping Details */}
+                  <div className="p-4 bg-white/5 border border-white/10 rounded-lg text-[11px] font-mono text-white/90 space-y-2">
+                    <h4 className="text-[10px] text-emerald-400 font-bold uppercase tracking-wider border-b border-white/10 pb-1.5">
+                      DELIVERY & PAYMENT INFO
+                    </h4>
+                    <div className="space-y-1 text-white/80">
+                      <p><span className="text-white/50">Recipient:</span> {completedOrderSummary?.customerName || shippingForm.name}</p>
+                      <p><span className="text-white/50">Phone:</span> {completedOrderSummary?.customerPhone || shippingForm.phoneNumber}</p>
+                      <p><span className="text-white/50">Address:</span> {completedOrderSummary?.customerAddress || shippingForm.address}</p>
+                      <p><span className="text-white/50">Payment Method:</span> <strong className="text-white">{completedOrderSummary?.paymentMethod || (shippingForm.paymentMethod === 'cod' ? 'Cash on Delivery' : 'bKash')}</strong></p>
+                      {completedOrderSummary?.transactionId && completedOrderSummary.transactionId !== 'Cash on Delivery' && (
+                        <p><span className="text-white/50">Trx ID:</span> <strong className="text-yellow-400">{completedOrderSummary.transactionId}</strong></p>
+                      )}
+                      <p><span className="text-white/50">Shipping Carrier:</span> Pathao Merchant Express</p>
                     </div>
                   </div>
 
