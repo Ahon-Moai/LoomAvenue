@@ -9,9 +9,9 @@ import {
   ShoppingBag, Trash2, Heart, Search, 
   Sparkles, Check, ChevronRight, Menu, X, HelpCircle, 
   Volume2, CheckCircle, Smartphone, ArrowUpRight,
-  Disc, Copy, ArrowLeft
+  Disc, Copy, ArrowLeft, Send
 } from 'lucide-react';
-import { Product, CartItem, Collection, Offer } from '../types';
+import { Product, CartItem, Collection, Offer, Order } from '../types';
 import { collections } from '../data';
 import ProductCard from './ProductCard';
 import ProductDetail from './ProductDetail';
@@ -20,6 +20,7 @@ import FAQSection from './FAQSection';
 import Chatbot from './Chatbot';
 import { supabase } from '../lib/supabase';
 import { trackEvent } from '../pixel';
+import { sendOrderConfirmation } from '../lib/orderUtils';
 
 interface ShopLayoutProps {
   onBackToEntrance: () => void;
@@ -219,9 +220,12 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
   const shippingFee = hasFreeShipping ? 0 : (shippingForm.deliveryZone === 'inside' ? 70 : 130);
   const cartTotal = cartSubtotal + shippingFee;
 
+  const [confirmationStatus, setConfirmationStatus] = useState<string>('');
+
   const completeOrder = async (transactionId: string) => {
     const orderId = `ORD-${Date.now().toString().slice(-6)}`;
     setLastOrderId(orderId);
+    setConfirmationStatus('');
     
     const items = cart.map(i => {
       const offer = i.selectedOffer;
@@ -271,6 +275,28 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
       customerAddress: shippingForm.address
     });
 
+    // Save offline in localStorage for database-less / offline access
+    const newOrder: Order = {
+      id: orderId,
+      customerName: shippingForm.name,
+      customerEmail: shippingForm.email,
+      customerPhone: shippingForm.phoneNumber,
+      customerAddress: shippingForm.address,
+      transactionId: transactionId,
+      status: 'Pending',
+      date: new Date().toISOString(),
+      total: cartTotal,
+      shippingFee: shippingFee,
+      items: items
+    };
+
+    try {
+      const existingOrders: Order[] = JSON.parse(localStorage.getItem('flawed_orders') || '[]');
+      localStorage.setItem('flawed_orders', JSON.stringify([newOrder, ...existingOrders.filter(o => o.id !== orderId)]));
+    } catch (e) {
+      console.error('Failed to save offline order:', e);
+    }
+
     trackEvent('Purchase', {
       currency: 'BDT',
       value: cartTotal,
@@ -293,6 +319,7 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
         status: 'Pending',
         date: new Date().toISOString(),
         total: cartTotal,
+        shippingFee: shippingFee,
         items: items
       }]);
     }
@@ -1297,6 +1324,54 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
                     </div>
                   </div>
 
+                  {/* Send Confirmation Button */}
+                  <div className="space-y-2 pt-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const orderData = completedOrderSummary ? {
+                          id: completedOrderSummary.orderId,
+                          customerName: completedOrderSummary.customerName,
+                          customerPhone: completedOrderSummary.customerPhone,
+                          items: completedOrderSummary.items.map(i => ({
+                            productName: i.productName,
+                            quantity: i.quantity,
+                            price: i.price,
+                            finalPaidAmount: i.finalPaidAmount
+                          })),
+                          shippingFee: completedOrderSummary.shippingFee,
+                          total: completedOrderSummary.total
+                        } : {
+                          id: lastOrderId || `ORD-${Date.now().toString().slice(-6)}`,
+                          customerName: shippingForm.name,
+                          customerPhone: shippingForm.phoneNumber,
+                          items: cart.map(i => ({
+                            productName: i.product.name,
+                            quantity: i.quantity,
+                            price: i.product.price,
+                            finalPaidAmount: getItemPricing(i).finalPaidAmount
+                          })),
+                          shippingFee: shippingFee,
+                          total: cartTotal
+                        };
+
+                        sendOrderConfirmation(orderData, () => {
+                          setConfirmationStatus('Copied & Redirecting to customer phone...');
+                          setTimeout(() => setConfirmationStatus(''), 4000);
+                        });
+                      }}
+                      className="w-full py-3.5 bg-emerald-500 hover:bg-emerald-600 text-white font-mono text-[11px] tracking-widest uppercase rounded-lg transition-all shadow-md flex items-center justify-center gap-2 font-bold cursor-pointer"
+                    >
+                      <Send className="w-4 h-4" /> Send Confirmation
+                    </button>
+
+                    {confirmationStatus && (
+                      <p className="text-[10px] font-mono text-emerald-400 text-center animate-pulse">
+                        ✓ {confirmationStatus}
+                      </p>
+                    )}
+                  </div>
+
                   <button
                     type="button"
                     onClick={() => {
@@ -1304,7 +1379,7 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
                       setCheckoutStep('info');
                       setIsCartOpen(false);
                     }}
-                    className="w-full py-3.5 bg-white hover:bg-white/80 text-black font-display text-[10px] tracking-widest uppercase rounded-lg transition-colors mt-4 font-bold"
+                    className="w-full py-3 bg-white/10 hover:bg-white/20 text-white font-display text-[10px] tracking-widest uppercase rounded-lg transition-colors mt-2 font-bold"
                   >
                     Return to browsing
                   </button>

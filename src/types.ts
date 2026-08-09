@@ -72,6 +72,7 @@ export interface Order {
   status: 'Pending' | 'Processing' | 'Shipped' | 'Delivered' | 'Cancelled';
   date: string;
   total: number;
+  shippingFee?: number;
   items: OrderItem[];
 }
 

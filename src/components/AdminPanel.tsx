@@ -5,13 +5,14 @@ import {
   ArrowLeft, Save, Edit3, Image as ImageIcon, Package, X, ShoppingBag, 
   LayoutGrid, Clock, Truck, CheckCircle2, Lock, BarChart3, TrendingUp, 
   CreditCard, Plus, Trash2, Search, Bell, Mail, LogOut, DollarSign,
-  ChevronRight, Sparkles, Calendar, Filter, ArrowUpRight, ArrowDownRight, Users
+  ChevronRight, Sparkles, Calendar, Filter, ArrowUpRight, ArrowDownRight, Users, Send
 } from 'lucide-react';
 import { 
   ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip as RechartsTooltip, 
   CartesianGrid, PieChart, Pie, Cell, BarChart, Bar 
 } from 'recharts';
 import { supabase } from '../lib/supabase';
+import { sendOrderConfirmation } from '../lib/orderUtils';
 
 interface AdminPanelProps {
   products: Product[];
@@ -39,13 +40,32 @@ export default function AdminPanel({ products, onUpdateProduct, onAddProduct, on
   const [orders, setOrders] = useState<Order[]>([]);
 
   useEffect(() => {
-    if (isAuthenticated && supabase) {
-      const fetchOrders = async () => {
+    const fetchOrders = async () => {
+      let localOrders: Order[] = [];
+      try {
+        localOrders = JSON.parse(localStorage.getItem('flawed_orders') || '[]');
+      } catch (e) {
+        console.error('Failed to parse offline orders', e);
+      }
+
+      if (isAuthenticated && supabase) {
         const { data, error } = await supabase.from('orders').select('*').order('date', { ascending: false });
-        if (data && !error) setOrders(data);
-      };
-      fetchOrders();
-    }
+        if (data && !error && data.length > 0) {
+          const merged = [...data];
+          localOrders.forEach(loc => {
+            if (!merged.find(m => m.id === loc.id)) {
+              merged.push(loc);
+            }
+          });
+          setOrders(merged);
+          return;
+        }
+      }
+
+      setOrders(localOrders);
+    };
+
+    fetchOrders();
   }, [isAuthenticated]);
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -603,6 +623,24 @@ export default function AdminPanel({ products, onUpdateProduct, onAddProduct, on
                           <option value="Delivered">Delivered</option>
                           <option value="Cancelled">Cancelled</option>
                         </select>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            sendOrderConfirmation({
+                              id: order.id,
+                              customerName: order.customerName,
+                              customerPhone: order.customerPhone,
+                              items: order.items,
+                              shippingFee: order.shippingFee,
+                              total: order.total
+                            }, () => {
+                              alert(`Order #${order.id} confirmation message copied to clipboard! Opening WhatsApp / Phone redirect...`);
+                            });
+                          }}
+                          className="w-full bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl px-3 py-2 text-xs font-bold transition-all shadow-sm flex items-center justify-center gap-1.5 cursor-pointer"
+                        >
+                          <Send className="w-3.5 h-3.5" /> Send Confirmation
+                        </button>
                         <button
                           onClick={() => handleDeleteOrder(order.id)}
                           className="w-full bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 rounded-xl px-3 py-2 text-xs font-semibold transition-colors flex items-center justify-center gap-1.5"
