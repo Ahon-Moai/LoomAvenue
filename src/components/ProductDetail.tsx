@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, ShoppingBag, Leaf, BookOpen, Star, Sparkles, CheckCircle2, ArrowLeft } from 'lucide-react';
+import { X, CheckCircle2 } from 'lucide-react';
 import { Product, Offer } from '../types';
 import { trackEvent } from '../pixel';
 
@@ -21,8 +21,8 @@ export default function ProductDetail({ product, allProducts, onClose, onAddToCa
   const [selectedSize, setSelectedSize] = useState<string>(product.sizes[0] || 'One Size');
   const [addedNotice, setAddedNotice] = useState<boolean>(false);
   const [currentImage, setCurrentImage] = useState<string>(product.imageUrl);
-  const [selectedOfferId, setSelectedOfferId] = useState<string | null>(null);
   
+  const [selectedOfferId, setSelectedOfferId] = useState<string | null>(null);
   const [bundleSelections, setBundleSelections] = useState<Product[]>([]);
   const [isBundleModalOpen, setIsBundleModalOpen] = useState(false);
   
@@ -30,7 +30,7 @@ export default function ProductDetail({ product, allProducts, onClose, onAddToCa
   useEffect(() => {
     setBundleSelections([]);
   }, [selectedOfferId]);
-
+  
   useEffect(() => {
     trackEvent('ViewContent', {
       content_ids: [product.id],
@@ -44,7 +44,6 @@ export default function ProductDetail({ product, allProducts, onClose, onAddToCa
   const handleAdd = () => {
     const offer = product.offers?.find(o => o.id === selectedOfferId);
     
-    // Check if bundle selections are complete
     if (offer && offer.quantity > 1) {
       if (bundleSelections.length < offer.quantity - 1) {
         alert(`Please select ${offer.quantity - 1 - bundleSelections.length} more item(s) for this offer.`);
@@ -57,173 +56,109 @@ export default function ProductDetail({ product, allProducts, onClose, onAddToCa
     setTimeout(() => setAddedNotice(false), 2400);
   };
 
-  const handleBuyNowClick = () => {
-    if (product.inStock) {
-      const offer = product.offers?.find(o => o.id === selectedOfferId);
-
-      if (offer && offer.quantity > 1) {
-        if (bundleSelections.length < offer.quantity - 1) {
-          alert(`Please select ${offer.quantity - 1 - bundleSelections.length} more item(s) for this offer.`);
-          return;
-        }
+  const handleBuyNow = () => {
+    const offer = product.offers?.find(o => o.id === selectedOfferId);
+    
+    if (offer && offer.quantity > 1) {
+      if (bundleSelections.length < offer.quantity - 1) {
+        alert(`Please select ${offer.quantity - 1 - bundleSelections.length} more item(s) for this offer.`);
+        return;
       }
+    }
 
-      if (onBuyNow) {
-        onBuyNow(product, selectedSize, offer, bundleSelections);
-      } else {
-        handleAdd();
-      }
+    if (onBuyNow) {
+      onBuyNow(product, selectedSize, offer, bundleSelections);
+    } else {
+      handleAdd();
     }
   };
 
+  const allImages = [product.imageUrl, ...(product.additionalImages || [])];
+
   return (
-    <div id="product-detail-modal" className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-md sm:p-6 md:p-12">
-      {/* Click outside backdrop close */}
-      <div className="absolute inset-0" onClick={onClose} />
+    <div id="product-detail-page" className="fixed inset-0 z-[100] bg-white overflow-y-auto text-black flex flex-col">
+      {/* Header */}
+      <div className="sticky top-0 z-10 flex items-center justify-between p-4 bg-white/80 backdrop-blur-md border-b border-gray-100">
+        <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full transition-colors" title="Close">
+          <X className="w-6 h-6" />
+        </button>
+        <span className="font-mono text-[10px] tracking-widest uppercase text-gray-500">
+          {product.category.replace('-', ' ')}
+        </span>
+        <div className="w-10"></div> {/* Spacer for centering */}
+      </div>
 
-      {/* Full screen mobile / centered desktop panel with crisp light theme */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.98, y: 15 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.98, y: 15 }}
-        transition={{ type: 'spring', damping: 28, stiffness: 240 }}
-        className="relative w-full h-full max-w-6xl mx-auto sm:h-[90vh] sm:rounded-2xl bg-[#fcfbfa] text-stone-900 shadow-2xl flex flex-col md:flex-row overflow-y-auto md:overflow-hidden z-10 border border-stone-200"
-      >
-        {/* Mobile Sticky Header/Close Button (Clean arrow back like a real page navigation) */}
-        <div className="sticky top-0 z-50 w-full bg-[#fcfbfa]/90 backdrop-blur-md border-b border-stone-100 px-4 py-3 flex items-center justify-between md:hidden">
-          <button
-            onClick={onClose}
-            className="p-1.5 -ml-1 text-stone-800 hover:text-stone-950 flex items-center gap-1 text-xs font-semibold"
-            title="Back to Catalog"
-          >
-            <ArrowLeft className="w-5 h-5" />
-            <span>Shop</span>
-          </button>
-          <span className="text-[10px] font-mono tracking-widest text-stone-500 uppercase">
-            Product details
-          </span>
-          <button
-            onClick={onClose}
-            className="p-1 text-stone-500 hover:text-stone-900"
-            title="Close"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-
-        {/* Left Side: Product Image Display with customized mobile sizing */}
-        <div className="w-full md:w-1/2 h-[35vh] sm:h-[45vh] md:h-full bg-stone-50/60 flex flex-col p-4 sm:p-8 shrink-0 justify-center items-center relative border-b border-stone-200/60 md:border-b-0 md:border-r border-stone-200">
-          {/* Desktop Back Arrow button */}
-          <button
-            onClick={onClose}
-            className="absolute top-6 left-6 z-10 p-2 bg-white hover:bg-stone-100 rounded-full text-stone-800 transition-colors hidden md:flex border border-stone-200 shadow-sm items-center justify-center"
-            title="Back to catalog"
-          >
-            <ArrowLeft className="w-4 h-4" />
-          </button>
-
-          <div className="flex-1 relative w-full h-full rounded-xl overflow-hidden bg-white border border-stone-200/50 flex items-center justify-center p-4">
+      <div className="flex flex-col md:flex-row max-w-7xl mx-auto w-full p-4 sm:p-6 lg:p-12 gap-8 lg:gap-16">
+        
+        {/* Left Side: Images */}
+        <div className="w-full md:w-1/2 flex flex-col space-y-4">
+          <div className="w-full aspect-[4/5] sm:aspect-square bg-gray-50 rounded-xl overflow-hidden flex items-center justify-center p-0 sm:p-4">
             <img
               src={currentImage}
               alt={product.name}
               referrerPolicy="no-referrer"
-              className="max-h-full max-w-full object-contain drop-shadow-md"
+              className="w-full h-full object-contain mix-blend-multiply scale-110 sm:scale-100"
             />
           </div>
-
-          {/* Thumbnail Gallery */}
-          {(product.additionalImages && product.additionalImages.length > 0) && (
-            <div className="flex gap-2.5 overflow-x-auto no-scrollbar py-3 mt-2 max-w-full shrink-0">
-              <button 
-                onClick={() => setCurrentImage(product.imageUrl)}
-                className={`relative w-14 h-14 rounded-lg overflow-hidden shrink-0 border-2 transition-all bg-white ${currentImage === product.imageUrl ? 'border-black ring-2 ring-black/10' : 'border-stone-200 opacity-70 hover:opacity-100'}`}
-              >
-                <img src={product.imageUrl} alt={`${product.name} thumbnail`} className="w-full h-full object-contain p-1" />
-              </button>
-              {product.additionalImages.map((imgUrl, idx) => (
+          
+          {/* Thumbnails */}
+          {allImages.length > 1 && (
+            <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2">
+              {allImages.map((imgUrl, idx) => (
                 <button 
                   key={idx}
                   onClick={() => setCurrentImage(imgUrl)}
-                  className={`relative w-14 h-14 rounded-lg overflow-hidden shrink-0 border-2 transition-all bg-white ${currentImage === imgUrl ? 'border-black ring-2 ring-black/10' : 'border-stone-200 opacity-70 hover:opacity-100'}`}
+                  className={`relative w-20 h-20 rounded-lg overflow-hidden shrink-0 transition-all bg-gray-50 ${currentImage === imgUrl ? 'ring-2 ring-black border-2 border-white' : 'border border-gray-200 hover:border-gray-400'}`}
                 >
-                  <img src={imgUrl} alt={`${product.name} view ${idx + 1}`} className="w-full h-full object-contain p-1" />
+                  <img src={imgUrl} alt={`${product.name} view ${idx + 1}`} className="w-full h-full object-contain p-2 mix-blend-multiply" />
                 </button>
               ))}
             </div>
           )}
         </div>
 
-        {/* Right Side: Product Information Details & Clean Buy Section */}
-        <div className="w-full md:w-1/2 h-full flex flex-col bg-[#fcfbfa]">
-          <div className="flex-1 overflow-y-auto no-scrollbar p-5 sm:p-10 pb-24 md:pb-28">
-            {/* Desktop Category Display */}
-            <div className="hidden md:flex items-center justify-between mb-6">
-              <span className="font-mono text-[9px] tracking-[0.25em] text-stone-500 uppercase">
-                {product.category.replace('-', ' ')} / catalogue
-              </span>
-              <button
-                onClick={onClose}
-                className="p-1.5 hover:bg-stone-100 rounded-full text-stone-600 hover:text-stone-900 transition-colors"
-                title="Close"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* Title & Static/Base Price */}
-            <div className="mb-6">
-              <h2 className="font-serif text-2xl sm:text-3xl font-bold text-stone-900 leading-tight mb-2">
-                {product.name}
-              </h2>
-
-              {!product.offers || product.offers.length === 0 ? (
-                <div className="mt-2 flex items-center gap-3">
-                  <span className="font-mono text-xl sm:text-2xl font-bold text-stone-900">
-                    TK {product.price.toFixed(2)}
-                  </span>
-                  <span className="px-2.5 py-1 bg-stone-100 border border-stone-200 rounded text-[10px] font-mono uppercase tracking-wider text-stone-600 font-semibold">
-                    Standard Deal
-                  </span>
-                </div>
-              ) : null}
-            </div>
-
-            {/* Highly Simplified Bundle Offers Selection */}
-            {product.offers && product.offers.length > 0 && (
-              <div className="mb-6 space-y-3.5">
-                <div className="flex items-center gap-3">
-                  <span className="font-mono text-[10px] tracking-wider text-stone-500 uppercase font-bold">Select Buying Option:</span>
-                  <div className="h-px bg-stone-200 flex-1" />
-                </div>
-
-                {/* Standard Price Option */}
-                <div
-                  onClick={() => setSelectedOfferId(null)}
-                  className={`relative border-2 rounded-xl p-4 cursor-pointer transition-all ${
-                    selectedOfferId === null
-                      ? 'bg-stone-50 border-black shadow-sm'
-                      : 'bg-white border-stone-200/80 hover:border-stone-400'
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
+        {/* Right Side: Details & Actions */}
+        <div className="w-full md:w-1/2 flex flex-col">
+          <h1 className="text-3xl font-serif text-gray-900 mb-6">{product.name}</h1>
+          
+          {/* Offers & Price */}
+          <div className="mb-6">
+            {product.offers && product.offers.length > 0 ? (
+              <div className="space-y-3">
+                {/* Standard Price */}
+                <label className={`block relative border rounded-lg p-4 cursor-pointer transition-all ${
+                  selectedOfferId === null ? 'bg-gray-50 border-gray-900' : 'bg-white border-gray-200 hover:border-gray-300'
+                }`}>
+                  <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-3">
-                      <div className={`w-4.5 h-4.5 rounded-full border-2 flex items-center justify-center ${
-                        selectedOfferId === null ? 'border-black text-black' : 'border-stone-300'
+                      <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                        selectedOfferId === null ? 'border-gray-900' : 'border-gray-300'
                       }`}>
-                        {selectedOfferId === null && <div className="w-2.5 h-2.5 bg-black rounded-full" />}
+                        {selectedOfferId === null && <div className="w-2 h-2 bg-gray-900 rounded-full" />}
                       </div>
-                      <div>
-                        <span className="font-sans text-xs font-bold tracking-wide uppercase text-stone-950">
-                          Single Purchase
-                        </span>
-                        <p className="text-[11px] text-stone-500 mt-0.5 font-sans">Buy 1 item at standard catalog rate</p>
-                      </div>
+                      <span className="font-mono text-sm tracking-wider font-bold uppercase text-gray-900">
+                        STANDARD PRICE
+                      </span>
                     </div>
-                    <span className="font-mono text-sm font-bold text-stone-900">
+                    <span className="font-mono text-sm font-bold text-gray-900">
                       TK {product.price.toFixed(2)}
                     </span>
                   </div>
-                </div>
+                  <div className="flex items-center gap-3 ml-7">
+                     <img src={product.imageUrl} alt="" className="w-8 h-8 rounded border border-gray-200 object-contain bg-white" />
+                     <span className="text-xs uppercase font-mono tracking-wide text-gray-600">
+                       {product.name}
+                     </span>
+                  </div>
+                  <input 
+                    type="radio" 
+                    name="offer" 
+                    value="standard" 
+                    className="hidden" 
+                    checked={selectedOfferId === null} 
+                    onChange={() => setSelectedOfferId(null)} 
+                  />
+                </label>
 
                 {/* Offers */}
                 {product.offers.map(offer => {
@@ -231,6 +166,7 @@ export default function ProductDetail({ product, allProducts, onClose, onAddToCa
 
                   // Calculate combined original price of main cap + selected bundle caps
                   let originalPrice = product.price;
+                  
                   if (isSelected && offer.quantity > 1) {
                     for (let i = 0; i < offer.quantity - 1; i++) {
                       if (bundleSelections[i]) {
@@ -244,134 +180,149 @@ export default function ProductDetail({ product, allProducts, onClose, onAddToCa
                   }
 
                   const discountPercentage = offer.discountPercentage || 0;
-                  const discount = offer.fixedDiscount
-                    ? offer.fixedDiscount
+                  const discount = offer.fixedDiscount 
+                    ? offer.fixedDiscount 
                     : (discountPercentage > 0 ? (originalPrice * (discountPercentage / 100)) : 0);
                   const finalPrice = Math.max(0, originalPrice - discount);
 
                   return (
-                    <div
-                      key={offer.id}
-                      className={`relative border-2 rounded-xl p-4 transition-all ${
-                        isSelected
-                          ? 'bg-stone-50 border-black shadow-sm'
-                          : 'bg-white border-stone-200/80 hover:border-stone-400'
-                      }`}
-                    >
+                    <div key={offer.id} className={`block relative border rounded-lg p-4 transition-all ${
+                      isSelected ? 'bg-gray-50 border-gray-900' : 'bg-white border-gray-200 hover:border-gray-300'
+                    }`}>
                       <div onClick={() => setSelectedOfferId(offer.id)} className="cursor-pointer">
                         {offer.badgeText && (
-                          <div className="absolute -top-3.5 right-4 px-2.5 py-1 rounded bg-black text-white text-[9px] font-mono tracking-wider font-bold shadow-sm uppercase">
+                          <div className={`absolute -top-3 right-4 px-2 py-0.5 rounded text-[10px] font-mono tracking-wider font-bold ${offer.badgeColor || 'bg-black text-white'}`}>
                             {offer.badgeText}
                           </div>
                         )}
 
-                        <div className="flex items-center justify-between">
+                        <div className="flex items-center justify-between mb-1">
                           <div className="flex items-center gap-3">
-                            <div className={`w-4.5 h-4.5 rounded-full border-2 flex items-center justify-center ${
-                              isSelected ? 'border-black' : 'border-stone-300'
+                            <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                              isSelected ? 'border-gray-900' : 'border-gray-300'
                             }`}>
-                              {isSelected && <div className="w-2.5 h-2.5 bg-black rounded-full" />}
+                              {isSelected && <div className="w-2 h-2 bg-gray-900 rounded-full" />}
                             </div>
-                            <div>
-                              <span className="font-sans text-xs font-bold tracking-wide uppercase text-stone-950">
-                                {offer.title}
-                              </span>
-                              <p className="text-[11px] text-stone-600 mt-0.5">
-                                {offer.quantity > 1 
-                                  ? `Get ${offer.quantity} items of your choice (${discountPercentage}% OFF)`
-                                  : `Special promo discount deal (${discountPercentage}% OFF)`
-                                }
-                              </p>
-                            </div>
-                          </div>
-
-                          <div className="text-right flex flex-col items-end shrink-0">
-                            <span className="font-mono text-sm font-bold text-stone-900">
-                              TK {finalPrice.toFixed(2)}
+                            <span className="font-mono text-sm tracking-wider font-bold uppercase text-gray-900">
+                              {offer.title}
                             </span>
-                            <span className="text-[10px] text-stone-400 line-through font-mono">
-                              TK {originalPrice.toFixed(0)}
+                          </div>
+                          <div className="text-right">
+                            <span className="font-mono text-sm font-bold text-gray-900">
+                              TK {finalPrice.toFixed(2)}
                             </span>
                           </div>
                         </div>
 
+                        <div className="flex items-center justify-between ml-7">
+                          <div className="flex flex-col">
+                            <span className={`text-xs ${
+                              isSelected ? 'text-gray-900 font-medium' : 'text-gray-500'
+                            }`}>
+                              {offer.quantity > 1 
+                                ? `Choose ${offer.quantity} items (${discountPercentage}% OFF) 👇`
+                                : `Special Deal (${discountPercentage}% OFF)`
+                              }
+                            </span>
+                          </div>
+                          <div className="flex flex-col items-end">
+                            <span className={`text-xs line-through ${
+                              isSelected ? 'text-gray-500' : 'text-gray-400'
+                            }`}>
+                              TK {originalPrice.toFixed(2)}
+                            </span>
+                            {discount > 0 && (
+                              <span className={`text-[10px] px-1.5 py-0.5 rounded font-mono mt-1 ${offer.highlightColor || 'bg-red-50 text-red-600 border border-red-200'}`}>
+                                SAVE TK {discount.toFixed(0)} ({discountPercentage}% OFF)
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
                         {offer.freeShipping && (
-                          <div className="mt-2.5 ml-7.5 py-1.5 px-3 bg-emerald-50 text-emerald-800 rounded-lg text-[10px] font-sans font-bold flex items-center gap-1.5 border border-emerald-100 w-fit">
-                            <span>🚚</span>
-                            <span>INCLUDES FREE DELIVERY</span>
+                          <div className={`mt-3 ml-7 py-2 px-3 rounded flex items-center gap-2 text-xs font-bold ${
+                            isSelected ? 'bg-gray-200/50 text-gray-900' : 'bg-gray-50 text-gray-600'
+                          }`}>
+                            <div className="w-3 h-3 flex items-center justify-center">
+                              <span className="text-[10px]">🚚</span>
+                            </div>
+                            {offer.discountPercentage ? `${offer.discountPercentage}% OFF + ` : ''}FREE SHIPPING
                           </div>
                         )}
                       </div>
 
-                      {/* Expanded Bundle Picker Details with simplified, elegant visual feedback */}
                       {isSelected && offer.quantity > 1 && (
-                         <div className="mt-4 pt-4 border-t border-stone-200/80 ml-7.5 space-y-3">
-                           <div className="text-[10px] font-mono font-bold uppercase text-stone-600 tracking-wider">
-                             Selected Pack Items ({1 + bundleSelections.length} of {offer.quantity}):
+                         <div className="mt-4 pt-4 border-t border-gray-200 ml-7 space-y-3">
+                           <div className="text-[11px] font-mono font-bold uppercase text-gray-500">
+                             Selected Bundle Items ({1 + bundleSelections.length}/{offer.quantity}):
                            </div>
 
-                           {/* Main cap */}
-                           <div className="flex items-center justify-between bg-white p-2 rounded-lg border border-stone-200 shadow-2xs">
-                             <div className="flex items-center gap-2.5">
-                               <img src={product.imageUrl} className="w-9 h-9 rounded object-contain bg-stone-50 p-1 border border-stone-100" alt={product.name} />
+                           {/* Cap 1: Main Product */}
+                           <div className="flex items-center justify-between bg-white border border-gray-100 p-2 rounded-lg shadow-sm">
+                             <div className="flex items-center gap-3">
+                               <img src={product.imageUrl} className="w-10 h-10 rounded object-contain bg-gray-50 p-1 border border-gray-100" alt={product.name} />
                                <div className="flex flex-col">
-                                 <span className="text-stone-900 text-[11px] font-bold uppercase truncate max-w-[160px]">{product.name}</span>
-                                 <span className="text-stone-500 text-[10px] font-mono">Item 1 (This choice)</span>
+                                 <span className="text-gray-900 text-[11px] font-bold uppercase">{product.name}</span>
+                                 <span className="text-gray-500 text-[10px] font-mono">TK {product.price.toFixed(2)}</span>
                                </div>
                              </div>
-                             <span className="text-[9px] font-mono bg-stone-100 text-stone-700 px-2 py-0.5 rounded font-bold">Standard</span>
+                             <span className="text-[10px] font-mono bg-gray-100 text-gray-700 px-2 py-0.5 rounded font-bold">Item 1</span>
                            </div>
-
-                           {/* Bundled Selected Items */}
+                           
+                           {/* Cap 2..N: Selected bundle caps */}
                            {bundleSelections.map((sel, idx) => (
-                             <div key={idx} className="flex items-center justify-between bg-white p-2 rounded-lg border border-stone-200 shadow-2xs">
-                               <div className="flex items-center gap-2.5">
-                                 <img src={sel.imageUrl} className="w-9 h-9 rounded object-contain bg-stone-50 p-1 border border-stone-100" alt={sel.name} />
+                             <div key={idx} className="flex items-center justify-between bg-white border border-gray-100 p-2 rounded-lg shadow-sm">
+                               <div className="flex items-center gap-3">
+                                 <img src={sel.imageUrl} className="w-10 h-10 rounded object-contain bg-gray-50 p-1 border border-gray-100" alt={sel.name} />
                                  <div className="flex flex-col">
-                                   <span className="text-stone-900 text-[11px] font-bold uppercase truncate max-w-[160px]">{sel.name}</span>
-                                   <span className="text-stone-500 text-[10px] font-mono">Item {idx + 2}</span>
+                                   <span className="text-gray-900 text-[11px] font-bold uppercase">{sel.name}</span>
+                                   <span className="text-gray-500 text-[10px] font-mono">TK {sel.price.toFixed(2)}</span>
                                  </div>
                                </div>
                                <div className="flex items-center gap-2">
-                                 <button
-                                   onClick={() => {
-                                      const newSel = [...bundleSelections];
-                                      newSel.splice(idx, 1);
-                                      setBundleSelections(newSel);
-                                   }}
-                                   className="p-1 text-stone-400 hover:text-rose-600 hover:bg-stone-100 rounded transition-colors"
-                                   title="Remove item"
-                                 >
-                                   <X className="w-3.5 h-3.5" />
+                                 <span className="text-[10px] font-mono bg-gray-100 text-gray-700 px-2 py-0.5 rounded font-bold">Item {idx + 2}</span>
+                                 <button onClick={() => {
+                                    const newSel = [...bundleSelections];
+                                    newSel.splice(idx, 1);
+                                    setBundleSelections(newSel);
+                                 }} className="p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors" title="Remove item">
+                                   <X className="w-4 h-4" />
                                  </button>
                                </div>
                              </div>
                            ))}
 
-                           {/* Trigger choice modal for missing pack items */}
+                           {/* Button to choose next cap if needed */}
                            {bundleSelections.length < offer.quantity - 1 && (
-                             <button
-                                type="button"
-                                onClick={() => setIsBundleModalOpen(true)}
-                                className="w-full bg-stone-900 hover:bg-stone-800 text-white text-[10px] font-bold py-2.5 px-4 rounded-lg uppercase tracking-wider transition-all shadow-sm flex items-center justify-center gap-1.5 cursor-pointer"
-                             >
-                               <span>Choose Pack Item #{bundleSelections.length + 2}</span>
-                               <span>➕</span>
-                             </button>
+                             <div className="flex items-center gap-3 pt-1">
+                               <button 
+                                  onClick={() => setIsBundleModalOpen(true)}
+                                  className="w-10 h-10 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center hover:bg-gray-50 text-gray-600 transition-colors"
+                               >
+                                 <span className="text-xl leading-none font-bold">+</span>
+                               </button>
+                               <button 
+                                  onClick={() => setIsBundleModalOpen(true)}
+                                  className="bg-black text-white text-[11px] font-bold px-4 py-2.5 rounded-lg uppercase tracking-wider hover:bg-gray-800 transition-all shadow-sm flex items-center gap-2"
+                               >
+                                 <span>Select Item {bundleSelections.length + 2}</span>
+                                 <span className="text-xs">👉</span>
+                               </button>
+                             </div>
                            )}
 
-                           {/* Savings Calculator Summary Box */}
-                           <div className="p-3 bg-stone-100/50 rounded-lg border border-stone-200/80 space-y-1 font-mono text-[10px] text-stone-700">
-                             <div className="flex justify-between">
-                               <span>Combined Items Price:</span>
+                           {/* Real-time total breakdown summary box */}
+                           <div className="mt-3 p-3 bg-gray-50 rounded-lg border border-gray-200 space-y-1 font-mono text-[11px]">
+                             <div className="flex justify-between text-gray-500">
+                               <span>Combined Price:</span>
                                <span>TK {originalPrice.toFixed(2)}</span>
                              </div>
-                             <div className="flex justify-between text-emerald-700 font-bold">
-                               <span>Bundle Discount:</span>
+                             <div className="flex justify-between text-red-600 font-bold">
+                               <span>Discount ({discountPercentage}% OFF):</span>
                                <span>- TK {discount.toFixed(2)}</span>
                              </div>
-                             <div className="flex justify-between text-stone-900 font-bold text-xs pt-1 border-t border-stone-200">
-                               <span>Final Price:</span>
+                             <div className="flex justify-between text-gray-900 font-bold text-xs pt-1 border-t border-gray-200">
+                               <span>Final Offer Price:</span>
                                <span>TK {finalPrice.toFixed(2)}</span>
                              </div>
                            </div>
@@ -381,174 +332,150 @@ export default function ProductDetail({ product, allProducts, onClose, onAddToCa
                   );
                 })}
               </div>
+            ) : (
+              <div className="text-xl font-bold font-mono text-gray-900">
+                TK {product.price.toFixed(2)}
+              </div>
             )}
+          </div>
 
-            {/* Description Details */}
+          {/* Size Selection */}
+          {product.sizes.length > 0 && product.sizes[0] !== 'One Size' && (
             <div className="mb-6">
-              <span className="block font-mono text-[10px] tracking-wider text-stone-500 uppercase mb-1.5">Description:</span>
-              <p className="text-sm text-stone-700 leading-relaxed font-sans">
-                {product.description}
-              </p>
-            </div>
-
-            {/* Available Sizes selection */}
-            {product.sizes.length > 0 && product.sizes[0] !== 'One Size' && (
-              <div className="mb-8">
-                <span className="block font-mono text-[10px] tracking-wider text-stone-500 uppercase mb-2">
-                  Select Fit Size:
-                </span>
-                <div className="flex gap-2">
-                  {product.sizes.map((size) => (
-                    <button
-                      key={size}
-                      type="button"
-                      onClick={() => setSelectedSize(size)}
-                      className={`min-w-[44px] h-[40px] px-3 font-mono text-xs rounded-lg border transition-all duration-150 ${
-                        selectedSize === size
-                          ? 'bg-black text-white border-black shadow-sm font-bold focus:outline-none'
-                          : 'bg-white text-stone-700 border-stone-200 hover:border-stone-400'
-                      }`}
-                    >
-                      {size}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Consolidated Single Scrollable details area (Instead of complicated navigation tabs) */}
-            <div className="border-t border-stone-200 pt-6 space-y-5">
-              <h3 className="font-mono text-[10px] tracking-widest text-stone-500 uppercase font-bold border-b border-stone-100 pb-2">
-                Product Details & Composition
-              </h3>
-
-              <div className="space-y-3">
-                <div className="flex items-start gap-2 text-stone-700">
-                  <Leaf className="w-4 h-4 text-stone-500 shrink-0 mt-0.5" />
-                  <div className="text-xs">
-                    <strong className="text-stone-900 block font-semibold">Materials & Production:</strong>
-                    <span>{product.materials || 'Sustainably sourced premium fabrics'}</span>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-2 text-stone-700">
-                  <Sparkles className="w-4 h-4 text-stone-500 shrink-0 mt-0.5" />
-                  <div className="text-xs">
-                    <strong className="text-stone-900 block font-semibold">Signature Features:</strong>
-                    <ul className="list-disc list-inside space-y-1 mt-1">
-                      {product.features && product.features.length > 0 ? (
-                        product.features.map((feat, i) => (
-                          <li key={i}>{feat}</li>
-                        ))
-                      ) : (
-                        <li>Crafted with uncompromised quality standards</li>
-                      )}
-                    </ul>
-                  </div>
-                </div>
-
-                {product.story && (
-                  <div className="flex items-start gap-2 text-stone-700">
-                    <BookOpen className="w-4 h-4 text-stone-500 shrink-0 mt-0.5" />
-                    <div className="text-xs">
-                      <strong className="text-stone-900 block font-semibold">Our Story:</strong>
-                      <p className="leading-relaxed text-stone-600 mt-1 italic">{product.story}</p>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Elegant Sticky Action Buy Panel Footer */}
-          <div className="absolute md:absolute bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md px-5 py-4 border-t border-stone-200 z-40">
-            <div className="max-w-xl mx-auto flex flex-col sm:flex-row gap-3">
-              <button
-                onClick={handleAdd}
-                disabled={!product.inStock}
-                className={`flex-1 py-3.5 px-6 rounded-lg text-xs font-semibold tracking-widest uppercase transition-all duration-300 active:scale-98 flex items-center justify-center gap-2 border ${
-                  product.inStock
-                    ? 'bg-white text-stone-900 border-stone-800 hover:bg-stone-50 shadow-xs cursor-pointer'
-                    : 'bg-stone-100 text-stone-400 border-transparent cursor-not-allowed'
-                }`}
-              >
-                <ShoppingBag className="w-4 h-4" />
-                <span>{product.inStock ? 'ADD TO CART' : 'Sold Out'}</span>
-              </button>
-
-              <button
-                onClick={handleBuyNowClick}
-                disabled={!product.inStock}
-                className={`flex-1 py-3.5 px-6 rounded-lg text-xs font-semibold tracking-widest uppercase transition-all duration-300 active:scale-98 flex items-center justify-center gap-2 ${
-                  product.inStock
-                    ? 'bg-black text-white hover:bg-stone-900 shadow-md cursor-pointer'
-                    : 'bg-stone-200 text-stone-400 cursor-not-allowed'
-                }`}
-              >
-                <span>{product.inStock ? 'BUY IT NOW' : 'Sold Out'}</span>
-              </button>
-            </div>
-
-            {/* Float added notice */}
-            <AnimatePresence>
-              {addedNotice && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0 }}
-                  className="absolute left-6 right-6 -top-12 bg-stone-900 text-white py-2.5 px-4 rounded-lg text-center text-[10px] font-mono tracking-wider uppercase flex items-center justify-center gap-2 shadow-xl border border-stone-800"
-                >
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                  <span>Added {product.name} ({selectedSize}) To Basket</span>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        </div>
-
-        {/* Beautiful Light themed Pack Selection Inner Modal */}
-        <AnimatePresence>
-          {isBundleModalOpen && (
-            <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-sm">
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95, y: 10 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                className="bg-white w-full max-w-md rounded-xl shadow-2xl flex flex-col max-h-[75vh] overflow-hidden relative border border-stone-200 text-stone-900"
-              >
-                <div className="flex items-center justify-between p-4 border-b border-stone-200">
-                  <h3 className="font-sans text-xs tracking-widest uppercase font-bold text-stone-800">Choose Pack Item</h3>
-                  <button onClick={() => setIsBundleModalOpen(false)} className="text-stone-500 hover:text-stone-900">
-                    <X className="w-5 h-5" />
+              <span className="block text-sm font-medium text-gray-700 mb-2">Size:</span>
+              <div className="flex flex-wrap gap-2">
+                {product.sizes.map((size) => (
+                  <button
+                    key={size}
+                    type="button"
+                    onClick={() => setSelectedSize(size)}
+                    className={`min-w-[48px] h-10 px-4 text-sm font-medium rounded-md border transition-all duration-150 ${
+                      selectedSize === size
+                        ? 'border-black bg-black text-white'
+                        : 'border-gray-300 bg-white text-gray-700 hover:border-gray-500'
+                    }`}
+                  >
+                    {size}
                   </button>
-                </div>
-
-                <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-stone-50/50">
-                  {allProducts.filter(p => p.id !== product.id).map(p => (
-                    <div key={p.id} className="flex items-center gap-3 bg-white p-2.5 rounded-lg border border-stone-200 shadow-2xs">
-                       <img src={p.imageUrl} alt={p.name} className="w-12 h-12 rounded object-contain bg-stone-50 p-1 border border-stone-100 shrink-0" />
-                       <div className="flex-1 min-w-0">
-                          <div className="text-stone-900 text-[11px] font-bold uppercase truncate">{p.name}</div>
-                          <div className="text-stone-500 text-[10px] font-mono mt-0.5">Tk {p.price.toFixed(0)}</div>
-                       </div>
-                       <button
-                          onClick={() => {
-                            setBundleSelections([...bundleSelections, p]);
-                            setIsBundleModalOpen(false);
-                          }}
-                          className="bg-black text-white px-3 py-1.5 rounded text-[10px] uppercase tracking-wider font-bold hover:bg-stone-800 transition-colors cursor-pointer"
-                       >
-                         Choose
-                       </button>
-                    </div>
-                  ))}
-                </div>
-              </motion.div>
+                ))}
+              </div>
             </div>
           )}
-        </AnimatePresence>
 
-      </motion.div>
+          {/* Action Buttons */}
+          <div className="flex flex-col gap-3 mb-8">
+            <button
+              onClick={handleAdd}
+              disabled={!product.inStock}
+              className="w-full py-4 px-6 border border-black bg-white text-black font-medium text-sm tracking-wide transition-all hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Add to cart
+            </button>
+            <button
+              onClick={handleBuyNow}
+              disabled={!product.inStock}
+              className="w-full py-4 px-6 bg-[#C45E4C] text-white font-medium text-sm tracking-wide transition-all hover:bg-[#a54f40] disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Buy it now
+            </button>
+          </div>
+
+          {/* Description */}
+          <div className="prose prose-sm text-gray-600 mb-8 max-w-none font-sans leading-relaxed">
+            <p>{product.description}</p>
+          </div>
+
+          {/* Product Highlights */}
+          <div className="mb-8">
+            <h3 className="text-lg font-bold text-gray-900 mb-4">Product Highlights</h3>
+            <ul className="space-y-3 text-sm text-gray-600 font-sans">
+              <li className="flex gap-2">
+                <span className="min-w-[100px] text-gray-900 font-medium">Material:</span>
+                <span>{product.materials}</span>
+              </li>
+              {product.features && product.features.map((feature, idx) => (
+                <li key={idx} className="flex gap-2">
+                  <span className="min-w-[100px] text-gray-900 font-medium">Detail:</span>
+                  <span>{feature}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Care Instructions */}
+          {product.story && (
+            <div className="mb-8 pb-8">
+              <h3 className="text-lg font-bold text-gray-900 mb-4">Care Instructions / Story</h3>
+              <p className="text-sm text-gray-600 font-sans leading-relaxed">
+                {product.story}
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Notice Toast */}
+      <AnimatePresence>
+        {addedNotice && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            className="fixed bottom-8 left-1/2 -translate-x-1/2 bg-gray-900 text-white px-6 py-3 rounded-full shadow-lg text-sm font-medium flex items-center gap-2 z-[110]"
+          >
+            <CheckCircle2 className="w-5 h-5 text-green-400" />
+            Added {product.name} to cart
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Bundle Selection Modal */}
+      <AnimatePresence>
+        {isBundleModalOpen && (
+          <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 sm:p-6 bg-black/40 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              className="bg-white w-full max-w-lg rounded-xl shadow-2xl flex flex-col max-h-[85vh] overflow-hidden relative border border-gray-200"
+            >
+              <div className="flex items-center justify-between p-4 border-b border-gray-100">
+                <h3 className="font-mono text-xs tracking-widest uppercase font-bold text-gray-900">Select Item</h3>
+                <button onClick={() => setIsBundleModalOpen(false)} className="text-gray-400 hover:text-gray-900">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              <div className="p-4 border-b border-gray-100 bg-gray-50">
+                <input 
+                   type="text" 
+                   placeholder="Search..." 
+                   className="w-full border border-gray-200 rounded-lg px-4 py-2 text-sm text-gray-900 focus:outline-none focus:border-gray-400 bg-white shadow-sm" 
+                />
+              </div>
+              <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-white">
+                {allProducts.filter(p => p.id !== product.id).map(p => (
+                  <div key={p.id} className="flex items-center gap-4 p-2 rounded-lg hover:bg-gray-50 transition-colors border border-transparent hover:border-gray-100">
+                     <img src={p.imageUrl} alt={p.name} className="w-16 h-16 rounded-lg object-contain bg-gray-50 p-2 border border-gray-100" />
+                     <div className="flex-1">
+                        <div className="text-gray-900 text-[11px] font-bold uppercase mb-1">{p.name}</div>
+                        <div className="text-gray-500 text-xs font-mono">Tk {p.price.toFixed(0)}</div>
+                     </div>
+                     <button
+                        onClick={() => {
+                          setBundleSelections([...bundleSelections, p]);
+                          setIsBundleModalOpen(false);
+                        }}
+                        className="bg-black text-white px-4 py-2 rounded-lg font-bold text-[10px] uppercase tracking-wider hover:bg-gray-800 transition-colors"
+                     >
+                       Choose
+                     </button>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

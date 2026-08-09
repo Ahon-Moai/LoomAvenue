@@ -113,7 +113,29 @@ export const products: Product[] = [
       'Generous length prevents ash from escaping',
       'Underside finished with soft cork protection'
     ],
-    inStock: true
+    inStock: true,
+    offers: [
+      {
+        id: 'off-5-1',
+        title: 'GET 2 ITEMS 15% OFF',
+        quantity: 2,
+        discountPercentage: 15,
+        freeShipping: false,
+        badgeText: 'MOST POPULAR 🔥',
+        badgeColor: 'bg-black text-white',
+        highlightColor: 'bg-red-500 text-white'
+      },
+      {
+        id: 'off-5-2',
+        title: 'GET 3 ITEMS 30% OFF',
+        quantity: 3,
+        discountPercentage: 30,
+        freeShipping: true,
+        badgeText: 'EXCLUSIVE DEAL',
+        badgeColor: 'bg-black text-white',
+        highlightColor: 'bg-red-500 text-white'
+      }
+    ]
   },
   {
     id: 'prd-6',
@@ -131,6 +153,28 @@ export const products: Product[] = [
       'Lightweight yet completely opaque structure',
       'Breathes beautifully in hot humid weather'
     ],
-    inStock: true
+    inStock: true,
+    offers: [
+      {
+        id: 'off-6-1',
+        title: 'GET 2 ITEMS 15% OFF',
+        quantity: 2,
+        discountPercentage: 15,
+        freeShipping: false,
+        badgeText: 'MOST POPULAR 🔥',
+        badgeColor: 'bg-black text-white',
+        highlightColor: 'bg-red-500 text-white'
+      },
+      {
+        id: 'off-6-2',
+        title: 'GET 3 ITEMS 30% OFF',
+        quantity: 3,
+        discountPercentage: 30,
+        freeShipping: true,
+        badgeText: 'EXCLUSIVE DEAL',
+        badgeColor: 'bg-black text-white',
+        highlightColor: 'bg-red-500 text-white'
+      }
+    ]
   }
 ];

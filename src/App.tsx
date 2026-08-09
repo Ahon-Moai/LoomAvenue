@@ -12,7 +12,6 @@ import SharedBackground from './components/SharedBackground';
 import AdminPanel from './components/AdminPanel';
 import { supabase } from './lib/supabase';
 import { Product } from './types';
-import { products as defaultProducts } from './data';
 
 const CACHE_KEY = 'aether_products_cache';
 const CACHE_TTL = 5 * 60 * 1000; // 5 minutes cache TTL
@@ -30,20 +29,7 @@ const updateCache = (data: Product[]) => {
 
 export default function App() {
   const [view, setView] = useState<'entrance' | 'shop' | 'admin'>('entrance');
-  const [products, setProducts] = useState<Product[]>(() => {
-    try {
-      const cached = localStorage.getItem(CACHE_KEY);
-      if (cached) {
-        const { data } = JSON.parse(cached);
-        if (data && data.length > 0) {
-          return data;
-        }
-      }
-    } catch (e) {
-      // Fallback
-    }
-    return defaultProducts;
-  });
+  const [products, setProducts] = useState<Product[]>([]);
 
   useEffect(() => {
     // Supabase sync with client-side cache fallback for high efficiency
