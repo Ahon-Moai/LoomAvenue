@@ -581,151 +581,150 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
           )}
         </AnimatePresence>
 
-        {!selectedCollection ? (
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-7xl mx-auto px-4 sm:px-6 w-full"
-          >
-            {collections.slice(0, 2).map((col) => {
-              // Find the first product to use as the background image
-              const bgProduct = products.find(p => p.category === col.slug);
-              
-              return (
-                <div
-                  key={col.id}
-                  onClick={() => setSelectedCollection(col.slug)}
-                  className="group relative h-[55vh] md:h-[65vh] rounded-2xl overflow-hidden cursor-pointer border border-white/20 shadow-xl"
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="w-full"
+        >
+          {/* Selected Collection Hero Section (if specific collection selected) */}
+          {selectedCollection && selectedCollection !== 'all' && (() => {
+            const activeCol = collections.find(c => c.slug === selectedCollection);
+            if (!activeCol) return null;
+            
+            return (
+              <div className="relative w-full mb-12 shadow-2xl border-b border-white/20 flex flex-col justify-between -mt-[116px] pt-[116px] bg-earth-900">
+                {/* Background Video */}
+                <video 
+                  key={activeCol.slug}
+                  autoPlay loop muted playsInline preload="auto"
+                  className="absolute inset-0 w-full h-full object-cover object-center z-0 filter brightness-[0.45]"
                 >
-                  <div className="absolute inset-0 bg-black/50 group-hover:bg-black/30 transition-all duration-700 z-10" />
-                  
-                  {(col.imageUrl || bgProduct) && (
-                    <img 
-                      src={col.imageUrl || bgProduct?.imageUrl} 
-                      alt={col.name}
-                      className="absolute inset-0 w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-1000 ease-out"
-                    />
+                  {activeCol.videoUrl ? (
+                    <source src={activeCol.videoUrl} type="video/mp4" />
+                  ) : activeCol.slug === 'earth-clay' ? (
+                    <source src="https://ik.imagekit.io/t1q0n1ovm/WhatsApp%20Video%202026-06-16%20at%2022.36.54(1).mp4" type="video/mp4" />
+                  ) : (
+                    <>
+                      <source src="https://res.cloudinary.com/deyatjand/video/upload/f_webm,q_auto,vc_vp9,ac_none,w_1920,c_limit/v1782572836/IMG_2439_lnghj5.webm" type="video/webm" />
+                      <source src="https://res.cloudinary.com/deyatjand/video/upload/f_mp4,q_auto,vc_h264,ac_none,w_1920,c_limit/v1782572836/IMG_2439_lnghj5.mp4" type="video/mp4" />
+                    </>
                   )}
-                  
-                  <div className="absolute inset-0 z-20 p-8 flex flex-col justify-end">
-                    <span className="inline-block w-fit px-3 py-1 bg-white/10 backdrop-blur-md border border-white/20 text-white/90 text-[10px] font-mono tracking-widest uppercase rounded-full mb-4">
-                      Explore Collection
-                    </span>
-                    <h3 className="font-serif italic text-4xl md:text-5xl text-white mb-3 tracking-tight group-hover:text-white/90 transition-colors">
-                      {col.name}
-                    </h3>
-                    <p className="text-sm text-white/70 font-sans max-w-sm leading-relaxed mb-6">
-                      {col.description}
+                </video>
+                
+                {/* Gradient Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent z-0" />
+                
+                {/* Top Content Row */}
+                <div className="relative z-10 p-8 md:p-12 flex flex-col lg:flex-row gap-8 justify-between items-start lg:items-center w-full max-w-7xl mx-auto min-h-[55vh]">
+                  <div className="max-w-xl">
+                    <div className="inline-block px-4 py-1.5 border border-white/30 rounded-full mb-6 backdrop-blur-md bg-white/5">
+                      <span className="font-mono text-[9px] text-[#e8dcc4] tracking-[0.2em] uppercase">{activeCol.tagline}</span>
+                    </div>
+                    <h2 className="font-serif text-5xl md:text-6xl font-bold text-white leading-tight mb-2 tracking-tight">
+                      Discover Your
+                    </h2>
+                    <h2 className="font-serif italic text-5xl md:text-6xl text-[#e8dcc4] mb-6 tracking-tight">
+                      {activeCol.name}
+                    </h2>
+                    <p className="text-sm md:text-base text-white/80 font-sans leading-relaxed max-w-md">
+                      {activeCol.description}
                     </p>
-                    <div className="flex items-center gap-2 text-white font-mono text-[10px] tracking-widest uppercase">
-                      <span className="relative overflow-hidden">
-                        <span className="inline-block transition-transform duration-300 group-hover:-translate-y-full">Enter</span>
-                        <span className="absolute left-0 top-0 inline-block transition-transform duration-300 translate-y-full group-hover:translate-y-0">Enter</span>
-                      </span>
-                      <ChevronRight className="w-3.5 h-3.5 transform group-hover:translate-x-1 transition-transform" />
-                    </div>
                   </div>
-                </div>
-              );
-            })}
-          </motion.div>
-        ) : (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="w-full"
-          >
-            {/* Selected Collection Hero Section */}
-            {(() => {
-              const activeCol = collections.find(c => c.slug === selectedCollection);
-              if (!activeCol) return null;
-              
-              return (
-                <div className="relative w-full mb-12 shadow-2xl border-b border-white/20 flex flex-col justify-between -mt-[116px] pt-[116px] bg-earth-900">
-                  {/* Background Video */}
-                  <video 
-                    key={activeCol.slug}
-                    autoPlay loop muted playsInline preload="auto"
-                    className="absolute inset-0 w-full h-full object-cover object-center z-0 filter brightness-[0.45]"
-                  >
-                    {activeCol.videoUrl ? (
-                      <source src={activeCol.videoUrl} type="video/mp4" />
-                    ) : activeCol.slug === 'earth-clay' ? (
-                      <source src="https://ik.imagekit.io/t1q0n1ovm/WhatsApp%20Video%202026-06-16%20at%2022.36.54(1).mp4" type="video/mp4" />
-                    ) : (
-                      <>
-                        <source src="https://res.cloudinary.com/deyatjand/video/upload/f_webm,q_auto,vc_vp9,ac_none,w_1920,c_limit/v1782572836/IMG_2439_lnghj5.webm" type="video/webm" />
-                        <source src="https://res.cloudinary.com/deyatjand/video/upload/f_mp4,q_auto,vc_h264,ac_none,w_1920,c_limit/v1782572836/IMG_2439_lnghj5.mp4" type="video/mp4" />
-                      </>
-                    )}
-                  </video>
                   
-                  {/* Gradient Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent z-0" />
-                  
-                  {/* Top Content Row */}
-                  <div className="relative z-10 p-8 md:p-12 flex flex-col lg:flex-row gap-8 justify-between items-start lg:items-center w-full max-w-7xl mx-auto min-h-[55vh]">
-                    <div className="max-w-xl">
-                      <div className="inline-block px-4 py-1.5 border border-white/30 rounded-full mb-6 backdrop-blur-md bg-white/5">
-                        <span className="font-mono text-[9px] text-[#e8dcc4] tracking-[0.2em] uppercase">{activeCol.tagline}</span>
+                  {/* Right side floating cards */}
+                  <div className="flex flex-col gap-4 w-full md:w-auto">
+                    <div className="flex items-center gap-4 p-4 rounded-2xl bg-white/10 backdrop-blur-lg border border-white/20 hover:bg-white/15 transition-all cursor-pointer group pr-8">
+                      <div className="w-12 h-12 rounded-xl bg-black/40 overflow-hidden border border-white/10 flex-shrink-0 flex items-center justify-center relative">
+                          <Sparkles className="w-5 h-5 text-[#e8dcc4] group-hover:scale-110 transition-transform" />
                       </div>
-                      <h2 className="font-serif text-5xl md:text-6xl font-bold text-white leading-tight mb-2 tracking-tight">
-                        Discover Your
-                      </h2>
-                      <h2 className="font-serif italic text-5xl md:text-6xl text-[#e8dcc4] mb-6 tracking-tight">
-                        {activeCol.name}
-                      </h2>
-                      <p className="text-sm md:text-base text-white/80 font-sans leading-relaxed max-w-md">
-                        {activeCol.description}
-                      </p>
-                    </div>
-                    
-                    {/* Right side floating cards */}
-                    <div className="flex flex-col gap-4 w-full md:w-auto">
-                      <div className="flex items-center gap-4 p-4 rounded-2xl bg-white/10 backdrop-blur-lg border border-white/20 hover:bg-white/15 transition-all cursor-pointer group pr-8">
-                        <div className="w-12 h-12 rounded-xl bg-black/40 overflow-hidden border border-white/10 flex-shrink-0 flex items-center justify-center relative">
-                            <Sparkles className="w-5 h-5 text-[#e8dcc4] group-hover:scale-110 transition-transform" />
-                        </div>
-                        <div>
-                          <h4 className="font-serif text-white font-medium text-lg">Raw Materials</h4>
-                          <p className="text-[11px] font-sans text-white/60 mt-0.5">Ethically sourced fabrics</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-4 p-4 rounded-2xl bg-white/10 backdrop-blur-lg border border-white/20 hover:bg-white/15 transition-all cursor-pointer group pr-8">
-                        <div className="w-12 h-12 rounded-xl bg-black/40 overflow-hidden border border-white/10 flex-shrink-0 flex items-center justify-center relative">
-                            <Disc className="w-5 h-5 text-[#e8dcc4] group-hover:scale-110 transition-transform" />
-                        </div>
-                        <div>
-                          <h4 className="font-serif text-white font-medium text-lg">Artisan Crafted</h4>
-                          <p className="text-[11px] font-sans text-white/60 mt-0.5">Hand-finished details</p>
-                        </div>
+                      <div>
+                        <h4 className="font-serif text-white font-medium text-lg">Raw Materials</h4>
+                        <p className="text-[11px] font-sans text-white/60 mt-0.5">Ethically sourced fabrics</p>
                       </div>
                     </div>
-                  </div>
-
-                  {/* Bottom Stats Bar */}
-                  <div className="relative z-10 w-full bg-black/40 backdrop-blur-md border-t border-white/10">
-                    <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-3">
-                      <div className="p-6 flex flex-col items-center justify-center text-center border-b sm:border-b-0 sm:border-r border-white/10">
-                        <span className="font-serif text-xl sm:text-2xl font-bold text-[#e8dcc4] mb-1">MULTI STAGE</span>
-                        <span className="text-[9px] font-mono tracking-widest text-white/60 uppercase">QUALITY CHECKS</span>
+                    <div className="flex items-center gap-4 p-4 rounded-2xl bg-white/10 backdrop-blur-lg border border-white/20 hover:bg-white/15 transition-all cursor-pointer group pr-8">
+                      <div className="w-12 h-12 rounded-xl bg-black/40 overflow-hidden border border-white/10 flex-shrink-0 flex items-center justify-center relative">
+                          <Disc className="w-5 h-5 text-[#e8dcc4] group-hover:scale-110 transition-transform" />
                       </div>
-                      <div className="p-6 flex flex-col items-center justify-center text-center border-b sm:border-b-0 sm:border-r border-white/10">
-                        <span className="font-serif text-xl sm:text-2xl font-bold text-[#e8dcc4] mb-1">100%</span>
-                        <span className="text-[9px] font-mono tracking-widest text-white/60 uppercase">COMMUNITY TRUST</span>
-                      </div>
-                      <div className="p-6 flex flex-col items-center justify-center text-center">
-                        <span className="font-serif text-xl sm:text-2xl font-bold text-[#e8dcc4] mb-1">PRIORITY</span>
-                        <span className="text-[9px] font-mono tracking-widest text-white/60 uppercase">BUYER CARE</span>
+                      <div>
+                        <h4 className="font-serif text-white font-medium text-lg">Artisan Crafted</h4>
+                        <p className="text-[11px] font-sans text-white/60 mt-0.5">Hand-finished details</p>
                       </div>
                     </div>
                   </div>
                 </div>
-              );
-            })()}
 
-            {/* Active product grid with clean transition delays */}
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 w-full">
+                {/* Bottom Stats Bar */}
+                <div className="relative z-10 w-full bg-black/40 backdrop-blur-md border-t border-white/10">
+                  <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-3">
+                    <div className="p-6 flex flex-col items-center justify-center text-center border-b sm:border-b-0 sm:border-r border-white/10">
+                      <span className="font-serif text-xl sm:text-2xl font-bold text-[#e8dcc4] mb-1">MULTI STAGE</span>
+                      <span className="text-[9px] font-mono tracking-widest text-white/60 uppercase">QUALITY CHECKS</span>
+                    </div>
+                    <div className="p-6 flex flex-col items-center justify-center text-center border-b sm:border-b-0 sm:border-r border-white/10">
+                      <span className="font-serif text-xl sm:text-2xl font-bold text-[#e8dcc4] mb-1">100%</span>
+                      <span className="text-[9px] font-mono tracking-widest text-white/60 uppercase">COMMUNITY TRUST</span>
+                    </div>
+                    <div className="p-6 flex flex-col items-center justify-center text-center">
+                      <span className="font-serif text-xl sm:text-2xl font-bold text-[#e8dcc4] mb-1">PRIORITY</span>
+                      <span className="text-[9px] font-mono tracking-widest text-white/60 uppercase">BUYER CARE</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
+
+          {/* Active product grid or category sections */}
+          <div id="shop-grid-anchor" className="max-w-7xl mx-auto px-4 sm:px-6 w-full pt-4 space-y-12">
+            {(!selectedCollection || selectedCollection === 'all') && !searchQuery ? (
+              /* Display products directly from both categories grouped by category */
+              collections.map((col) => {
+                const colProducts = products.filter(p => p.category === col.slug);
+                if (colProducts.length === 0) return null;
+
+                return (
+                  <section key={col.id} className="space-y-5">
+                    <div className="flex flex-col sm:flex-row sm:items-end justify-between border-b border-white/15 pb-4 gap-2">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                          <span className="text-[10px] font-mono uppercase tracking-widest text-[#e8dcc4]">Category Collection</span>
+                        </div>
+                        <h3 className="font-serif italic text-2xl sm:text-3xl text-white font-bold tracking-tight mt-1">
+                          {col.name}
+                        </h3>
+                        <p className="text-xs text-white/70 font-sans max-w-xl mt-1 leading-relaxed">
+                          {col.description}
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => {
+                          setSelectedCollection(col.slug);
+                          const el = document.getElementById('shop-grid-anchor');
+                          if (el) el.scrollIntoView({ behavior: 'smooth' });
+                        }}
+                        className="text-[10px] font-mono tracking-widest uppercase text-[#e8dcc4] hover:text-white flex items-center gap-1.5 shrink-0 bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-full border border-white/20 transition-all cursor-pointer"
+                      >
+                        View Only {col.name} <ChevronRight className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 w-full">
+                      {colProducts.map((product) => (
+                        <ProductCard
+                          key={product.id}
+                          product={product}
+                          onView={(p) => setSelectedProductDetail(p)}
+                          onQuickAdd={handleAddToCart}
+                        />
+                      ))}
+                    </div>
+                  </section>
+                );
+              })
+            ) : (
+              /* Display filtered products grid if single collection or search query active */
               <AnimatePresence mode="popLayout">
                 {filteredProducts.length > 0 ? (
                   <motion.div 
@@ -751,17 +750,17 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
                     <p className="font-mono text-xs tracking-wider text-white/80 uppercase">No aligned catalog items found</p>
                     <p className="text-xs text-white/60 mt-1 font-sans">Try searching another creative detail</p>
                     <button
-                      onClick={() => { setSearchQuery(''); }}
-                      className="mt-4 px-4 py-2 bg-white/10 w-auto inline-block border border-white/20 hover:border-white/50 hover:bg-white/20 text-white font-mono text-[10px] tracking-wider uppercase rounded transition-all"
+                      onClick={() => { setSearchQuery(''); setSelectedCollection(null); }}
+                      className="mt-4 px-4 py-2 bg-white/10 w-auto inline-block border border-white/20 hover:border-white/50 hover:bg-white/20 text-white font-mono text-[10px] tracking-wider uppercase rounded transition-all cursor-pointer"
                     >
-                      Clear Search
+                      Clear Search & Reset
                     </button>
                   </motion.div>
                 )}
               </AnimatePresence>
-            </div>
-          </motion.div>
-        )}
+            )}
+          </div>
+        </motion.div>
       </main>
 
       <FAQSection />
