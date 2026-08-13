@@ -292,7 +292,10 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
 
     try {
       const existingOrders: Order[] = JSON.parse(localStorage.getItem('flawed_orders') || '[]');
-      localStorage.setItem('flawed_orders', JSON.stringify([newOrder, ...existingOrders.filter(o => o.id !== orderId)]));
+      const updated = [newOrder, ...existingOrders.filter(o => o.id !== orderId)];
+      localStorage.setItem('flawed_orders', JSON.stringify(updated));
+      window.dispatchEvent(new Event('flawed_orders_updated'));
+      window.dispatchEvent(new Event('storage'));
     } catch (e) {
       console.error('Failed to save offline order:', e);
     }
@@ -309,19 +312,51 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
     });
 
     if (supabase) {
-      await supabase.from('orders').insert([{
-        id: orderId,
-        customerName: shippingForm.name,
-        customerEmail: shippingForm.email,
-        customerPhone: shippingForm.phoneNumber,
-        customerAddress: shippingForm.address,
-        transactionId: transactionId,
-        status: 'Pending',
-        date: new Date().toISOString(),
-        total: cartTotal,
-        shippingFee: shippingFee,
-        items: items
-      }]);
+      try {
+        const orderSnake = {
+          id: orderId,
+          customer_name: shippingForm.name,
+          customer_email: shippingForm.email,
+          customer_phone: shippingForm.phoneNumber,
+          customer_address: shippingForm.address,
+          transaction_id: transactionId,
+          status: 'Pending',
+          date: new Date().toISOString(),
+          total: cartTotal,
+          shipping_fee: shippingFee,
+          items: items
+        };
+
+        const orderCamel = {
+          id: orderId,
+          customerName: shippingForm.name,
+          customerEmail: shippingForm.email,
+          customerPhone: shippingForm.phoneNumber,
+          customerAddress: shippingForm.address,
+          transactionId: transactionId,
+          status: 'Pending',
+          date: new Date().toISOString(),
+          total: cartTotal,
+          shippingFee: shippingFee,
+          items: items
+        };
+
+        // Try snake_case column names first (standard Supabase pattern)
+        const res1 = await supabase.from('orders').insert([orderSnake]);
+        if (res1.error) {
+          console.warn('Supabase snake_case insert failed, attempting camelCase:', res1.error.message);
+          const res2 = await supabase.from('orders').insert([orderCamel]);
+          if (res2.error) {
+            console.error('Supabase order insert error:', res2.error.message, res2.error.details);
+          } else {
+            console.log('Successfully inserted order to Supabase (camelCase)');
+          }
+        } else {
+          console.log('Successfully inserted order to Supabase (snake_case)');
+        }
+      } catch (err) {
+        console.warn('Could not insert order to Supabase, retained in local storage:', err);
+      }
     }
 
     setCheckoutStep('completed');

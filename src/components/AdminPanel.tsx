@@ -42,54 +42,101 @@ export default function AdminPanel({ products, onUpdateProduct, onAddProduct, on
   const fetchOrders = async () => {
     let localOrders: Order[] = [];
     try {
-      localOrders = JSON.parse(localStorage.getItem('flawed_orders') || '[]');
+      const raw = localStorage.getItem('flawed_orders');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          localOrders = parsed;
+        }
+      }
     } catch (e) {
-      console.error('Failed to parse offline orders', e);
+      console.error('Failed to parse local orders', e);
     }
+
+    const normalizeOrder = (raw: any): Order => {
+      let itemsArray = raw.items;
+      if (typeof itemsArray === 'string') {
+        try { itemsArray = JSON.parse(itemsArray); } catch (e) { itemsArray = []; }
+      }
+      if (!Array.isArray(itemsArray)) itemsArray = [];
+
+      return {
+        id: raw.id || `FLW-${Math.floor(100000 + Math.random() * 900000)}`,
+        customerName: raw.customerName || raw.customer_name || 'Anonymous Customer',
+        customerEmail: raw.customerEmail || raw.customer_email || '',
+        customerPhone: raw.customerPhone || raw.customer_phone || '',
+        customerAddress: raw.customerAddress || raw.customer_address || '',
+        transactionId: raw.transactionId || raw.transaction_id || 'N/A',
+        status: raw.status || 'Pending',
+        date: raw.date || new Date().toISOString(),
+        total: typeof raw.total === 'number' ? raw.total : Number(raw.total) || 0,
+        shippingFee: typeof raw.shippingFee === 'number' ? raw.shippingFee : Number(raw.shipping_fee) || 70,
+        items: itemsArray.map((i: any) => ({
+          productName: i.productName || i.product_name || 'Cap Item',
+          quantity: Number(i.quantity) || 1,
+          price: Number(i.price) || 0,
+          selectedSize: i.selectedSize || i.selected_size,
+          finalPaidAmount: Number(i.finalPaidAmount || i.final_paid_amount || (i.price * i.quantity)) || 0,
+          originalTotal: i.originalTotal,
+          selectedOfferName: i.selectedOfferName,
+          savings: i.savings,
+          bundleSelections: i.bundleSelections,
+          freeShipping: i.freeShipping
+        }))
+      };
+    };
+
+    const normalizedLocal = localOrders.map(normalizeOrder);
+    const orderMap = new Map<string, Order>();
+
+    // Start with local orders
+    normalizedLocal.forEach(ord => orderMap.set(ord.id, ord));
 
     if (supabase) {
       try {
         const { data, error } = await supabase.from('orders').select('*').order('date', { ascending: false });
-        if (data && !error && data.length > 0) {
-          const merged = [...data];
-          localOrders.forEach(loc => {
-            if (!merged.find(m => m.id === loc.id)) {
-              merged.push(loc);
-            }
+        if (data && !error && Array.isArray(data)) {
+          data.forEach(dbOrd => {
+            const norm = normalizeOrder(dbOrd);
+            // Supabase order takes precedence if fields match, or merged
+            orderMap.set(norm.id, norm);
           });
-          setOrders(merged);
-          try {
-            localStorage.setItem('flawed_orders', JSON.stringify(merged));
-          } catch (e) {}
-          return;
         }
       } catch (err) {
-        console.warn('Supabase fetch failed or table missing, falling back to local storage:', err);
+        console.warn('Supabase fetch failed or table missing, using local storage orders:', err);
       }
     }
 
-    setOrders(localOrders);
+    const mergedOrders = Array.from(orderMap.values()).sort(
+      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+    );
+
+    setOrders(mergedOrders);
+    try {
+      localStorage.setItem('flawed_orders', JSON.stringify(mergedOrders));
+    } catch (e) {}
   };
 
   useEffect(() => {
     fetchOrders();
 
-    // Auto-polling interval every 3 seconds to keep orders live
+    // Auto-polling interval every 2 seconds to keep orders live
     const interval = setInterval(() => {
       fetchOrders();
-    }, 3000);
+    }, 2000);
 
-    // Cross-tab/window storage listener
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'flawed_orders') {
-        fetchOrders();
-      }
+    // Storage listeners for cross-tab and same-tab updates
+    const handleStorageChange = (e?: Event) => {
+      fetchOrders();
     };
+
     window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('flawed_orders_updated', handleStorageChange);
 
     return () => {
       clearInterval(interval);
       window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('flawed_orders_updated', handleStorageChange);
     };
   }, [isAuthenticated]);
 
@@ -196,6 +243,7 @@ export default function AdminPanel({ products, onUpdateProduct, onAddProduct, on
     setOrders(updated);
     try {
       localStorage.setItem('flawed_orders', JSON.stringify(updated));
+      window.dispatchEvent(new Event('flawed_orders_updated'));
     } catch (e) {
       console.error('Failed to update local order status:', e);
     }
@@ -215,6 +263,7 @@ export default function AdminPanel({ products, onUpdateProduct, onAddProduct, on
       setOrders(updated);
       try {
         localStorage.setItem('flawed_orders', JSON.stringify(updated));
+        window.dispatchEvent(new Event('flawed_orders_updated'));
       } catch (e) {
         console.error('Failed to update local storage after delete:', e);
       }
@@ -280,10 +329,31 @@ export default function AdminPanel({ products, onUpdateProduct, onAddProduct, on
     setOrders(updated);
     try {
       localStorage.setItem('flawed_orders', JSON.stringify(updated));
+      window.dispatchEvent(new Event('flawed_orders_updated'));
     } catch (e) {}
 
     if (supabase) {
-      supabase.from('orders').insert([sampleOrder]).then(() => {});
+      const orderSnake = {
+        id: sampleOrder.id,
+        customer_name: sampleOrder.customerName,
+        customer_email: sampleOrder.customerEmail,
+        customer_phone: sampleOrder.customerPhone,
+        customer_address: sampleOrder.customerAddress,
+        transaction_id: sampleOrder.transactionId,
+        status: sampleOrder.status,
+        date: sampleOrder.date,
+        total: sampleOrder.total,
+        shipping_fee: sampleOrder.shippingFee,
+        items: sampleOrder.items
+      };
+
+      supabase.from('orders').insert([orderSnake]).then(({ error }) => {
+        if (error) {
+          supabase.from('orders').insert([sampleOrder]).then(({ error: err2 }) => {
+            if (err2) console.error('Failed to insert sample order to Supabase:', err2.message);
+          });
+        }
+      });
     }
   };
 
