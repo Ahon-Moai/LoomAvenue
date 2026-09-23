@@ -569,6 +569,12 @@ export default function AdminPanel({ products, onUpdateProduct, onAddProduct, on
                   'Authenticate Access'
                 )}
               </button>
+
+              <div className="pt-2 text-center">
+                <p className="text-[11px] text-slate-400">
+                  Protected by <span className="font-medium text-slate-600">Supabase Auth</span>. Unregistered users or invalid passwords cannot sign in.
+                </p>
+              </div>
             </form>
           </div>
         </motion.div>
@@ -677,17 +683,13 @@ export default function AdminPanel({ products, onUpdateProduct, onAddProduct, on
               </div>
 
               {/* Header Badges / Avatar */}
-              <div className="flex items-center gap-2 border-l border-slate-200 pl-4">
-                <div className="w-9 h-9 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center relative hover:bg-slate-200 transition-colors cursor-pointer">
-                  <Bell className="w-4 h-4" />
-                  <span className="absolute -top-1 -right-1 bg-[#FF8A00] text-white text-[9px] font-bold px-1 rounded-full">24</span>
+              <div className="flex items-center gap-3 border-l border-slate-200 pl-4">
+                <div className="hidden lg:flex flex-col text-right">
+                  <span className="text-xs font-semibold text-slate-800">{authEmail || 'Admin User'}</span>
+                  <span className="text-[10px] text-emerald-600 font-medium">Supabase Verified</span>
                 </div>
-                <div className="w-9 h-9 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center relative hover:bg-slate-200 transition-colors cursor-pointer">
-                  <Mail className="w-4 h-4" />
-                  <span className="absolute -top-1 -right-1 bg-blue-500 text-white text-[9px] font-bold px-1 rounded-full">5</span>
-                </div>
-                <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-amber-400 to-[#FF8A00] text-white font-bold flex items-center justify-center text-xs shadow-sm ml-1">
-                  A
+                <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-amber-400 to-[#FF8A00] text-white font-bold flex items-center justify-center text-xs shadow-sm ml-1 uppercase">
+                  {authEmail ? authEmail[0] : 'A'}
                 </div>
               </div>
             </div>
