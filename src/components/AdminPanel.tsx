@@ -5,7 +5,8 @@ import {
   ArrowLeft, Save, Edit3, Image as ImageIcon, Package, X, ShoppingBag, 
   LayoutGrid, Clock, Truck, CheckCircle2, Lock, BarChart3, TrendingUp, 
   CreditCard, Plus, Trash2, Search, Bell, Mail, LogOut, DollarSign,
-  ChevronRight, Sparkles, Calendar, Filter, ArrowUpRight, ArrowDownRight, Users, Send
+  ChevronRight, Sparkles, Calendar, Filter, ArrowUpRight, ArrowDownRight, Users, Send,
+  Loader2
 } from 'lucide-react';
 import { 
   ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip as RechartsTooltip, 
@@ -27,6 +28,32 @@ export default function AdminPanel({ products, onUpdateProduct, onAddProduct, on
   const [authEmail, setAuthEmail] = useState('');
   const [authPass, setAuthPass] = useState('');
   const [authError, setAuthError] = useState('');
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+
+  // Sync authentication state directly with Supabase session
+  useEffect(() => {
+    if (!supabase) return;
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        setIsAuthenticated(true);
+        if (session.user.email) setAuthEmail(session.user.email);
+      }
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        setIsAuthenticated(true);
+        if (session.user.email) setAuthEmail(session.user.email);
+      } else {
+        setIsAuthenticated(false);
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
 
   const [activeTab, setActiveTab] = useState<'products' | 'orders' | 'revenue'>('products');
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -118,15 +145,20 @@ export default function AdminPanel({ products, onUpdateProduct, onAddProduct, on
   };
 
   useEffect(() => {
+    if (!isAuthenticated) {
+      setOrders([]);
+      return;
+    }
+
     fetchOrders();
 
-    // Auto-polling interval every 2 seconds to keep orders live
+    // Auto-polling interval every 5 seconds to keep orders live
     const interval = setInterval(() => {
       fetchOrders();
-    }, 2000);
+    }, 5000);
 
     // Storage listeners for cross-tab and same-tab updates
-    const handleStorageChange = (e?: Event) => {
+    const handleStorageChange = () => {
       fetchOrders();
     };
 
@@ -144,36 +176,54 @@ export default function AdminPanel({ products, onUpdateProduct, onAddProduct, on
     e.preventDefault();
     setAuthError('');
 
-    // Allow default admin passcodes or fallback if offline
-    if (
-      authPass === 'admin' ||
-      authPass === 'admin123' ||
-      authPass === 'flawed' ||
-      authPass === '123456' ||
-      authPass === 'loom' ||
-      !supabase
-    ) {
-      setIsAuthenticated(true);
+    if (!supabase) {
+      setAuthError('Supabase is not configured. Please ensure VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY are set.');
       return;
     }
 
+    const trimmedEmail = authEmail.trim();
+    if (!trimmedEmail || !authPass) {
+      setAuthError('Please provide both your registered admin email and password.');
+      return;
+    }
+
+    setIsLoggingIn(true);
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email: authEmail,
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: trimmedEmail,
         password: authPass,
       });
+
       if (error) {
-        if (authPass.length >= 3) {
-          setIsAuthenticated(true);
-        } else {
-          setAuthError(error.message);
-        }
-      } else {
+        setAuthError(error.message || 'Invalid login credentials. Please check your Supabase Auth account.');
+        setIsAuthenticated(false);
+      } else if (data?.user || data?.session) {
         setIsAuthenticated(true);
+        setAuthPass('');
+        setAuthError('');
+      } else {
+        setAuthError('Authentication failed. No active session returned by Supabase.');
+        setIsAuthenticated(false);
       }
-    } catch (err) {
-      setIsAuthenticated(true);
+    } catch (err: any) {
+      setAuthError(err?.message || 'Authentication error. Please check your Supabase connection.');
+      setIsAuthenticated(false);
+    } finally {
+      setIsLoggingIn(false);
     }
+  };
+
+  const handleLogout = async () => {
+    if (supabase) {
+      try {
+        await supabase.auth.signOut();
+      } catch (err) {
+        console.warn('Failed to sign out of Supabase:', err);
+      }
+    }
+    setIsAuthenticated(false);
+    setAuthPass('');
+    onBack();
   };
 
   const handleEdit = (product: Product) => {
@@ -475,24 +525,26 @@ export default function AdminPanel({ products, onUpdateProduct, onAddProduct, on
 
             <form onSubmit={handleLogin} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-600 mb-1.5 ml-1">Email ID</label>
+                <label className="block text-xs font-semibold text-slate-600 mb-1.5 ml-1">Admin Email</label>
                 <input 
                   type="email" 
-                  placeholder="admin@loomcontrol.com" 
+                  placeholder="admin@example.com" 
                   value={authEmail} 
                   onChange={e => setAuthEmail(e.target.value)} 
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 focus:outline-none focus:bg-white focus:border-[#FF8A00] focus:ring-2 focus:ring-orange-500/20 transition-all shadow-sm" 
+                  disabled={isLoggingIn}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 focus:outline-none focus:bg-white focus:border-[#FF8A00] focus:ring-2 focus:ring-orange-500/20 transition-all shadow-sm disabled:opacity-60" 
                   required 
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-slate-600 mb-1.5 ml-1">Passphrase</label>
+                <label className="block text-xs font-semibold text-slate-600 mb-1.5 ml-1">Password</label>
                 <input 
                   type="password" 
                   placeholder="••••••••••••" 
                   value={authPass} 
                   onChange={e => setAuthPass(e.target.value)} 
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 focus:outline-none focus:bg-white focus:border-[#FF8A00] focus:ring-2 focus:ring-orange-500/20 transition-all shadow-sm" 
+                  disabled={isLoggingIn}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 focus:outline-none focus:bg-white focus:border-[#FF8A00] focus:ring-2 focus:ring-orange-500/20 transition-all shadow-sm disabled:opacity-60" 
                   required 
                 />
               </div>
@@ -505,9 +557,17 @@ export default function AdminPanel({ products, onUpdateProduct, onAddProduct, on
 
               <button 
                 type="submit" 
-                className="w-full bg-[#FF8A00] hover:bg-[#e07a00] text-white font-bold text-xs uppercase tracking-wider py-3.5 rounded-xl transition-all shadow-md shadow-orange-500/20 mt-2"
+                disabled={isLoggingIn}
+                className="w-full bg-[#FF8A00] hover:bg-[#e07a00] text-white font-bold text-xs uppercase tracking-wider py-3.5 rounded-xl transition-all shadow-md shadow-orange-500/20 mt-2 flex items-center justify-center gap-2 disabled:opacity-60 cursor-pointer"
               >
-                Authenticate Access
+                {isLoggingIn ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Verifying with Supabase...</span>
+                  </>
+                ) : (
+                  'Authenticate Access'
+                )}
               </button>
             </form>
           </div>
@@ -575,13 +635,20 @@ export default function AdminPanel({ products, onUpdateProduct, onAddProduct, on
           </div>
 
           {/* Bottom Exit Action */}
-          <div className="pt-6 border-t border-slate-100">
+          <div className="pt-6 border-t border-slate-100 space-y-1">
             <button
-              onClick={onBack}
-              className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-500 hover:text-rose-600 hover:bg-rose-50 transition-all"
+              onClick={handleLogout}
+              className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold text-rose-500 hover:text-rose-700 hover:bg-rose-50 transition-all cursor-pointer"
             >
               <LogOut className="w-4 h-4" />
-              <span>Exit Admin Panel</span>
+              <span>Sign Out (Supabase)</span>
+            </button>
+            <button
+              onClick={onBack}
+              className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-all cursor-pointer"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>Return to Shop</span>
             </button>
           </div>
         </aside>
