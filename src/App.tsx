@@ -10,7 +10,6 @@ import ShopLayout from './components/ShopLayout';
 import CustomCursor from './components/CustomCursor';
 import { SharedBackground } from './components/SharedBackground';
 import AdminPanel from './components/AdminPanel';
-import { AdminProtectedRoute } from './components/AdminProtectedRoute';
 import { supabase } from './lib/supabase';
 import { Product } from './types';
 
@@ -180,15 +179,13 @@ export default function App() {
             transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
             className="w-full min-h-screen"
           >
-            <AdminProtectedRoute onExit={() => setView('entrance')}>
-              <AdminPanel
-                products={products}
-                onUpdateProduct={handleUpdateProduct}
-                onAddProduct={handleAddProduct}
-                onDeleteProduct={handleDeleteProduct}
-                onBack={() => setView('entrance')}
-              />
-            </AdminProtectedRoute>
+            <AdminPanel
+              products={products}
+              onUpdateProduct={handleUpdateProduct}
+              onAddProduct={handleAddProduct}
+              onDeleteProduct={handleDeleteProduct}
+              onBack={() => setView('entrance')}
+            />
           </motion.div>
         )}
       </AnimatePresence>
