@@ -4,8 +4,10 @@ import { X, Check, ShoppingBag, ShieldCheck, Sparkles } from 'lucide-react';
 
 interface ProductDetailProps {
   product: Product;
+  allProducts?: Product[];
   onClose: () => void;
-  onAddToCart: (product: Product, size?: string, color?: string) => void;
+  onAddToCart: (product: any, size?: any, color?: any, extra?: any) => void;
+  onBuyNow?: (product: any, size?: any, offer?: any, bundleSelections?: any) => void;
 }
 
 export const ProductDetail: React.FC<ProductDetailProps> = ({ product, onClose, onAddToCart }) => {
@@ -115,7 +117,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ product, onClose, 
                 Atelier Notes
               </span>
               <ul className="space-y-1.5 text-xs text-neutral-400">
-                {product.details.map((d, i) => (
+                {product.details?.map((d, i) => (
                   <li key={i} className="flex items-center gap-2">
                     <div className="w-1.5 h-1.5 rounded-full bg-amber-500/60" />
                     <span>{d}</span>

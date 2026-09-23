@@ -5,11 +5,12 @@
 
 import { useState, useEffect } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
-import EntranceScreen from './components/EntranceScreen';
+import { EntranceScreen } from './components/EntranceScreen';
 import ShopLayout from './components/ShopLayout';
 import CustomCursor from './components/CustomCursor';
-import SharedBackground from './components/SharedBackground';
+import { SharedBackground } from './components/SharedBackground';
 import AdminPanel from './components/AdminPanel';
+import { AdminProtectedRoute } from './components/AdminProtectedRoute';
 import { supabase } from './lib/supabase';
 import { Product } from './types';
 
@@ -157,7 +158,7 @@ export default function App() {
             transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
             className="w-full h-full"
           >
-            <EntranceScreen onEnter={() => setView('shop')} onAdmin={() => setView('admin')} />
+            <EntranceScreen onEnter={() => setView('shop')} onOpenAdmin={() => setView('admin')} />
           </motion.div>
         ) : view === 'shop' ? (
           <motion.div
@@ -179,13 +180,15 @@ export default function App() {
             transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
             className="w-full min-h-screen"
           >
-            <AdminPanel 
-              products={products} 
-              onUpdateProduct={handleUpdateProduct} 
-              onAddProduct={handleAddProduct}
-              onDeleteProduct={handleDeleteProduct}
-              onBack={() => setView('entrance')} 
-            />
+            <AdminProtectedRoute onExit={() => setView('entrance')}>
+              <AdminPanel
+                products={products}
+                onUpdateProduct={handleUpdateProduct}
+                onAddProduct={handleAddProduct}
+                onDeleteProduct={handleDeleteProduct}
+                onBack={() => setView('entrance')}
+              />
+            </AdminProtectedRoute>
           </motion.div>
         )}
       </AnimatePresence>

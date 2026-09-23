@@ -13,8 +13,8 @@ import {
 } from 'lucide-react';
 import { Product, CartItem, Collection, Offer, Order } from '../types';
 import { collections } from '../data';
-import ProductCard from './ProductCard';
-import ProductDetail from './ProductDetail';
+import { ProductCard } from './ProductCard';
+import { ProductDetail } from './ProductDetail';
 import AudioPlayer from './AudioPlayer';
 import FAQSection from './FAQSection';
 import Chatbot from './Chatbot';
@@ -141,7 +141,7 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
 
     setCart((prevCart) => {
       const matchIndex = prevCart.findIndex(
-        (item) => item.product.id === product.id && item.selectedSize === size && item.selectedOffer?.id === offer?.id && JSON.stringify(item.bundleSelections?.map(p => p.id)) === JSON.stringify(bundleSelections?.map(p => p.id))
+        (item) => item.product.id === product.id && item.selectedSize === size && item.selectedOffer?.id === offer?.id && JSON.stringify(item.bundleSelections?.map((p: any) => typeof p === 'string' ? p : p.id)) === JSON.stringify(bundleSelections?.map((p: any) => typeof p === 'string' ? p : p.id))
       );
       if (matchIndex > -1) {
         // Increment quantity by offer quantity (or 1)
@@ -196,8 +196,9 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
     let singleSetOriginal = item.product.price;
     const bundles = item.bundleSelections || [];
     for (let b = 0; b < offerQty - 1; b++) {
-      if (bundles[b]) {
-        singleSetOriginal += bundles[b].price;
+      const bItem = bundles[b];
+      if (bItem) {
+        singleSetOriginal += typeof bItem === 'string' ? 0 : (bItem.price || 0);
       } else {
         singleSetOriginal += item.product.price;
       }
@@ -241,7 +242,7 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
         finalPaidAmount: pricing.finalPaidAmount,
         savings: pricing.savings,
         freeShipping: offer?.freeShipping,
-        bundleSelections: i.bundleSelections?.map(p => p.name)
+        bundleSelections: i.bundleSelections?.map((p: any) => typeof p === 'string' ? p : p.name)
       };
     });
 
@@ -252,12 +253,12 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
       return { 
         productName: i.product.name, 
         imageUrl: i.product.imageUrl,
-        selectedSize: i.selectedSize,
+        selectedSize: i.selectedSize || 'One Size',
         quantity: i.quantity, 
         price: i.product.price,
         selectedOfferName: offer ? offer.title : undefined,
         finalPaidAmount: pricing.finalPaidAmount,
-        bundleSelections: i.bundleSelections?.map(p => p.name)
+        bundleSelections: i.bundleSelections?.map((p: any) => typeof p === 'string' ? p : p.name)
       };
     });
 
@@ -472,7 +473,7 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
               <button
                 key={col.id}
                 onClick={() => {
-                  setSelectedCollection(col.slug);
+                  setSelectedCollection(col.slug || col.id);
                   // Ensure if filtered is clicked it brings view to active list
                   const el = document.getElementById('shop-grid-anchor');
                   if (el) el.scrollIntoView({ behavior: 'smooth' });
@@ -565,9 +566,9 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
           {collections.map((col) => (
             <button
               key={col.id}
-              onClick={() => setSelectedCollection(col.slug)}
+              onClick={() => setSelectedCollection(col.slug || col.id)}
               className={`px-3 py-1 font-mono text-[9px] uppercase tracking-wider rounded-full whitespace-nowrap transition-all ${
-                selectedCollection === col.slug
+                selectedCollection === (col.slug || col.id)
                   ? 'bg-white text-black'
                   : 'text-white/80 bg-white/10 border border-white/20'
               }`}
@@ -735,13 +736,13 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
                       </div>
                       <button
                         onClick={() => {
-                          setSelectedCollection(col.slug);
+                          setSelectedCollection(col.slug || col.id);
                           const el = document.getElementById('shop-grid-anchor');
                           if (el) el.scrollIntoView({ behavior: 'smooth' });
                         }}
                         className="text-[10px] font-mono tracking-widest uppercase text-[#e8dcc4] hover:text-white flex items-center gap-1.5 shrink-0 bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-full border border-white/20 transition-all cursor-pointer"
                       >
-                        View Only {col.name} <ChevronRight className="w-3.5 h-3.5" />
+                        View Only {col.name || col.title} <ChevronRight className="w-3.5 h-3.5" />
                       </button>
                     </div>
 
@@ -751,7 +752,7 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
                           key={product.id}
                           product={product}
                           onView={(p) => setSelectedProductDetail(p)}
-                          onQuickAdd={handleAddToCart}
+                          onQuickAdd={(p) => handleAddToCart(p, p.sizes?.[0] || 'One Size')}
                         />
                       ))}
                     </div>
@@ -771,7 +772,7 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
                         key={product.id}
                         product={product}
                         onView={(p) => setSelectedProductDetail(p)}
-                        onQuickAdd={handleAddToCart}
+                        onQuickAdd={(p) => handleAddToCart(p, p.sizes?.[0] || 'One Size')}
                       />
                     ))}
                   </motion.div>
@@ -923,13 +924,13 @@ export default function ShopLayout({ onBackToEntrance, onAdmin, products }: Shop
                             </div>
 
                             {/* Bundled Selected Caps */}
-                            {bundles.map((bItem, bIdx) => (
+                            {bundles.map((bItem: any, bIdx: number) => (
                               <div key={bIdx} className="flex items-center justify-between text-xs bg-white/5 p-1.5 rounded">
                                 <div className="flex items-center gap-2 min-w-0">
-                                  <img src={bItem.imageUrl} alt={bItem.name} className="w-6 h-6 object-contain bg-white/10 rounded p-0.5 border border-white/10 shrink-0" />
-                                  <span className="text-white/90 text-[11px] font-medium truncate">{bItem.name}</span>
+                                  {bItem.imageUrl && <img src={bItem.imageUrl} alt={bItem.name || 'Cap'} className="w-6 h-6 object-contain bg-white/10 rounded p-0.5 border border-white/10 shrink-0" />}
+                                  <span className="text-white/90 text-[11px] font-medium truncate">{typeof bItem === 'string' ? bItem : bItem.name}</span>
                                 </div>
-                                <span className="text-[10px] font-mono text-white/60 shrink-0">TK {bItem.price.toFixed(0)}</span>
+                                {typeof bItem !== 'string' && bItem.price && <span className="text-[10px] font-mono text-white/60 shrink-0">TK {bItem.price.toFixed(0)}</span>}
                               </div>
                             ))}
                           </div>

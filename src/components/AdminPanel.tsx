@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Product, Order } from '../types';
+import { Product, Order, Offer } from '../types';
 import { 
   ArrowLeft, Save, Edit3, Image as ImageIcon, Package, X, ShoppingBag, 
   LayoutGrid, Clock, Truck, CheckCircle2, Lock, BarChart3, TrendingUp, 
@@ -238,8 +238,12 @@ export default function AdminPanel({ products, onUpdateProduct, onAddProduct, on
     setEditForm({
       id: `prod-${Date.now()}`,
       name: '',
+      tagline: '',
+      collection: 'wabi-sabi',
       price: 0,
       description: '',
+      details: [],
+      stock: 10,
       category: 'worn-textiles',
       materials: '',
       story: '',
@@ -397,9 +401,9 @@ export default function AdminPanel({ products, onUpdateProduct, onAddProduct, on
         items: sampleOrder.items
       };
 
-      supabase.from('orders').insert([orderSnake]).then(({ error }) => {
+      supabase?.from('orders').insert([orderSnake]).then(({ error }) => {
         if (error) {
-          supabase.from('orders').insert([sampleOrder]).then(({ error: err2 }) => {
+          supabase?.from('orders').insert([sampleOrder]).then(({ error: err2 }) => {
             if (err2) console.error('Failed to insert sample order to Supabase:', err2.message);
           });
         }
@@ -414,9 +418,10 @@ export default function AdminPanel({ products, onUpdateProduct, onAddProduct, on
   
   const productSales = completedOrders.reduce((acc, order) => {
     order.items.forEach(item => {
-      if (!acc[item.productName]) acc[item.productName] = { quantity: 0, revenue: 0 };
-      acc[item.productName].quantity += item.quantity;
-      acc[item.productName].revenue += item.price * item.quantity;
+      const pName = item.productName || item.name || 'Product';
+      if (!acc[pName]) acc[pName] = { quantity: 0, revenue: 0 };
+      acc[pName].quantity += item.quantity;
+      acc[pName].revenue += item.price * item.quantity;
     });
     return acc;
   }, {} as Record<string, { quantity: number; revenue: number }>);
@@ -906,7 +911,12 @@ export default function AdminPanel({ products, onUpdateProduct, onAddProduct, on
                               id: order.id,
                               customerName: order.customerName,
                               customerPhone: order.customerPhone,
-                              items: order.items,
+                              items: order.items.map(i => ({
+                                productName: i.productName || i.name || 'Product',
+                                quantity: i.quantity,
+                                price: i.price,
+                                finalPaidAmount: i.finalPaidAmount
+                              })),
                               shippingFee: order.shippingFee,
                               total: order.total
                             }, () => {
@@ -1101,10 +1111,10 @@ export default function AdminPanel({ products, onUpdateProduct, onAddProduct, on
                           fontSize={11} 
                           tickLine={false} 
                           axisLine={false}
-                          tickFormatter={(val) => analyticsMetric === 'revenue' ? `${val}` : `${val}`}
+                          tickFormatter={(val: any) => analyticsMetric === 'revenue' ? `${val}` : `${val}`}
                         />
                         <RechartsTooltip 
-                          content={({ active, payload, label }) => {
+                          content={({ active, payload, label }: any) => {
                             if (active && payload && payload.length) {
                               const val = payload[0].value as number;
                               return (
@@ -1161,7 +1171,7 @@ export default function AdminPanel({ products, onUpdateProduct, onAddProduct, on
                             ))}
                           </Pie>
                           <RechartsTooltip 
-                            content={({ active, payload }) => {
+                            content={({ active, payload }: any) => {
                               if (active && payload && payload.length) {
                                 const data = payload[0].payload;
                                 return (
@@ -1380,7 +1390,7 @@ export default function AdminPanel({ products, onUpdateProduct, onAddProduct, on
                       type="button"
                       onClick={() => {
                         if (!editForm) return;
-                        const newOffer: import('../types').Offer = {
+                        const newOffer: Offer = {
                           id: `off-${Date.now()}`,
                           title: 'NEW OFFER',
                           quantity: 2,
@@ -1394,12 +1404,12 @@ export default function AdminPanel({ products, onUpdateProduct, onAddProduct, on
                     </button>
                   </div>
 
-                  {editForm.offers?.map((offer, idx) => (
+                  {editForm.offers?.map((offer: Offer, idx: number) => (
                     <div key={offer.id} className="p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-3 relative group">
                       <button
                         type="button"
                         onClick={() => {
-                          const newOffers = editForm.offers?.filter(o => o.id !== offer.id);
+                          const newOffers = editForm.offers?.filter((o: Offer) => o.id !== offer.id);
                           setEditForm({ ...editForm, offers: newOffers });
                         }}
                         className="absolute top-3 right-3 text-slate-400 hover:text-rose-600 p-1 bg-white rounded-lg border border-slate-200 transition-colors"

@@ -4,16 +4,22 @@ import { Plus, Eye } from 'lucide-react';
 
 interface ProductCardProps {
   product: Product;
-  onSelect: (product: Product) => void;
+  onSelect?: (product: Product) => void;
+  onView?: (product: Product) => void;
   onQuickAdd: (product: Product) => void;
 }
 
-export const ProductCard: React.FC<ProductCardProps> = ({ product, onSelect, onQuickAdd }) => {
+export const ProductCard: React.FC<ProductCardProps> = ({ product, onSelect, onView, onQuickAdd }) => {
+  const handleSelect = () => {
+    if (onSelect) onSelect(product);
+    if (onView) onView(product);
+  };
+
   return (
     <div className="group relative bg-neutral-900/40 border border-neutral-800/60 rounded-xl overflow-hidden hover:border-amber-500/30 transition-all duration-300 flex flex-col">
       {/* Image Container */}
       <div 
-        onClick={() => onSelect(product)}
+        onClick={handleSelect}
         className="relative aspect-[4/5] bg-neutral-950 overflow-hidden cursor-pointer"
       >
         <img
@@ -29,7 +35,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onSelect, onQ
             type="button"
             onClick={(e) => {
               e.stopPropagation();
-              onSelect(product);
+              handleSelect();
             }}
             className="p-2 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-md transition-colors"
             title="Inspect item"
@@ -60,7 +66,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onSelect, onQ
       <div className="p-4 flex-1 flex flex-col justify-between">
         <div>
           <h3 
-            onClick={() => onSelect(product)}
+            onClick={handleSelect}
             className="text-sm font-medium text-white group-hover:text-amber-300 transition-colors cursor-pointer"
           >
             {product.name}
@@ -75,7 +81,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onSelect, onQ
               <span className="text-xs text-neutral-500 line-through">${product.originalPrice}</span>
             )}
           </div>
-          <span className="text-[10px] font-mono text-neutral-500">{product.stock} in atelier</span>
+          <span className="text-[10px] font-mono text-neutral-500">{product.stock || 10} in atelier</span>
         </div>
       </div>
     </div>

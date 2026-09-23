@@ -17,6 +17,8 @@ export const COLLECTIONS: CollectionInfo[] = [
   }
 ];
 
+export const collections = COLLECTIONS;
+
 export const PRODUCTS: Product[] = [
   {
     id: 'prod-linen-shirt',

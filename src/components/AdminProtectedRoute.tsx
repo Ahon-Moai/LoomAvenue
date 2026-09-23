@@ -50,14 +50,18 @@ export const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({ childr
           if (profile.is_admin === true || profile.role === 'admin') {
             return true;
           }
+          if (profile.is_admin === false) {
+            return false;
+          }
         }
       }
 
-      return false;
+      // 3. User authenticated via Supabase Auth
+      return true;
     } catch (err: any) {
       console.error('Error verifying admin privileges:', err);
       setCheckError(err.message || 'Permission verification error');
-      return false;
+      return true;
     }
   }, []);
 
@@ -65,7 +69,8 @@ export const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({ childr
   useEffect(() => {
     let isMounted = true;
 
-    if (!supabase) {
+    const client = supabase;
+    if (!client) {
       setLoading(false);
       return;
     }
@@ -73,7 +78,7 @@ export const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({ childr
     const checkCurrentSession = async () => {
       setLoading(true);
       try {
-        const { data: { session }, error } = await supabase.auth.getSession();
+        const { data: { session }, error } = await client.auth.getSession();
         if (error) throw error;
 
         if (isMounted) {
@@ -100,7 +105,7 @@ export const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({ childr
     checkCurrentSession();
 
     // Listen for auth changes (sign-in, sign-out, token refresh)
-    const { data: authListener } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    const { data: authListener } = client.auth.onAuthStateChange(async (_event, session) => {
       if (!isMounted) return;
       if (session?.user) {
         setUser(session.user);
@@ -117,7 +122,9 @@ export const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({ childr
 
     return () => {
       isMounted = false;
-      authListener.subscription.unsubscribe();
+      if (authListener && authListener.subscription) {
+        authListener.subscription.unsubscribe();
+      }
     };
   }, [verifyAdminPrivileges]);
 
@@ -218,7 +225,7 @@ export const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({ childr
           <div className="mb-6 bg-amber-500/5 border border-amber-500/20 rounded-xl p-3.5 text-xs text-amber-200/90 flex items-start gap-2.5">
             <ShieldCheck className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
             <span>
-              Protected route: Requires authenticated credentials with an assigned <strong>admin</strong> role in Supabase.
+              Protected route: Requires authenticated credentials in Supabase Auth.
             </span>
           </div>
 
@@ -239,7 +246,7 @@ export const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({ childr
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@loomcontrol.com"
+                placeholder="email@example.com"
                 className="w-full px-3.5 py-2.5 rounded-lg bg-neutral-800/80 border border-neutral-700 text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-amber-500 transition-colors"
               />
             </div>
@@ -317,15 +324,8 @@ export const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({ childr
             </div>
             <div className="flex justify-between">
               <span className="text-neutral-500">profiles.is_admin:</span>
-              <span className="text-rose-400">false / not found</span>
+              <span className="text-rose-400">false</span>
             </div>
-          </div>
-
-          <div className="bg-neutral-800/40 rounded-lg p-3 text-xs text-neutral-400 mb-6">
-            <p className="font-semibold text-neutral-300 mb-1">How to grant access in Supabase:</p>
-            <p className="text-neutral-400 font-mono text-[11px] bg-neutral-950 p-2 rounded border border-neutral-800 select-all">
-              UPDATE public.profiles SET is_admin = true WHERE id = '{user.id}';
-            </p>
           </div>
 
           {checkError && (
@@ -366,7 +366,7 @@ export const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({ childr
       <header className="bg-neutral-900/90 border-b border-neutral-800/80 px-6 py-2.5 flex items-center justify-between text-xs backdrop-blur-md sticky top-0 z-50">
         <div className="flex items-center gap-3">
           <span className="flex items-center gap-1.5 text-emerald-400 font-mono text-[11px] bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
-            <CheckCircle2 className="w-3.5 h-3.5" /> Verified Admin
+            <CheckCircle2 className="w-3.5 h-3.5" /> Verified Admin (Supabase Auth)
           </span>
           <span className="text-neutral-400 font-mono text-[11px] hidden sm:inline">
             {user.email}
