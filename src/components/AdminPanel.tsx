@@ -27,6 +27,32 @@ export default function AdminPanel({ products, onUpdateProduct, onAddProduct, on
   const [authEmail, setAuthEmail] = useState('');
   const [authPass, setAuthPass] = useState('');
   const [authError, setAuthError] = useState('');
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+
+  // 1. Listen & sync Supabase Auth session
+  useEffect(() => {
+    if (!supabase) return;
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        setIsAuthenticated(true);
+        if (session.user.email) setAuthEmail(session.user.email);
+      }
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        setIsAuthenticated(true);
+        if (session.user.email) setAuthEmail(session.user.email);
+      } else {
+        setIsAuthenticated(false);
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
 
   const [activeTab, setActiveTab] = useState<'products' | 'orders' | 'revenue'>('products');
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -140,40 +166,45 @@ export default function AdminPanel({ products, onUpdateProduct, onAddProduct, on
     };
   }, [isAuthenticated]);
 
+  // 2. Handle Login Form Action
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setAuthError('');
 
-    // Allow default admin passcodes or fallback if offline
-    if (
-      authPass === 'admin' ||
-      authPass === 'admin123' ||
-      authPass === 'flawed' ||
-      authPass === '123456' ||
-      authPass === 'loom' ||
-      !supabase
-    ) {
-      setIsAuthenticated(true);
+    if (!supabase) {
+      setAuthError('Supabase client is not configured.');
       return;
     }
 
+    setIsLoggingIn(true);
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email: authEmail,
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: authEmail.trim(),
         password: authPass,
       });
+
       if (error) {
-        if (authPass.length >= 3) {
-          setIsAuthenticated(true);
-        } else {
-          setAuthError(error.message);
-        }
-      } else {
+        setAuthError(error.message || 'Invalid login credentials.');
+        setIsAuthenticated(false);
+      } else if (data?.user) {
         setIsAuthenticated(true);
+        setAuthPass('');
       }
-    } catch (err) {
-      setIsAuthenticated(true);
+    } catch (err: any) {
+      setAuthError(err?.message || 'Authentication error.');
+    } finally {
+      setIsLoggingIn(false);
     }
+  };
+
+  // 3. Handle Logout
+  const handleLogout = async () => {
+    if (supabase) {
+      await supabase.auth.signOut();
+    }
+    setIsAuthenticated(false);
+    setAuthPass('');
+    onBack();
   };
 
   const handleEdit = (product: Product) => {
@@ -481,7 +512,8 @@ export default function AdminPanel({ products, onUpdateProduct, onAddProduct, on
                   placeholder="admin@loomcontrol.com" 
                   value={authEmail} 
                   onChange={e => setAuthEmail(e.target.value)} 
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 focus:outline-none focus:bg-white focus:border-[#FF8A00] focus:ring-2 focus:ring-orange-500/20 transition-all shadow-sm" 
+                  disabled={isLoggingIn}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 focus:outline-none focus:bg-white focus:border-[#FF8A00] focus:ring-2 focus:ring-orange-500/20 transition-all shadow-sm disabled:opacity-60" 
                   required 
                 />
               </div>
@@ -492,7 +524,8 @@ export default function AdminPanel({ products, onUpdateProduct, onAddProduct, on
                   placeholder="••••••••••••" 
                   value={authPass} 
                   onChange={e => setAuthPass(e.target.value)} 
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 focus:outline-none focus:bg-white focus:border-[#FF8A00] focus:ring-2 focus:ring-orange-500/20 transition-all shadow-sm" 
+                  disabled={isLoggingIn}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 focus:outline-none focus:bg-white focus:border-[#FF8A00] focus:ring-2 focus:ring-orange-500/20 transition-all shadow-sm disabled:opacity-60" 
                   required 
                 />
               </div>
@@ -505,9 +538,10 @@ export default function AdminPanel({ products, onUpdateProduct, onAddProduct, on
 
               <button 
                 type="submit" 
-                className="w-full bg-[#FF8A00] hover:bg-[#e07a00] text-white font-bold text-xs uppercase tracking-wider py-3.5 rounded-xl transition-all shadow-md shadow-orange-500/20 mt-2"
+                disabled={isLoggingIn}
+                className="w-full bg-[#FF8A00] hover:bg-[#e07a00] text-white font-bold text-xs uppercase tracking-wider py-3.5 rounded-xl transition-all shadow-md shadow-orange-500/20 mt-2 disabled:opacity-60 cursor-pointer"
               >
-                Authenticate Access
+                {isLoggingIn ? 'Authenticating...' : 'Authenticate Access'}
               </button>
             </form>
           </div>
@@ -577,8 +611,8 @@ export default function AdminPanel({ products, onUpdateProduct, onAddProduct, on
           {/* Bottom Exit Action */}
           <div className="pt-6 border-t border-slate-100">
             <button
-              onClick={onBack}
-              className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-500 hover:text-rose-600 hover:bg-rose-50 transition-all"
+              onClick={handleLogout}
+              className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-500 hover:text-rose-600 hover:bg-rose-50 transition-all cursor-pointer"
             >
               <LogOut className="w-4 h-4" />
               <span>Exit Admin Panel</span>
