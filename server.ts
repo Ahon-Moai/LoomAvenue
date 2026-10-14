@@ -82,30 +82,32 @@ async function startServer() {
         return res.status(400).json({ error: "Invalid messages array" });
       }
 
-      // Convert history to string for a single generateContent call (if we don't use ai.chats)
-      // Or we can use ai.chats.create
-      const systemInstruction = `You are a helpful, professional, and friendly AI assistant for a headwear e-commerce store called 'Aether'. 
+      if (!process.env.GEMINI_API_KEY) {
+        return res.json({ 
+          text: "Welcome to Loom-Avenue! I'm here to assist you with our premium custom headwear and apparel collections. (Note: To enable live AI responses, please set GEMINI_API_KEY in your environment)." 
+        });
+      }
+
+      const systemInstruction = `You are a helpful, professional, and friendly AI assistant for a headwear and apparel e-commerce store called 'Loom-Avenue'. 
 Your job is to answer user questions about our products, provide suggestions, and help them navigate their shopping experience.
-We sell premium custom headwear. 
+We sell premium custom headwear and worn textile collections. 
 Be concise, polite, and use formatting like bolding for product names if needed.
 Do not provide information outside of the scope of the store and headwear products.`;
 
-      // Simplified approach for the chat API:
-      const chat = ai.chats.create({
-        model: "gemini-3.5-flash",
+      const contents = messages.map((m: any) => ({
+        role: m.role === "model" ? "model" : "user",
+        parts: [{ text: typeof m.content === "string" ? m.content : "" }]
+      }));
+
+      const response = await ai.models.generateContent({
+        model: "gemini-2.5-flash",
+        contents,
         config: {
           systemInstruction,
         }
       });
       
-      // If there's previous history, ideally we'd send it all. 
-      // But for simplicity with this SDK version, we'll just send the last message
-      // with context from the history.
-      const userMessage = messages[messages.length - 1].content;
-      
-      const response = await chat.sendMessage({ message: userMessage });
-      
-      res.json({ text: response.text });
+      res.json({ text: response.text || "I'm here to help you find the right piece for your style." });
     } catch (error: any) {
       console.error("Gemini API Error:", error);
       res.status(500).json({ error: "Failed to generate response." });

@@ -94,7 +94,11 @@ export async function sendOrderConfirmation(
     }
 
     const waUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
-    window.open(waUrl, '_blank');
+    try {
+      window.open(waUrl, '_blank');
+    } catch (e) {
+      console.warn('Could not open WhatsApp window:', e);
+    }
   }
 
   return message;

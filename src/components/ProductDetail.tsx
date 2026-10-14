@@ -5,9 +5,11 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, CheckCircle2 } from 'lucide-react';
+import { X, CheckCircle2, Ruler, Eye, ExternalLink } from 'lucide-react';
 import { Product, Offer } from '../types';
 import { trackEvent } from '../pixel';
+
+const FITTED_SIZE_GUIDE_IMAGE = 'https://ik.imagekit.io/t1q0n1ovm/WhatsApp%20Image%202026-10-04%20at%2023.05.33.jpeg';
 
 interface ProductDetailProps {
   product: Product;
@@ -21,6 +23,9 @@ export default function ProductDetail({ product, allProducts, onClose, onAddToCa
   const [selectedSize, setSelectedSize] = useState<string>(product.sizes[0] || 'One Size');
   const [addedNotice, setAddedNotice] = useState<boolean>(false);
   const [currentImage, setCurrentImage] = useState<string>(product.imageUrl);
+  const [showFittedGuideModal, setShowFittedGuideModal] = useState<boolean>(false);
+  
+  const isFittedCap = product.category?.toLowerCase().includes('fitted') || product.name?.toLowerCase().includes('fitted');
   
   const [selectedOfferId, setSelectedOfferId] = useState<string | null>(null);
   const [bundleSelections, setBundleSelections] = useState<Product[]>([]);
@@ -339,10 +344,48 @@ export default function ProductDetail({ product, allProducts, onClose, onAddToCa
             )}
           </div>
 
+          {/* Dedicated Size Chart Button for all Fitted Caps */}
+          {isFittedCap && (
+            <div className="mb-6 p-4 bg-gradient-to-r from-amber-50 via-orange-50/80 to-amber-50/40 border border-amber-200/90 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-900 flex items-center justify-center shrink-0 shadow-inner">
+                  <Ruler className="w-5 h-5" />
+                </div>
+                <div>
+                  <h4 className="text-xs font-bold font-mono tracking-wider text-slate-900 uppercase">
+                    Fitted Cap Sizing Chart
+                  </h4>
+                  <p className="text-[11px] text-slate-600 font-sans mt-0.5 leading-snug">
+                    Consult our sizing chart before ordering to find your exact crown fit.
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowFittedGuideModal(true)}
+                className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-black hover:bg-neutral-800 text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-150 shadow-sm shrink-0 cursor-pointer active:scale-95"
+              >
+                <Eye className="w-3.5 h-3.5" />
+                <span>View Sizing Chart</span>
+              </button>
+            </div>
+          )}
+
           {/* Size Selection */}
           {product.sizes.length > 0 && product.sizes[0] !== 'One Size' && (
             <div className="mb-6">
-              <span className="block text-sm font-medium text-gray-700 mb-2">Size:</span>
+              <div className="flex items-center justify-between mb-2">
+                <span className="block text-sm font-medium text-gray-700">Size:</span>
+                {isFittedCap && (
+                  <button
+                    type="button"
+                    onClick={() => setShowFittedGuideModal(true)}
+                    className="text-xs font-mono text-amber-700 hover:text-amber-900 font-bold underline flex items-center gap-1 cursor-pointer"
+                  >
+                    <Ruler className="w-3.5 h-3.5" /> Size Chart
+                  </button>
+                )}
+              </div>
               <div className="flex flex-wrap gap-2">
                 {product.sizes.map((size) => (
                   <button
@@ -471,6 +514,78 @@ export default function ProductDetail({ product, allProducts, onClose, onAddToCa
                      </button>
                   </div>
                 ))}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Fitted Cap Sizing Chart Modal */}
+      <AnimatePresence>
+        {showFittedGuideModal && (
+          <div className="fixed inset-0 z-[150] flex items-center justify-center p-3 sm:p-6 bg-black/75 backdrop-blur-md">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 15 }}
+              transition={{ duration: 0.2, ease: 'easeOut' }}
+              className="relative bg-white w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] border border-gray-200"
+            >
+              {/* Modal Header */}
+              <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 bg-gray-50/90">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-black text-white flex items-center justify-center shadow-xs">
+                    <Ruler className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-sm text-gray-900 font-mono tracking-wide uppercase">
+                      Fitted Cap Sizing Guide
+                    </h3>
+                    <p className="text-[11px] text-gray-500 font-sans">
+                      Official head circumference and fitted cap conversion table
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowFittedGuideModal(false)}
+                  className="p-1.5 hover:bg-gray-200 rounded-full transition-colors text-gray-500 hover:text-gray-900 cursor-pointer"
+                  title="Close Guide"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Modal Image View */}
+              <div className="flex-1 overflow-auto p-4 sm:p-6 bg-slate-100/60 flex flex-col items-center justify-center min-h-[300px]">
+                <img
+                  src={FITTED_SIZE_GUIDE_IMAGE}
+                  alt="Fitted Cap Sizing Guide"
+                  className="w-full max-h-[62vh] object-contain rounded-xl shadow-lg border border-gray-200 bg-white"
+                  loading="eager"
+                />
+              </div>
+
+              {/* Modal Footer */}
+              <div className="px-5 py-3.5 bg-white border-t border-gray-100 flex flex-wrap items-center justify-between gap-3 text-xs">
+                <span className="text-gray-500 font-mono text-[11px]">
+                  💡 Measure around your head ~1 inch above your eyebrows.
+                </span>
+                <div className="flex items-center gap-2">
+                  <a
+                    href={FITTED_SIZE_GUIDE_IMAGE}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-3 py-1.5 rounded-lg border border-gray-200 hover:bg-gray-50 font-mono text-[11px] text-gray-700 font-medium inline-flex items-center gap-1.5 transition-colors"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" /> Open Full Image
+                  </a>
+                  <button
+                    onClick={() => setShowFittedGuideModal(false)}
+                    className="px-4 py-1.5 bg-black hover:bg-neutral-800 text-white font-bold text-xs uppercase tracking-wider rounded-lg transition-colors cursor-pointer"
+                  >
+                    Got It
+                  </button>
+                </div>
               </div>
             </motion.div>
           </div>

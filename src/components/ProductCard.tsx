@@ -33,21 +33,6 @@ export default function ProductCard({ product, onView, onQuickAdd }: ProductCard
     >
       {/* Target Image Container */}
       <div className="relative w-full aspect-[4/5] sm:aspect-square bg-white/5 flex flex-col justify-center items-center">
-        {/* Top Left New Product Badge */}
-        <div className="absolute top-4 left-4 z-10 flex items-start gap-1.5 bg-black/40 backdrop-blur-md border border-white/10 px-2 py-1 rounded-full shadow-lg">
-          <div className="w-1.5 h-1.5 bg-red-500 rounded-full mt-1.5 animate-pulse shrink-0 shadow-[0_0_8px_rgba(239,68,68,0.8)]"></div>
-          <div className="flex text-[9px] sm:text-[10px] font-mono tracking-widest text-white/90 uppercase pt-0.5">
-            <span>New</span>
-          </div>
-        </div>
-
-        {/* Top Right Ribbon */}
-        <div className="absolute top-0 right-0 overflow-hidden w-24 h-24 z-10">
-          <div className="absolute bg-red-600/90 backdrop-blur-md border-b border-white/20 text-white font-mono font-bold text-[9px] sm:text-[10px] tracking-widest text-center w-36 py-1.5 top-5 -right-10 rotate-45 transform origin-center shadow-lg">
-            7% OFF
-          </div>
-        </div>
-
         <img
           src={product.imageUrl}
           alt={product.name}

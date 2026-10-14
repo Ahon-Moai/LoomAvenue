@@ -11,9 +11,10 @@ import CustomCursor from './components/CustomCursor';
 import SharedBackground from './components/SharedBackground';
 import AdminPanel from './components/AdminPanel';
 import { supabase } from './lib/supabase';
+import { products as initialProducts } from './data';
 import { Product } from './types';
 
-const CACHE_KEY = 'aether_products_cache';
+const CACHE_KEY = 'aether_products_cache_v3';
 const CACHE_TTL = 5 * 60 * 1000; // 5 minutes cache TTL
 
 const updateCache = (data: Product[]) => {
@@ -29,7 +30,20 @@ const updateCache = (data: Product[]) => {
 
 export default function App() {
   const [view, setView] = useState<'entrance' | 'shop' | 'admin'>('entrance');
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<Product[]>(() => {
+    try {
+      const cached = localStorage.getItem(CACHE_KEY);
+      if (cached) {
+        const { timestamp, data } = JSON.parse(cached);
+        if (Date.now() - timestamp < CACHE_TTL && Array.isArray(data) && data.length > 0) {
+          return data;
+        }
+      }
+    } catch (e) {
+      // fallback
+    }
+    return initialProducts;
+  });
 
   useEffect(() => {
     // Supabase sync with client-side cache fallback for high efficiency
@@ -39,7 +53,7 @@ export default function App() {
         const cached = localStorage.getItem(CACHE_KEY);
         if (cached) {
           const { timestamp, data } = JSON.parse(cached);
-          if (Date.now() - timestamp < CACHE_TTL && data && data.length > 0) {
+          if (Date.now() - timestamp < CACHE_TTL && Array.isArray(data) && data.length > 0) {
             setProducts(data);
             return; // Cache hit - avoid DB query completely
           }
@@ -49,11 +63,20 @@ export default function App() {
       }
 
       if (supabase) {
-        const { data, error } = await supabase.from('products').select('*');
-        if (data && data.length > 0 && !error) {
-          setProducts(data);
-          updateCache(data);
+        try {
+          const { data, error } = await supabase.from('products').select('*');
+          if (data && data.length > 0 && !error) {
+            setProducts(data);
+            updateCache(data);
+          } else {
+            setProducts(prev => (prev && prev.length > 0 ? prev : initialProducts));
+          }
+        } catch (err) {
+          console.warn('Supabase fetch failed, keeping current or initial products:', err);
+          setProducts(prev => (prev && prev.length > 0 ? prev : initialProducts));
         }
+      } else {
+        setProducts(prev => (prev && prev.length > 0 ? prev : initialProducts));
       }
     };
     
@@ -69,21 +92,21 @@ export default function App() {
         
       if (error) {
         console.error('Update failed:', error);
-        alert(`Failed to update product: ${error.message}`);
       } else if (data && data.length > 0) {
         setProducts(prev => {
           const updated = prev.map(p => p.id === updatedProduct.id ? data[0] : p);
           updateCache(updated);
           return updated;
         });
+        return;
       }
-    } else {
-      setProducts(prev => {
-        const updated = prev.map(p => p.id === updatedProduct.id ? updatedProduct : p);
-        updateCache(updated);
-        return updated;
-      });
     }
+    
+    setProducts(prev => {
+      const updated = prev.map(p => p.id === updatedProduct.id ? updatedProduct : p);
+      updateCache(updated);
+      return updated;
+    });
   };
 
   const handleAddProduct = async (newProduct: Product) => {
@@ -94,21 +117,21 @@ export default function App() {
       
       if (error) {
         console.error('Insert failed:', error);
-        alert(`Failed to add product: ${error.message}`);
       } else if (data && data.length > 0) {
         setProducts(prev => {
           const updated = [...prev, data[0]];
           updateCache(updated);
           return updated;
         });
+        return;
       }
-    } else {
-      setProducts(prev => {
-        const updated = [...prev, newProduct];
-        updateCache(updated);
-        return updated;
-      });
     }
+    
+    setProducts(prev => {
+      const updated = [...prev, newProduct];
+      updateCache(updated);
+      return updated;
+    });
   };
 
   const handleDeleteProduct = async (productId: string) => {
@@ -116,21 +139,21 @@ export default function App() {
       const { error } = await supabase.from('products').delete().eq('id', productId);
       if (error) {
         console.error('Delete failed:', error);
-        alert(`Failed to delete product: ${error.message}`);
       } else {
         setProducts(prev => {
           const updated = prev.filter(p => p.id !== productId);
           updateCache(updated);
           return updated;
         });
+        return;
       }
-    } else {
-      setProducts(prev => {
-        const updated = prev.filter(p => p.id !== productId);
-        updateCache(updated);
-        return updated;
-      });
     }
+    
+    setProducts(prev => {
+      const updated = prev.filter(p => p.id !== productId);
+      updateCache(updated);
+      return updated;
+    });
   };
 
   // Smoothly scroll window to the absolute top on view transitions

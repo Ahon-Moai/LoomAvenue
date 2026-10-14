@@ -18,6 +18,15 @@ export const collections: Collection[] = [
     tagline: 'Earthy, coarse, and timeless.',
     imageUrl: 'https://ik.imagekit.io/t1q0n1ovm/WhatsApp%20Image%202026-06-17%20at%2023.40.37.jpeg?tr=w-800,f-auto,q-auto',
     videoUrl: 'https://ik.imagekit.io/t1q0n1ovm/WhatsApp%20Video%202026-06-16%20at%2022.36.54(1).mp4'
+  },
+  {
+    id: 'col-3',
+    name: 'FITTED CAPS',
+    slug: 'fitted-caps',
+    description: 'Authentic high-crown structured fitted caps tailored to exact measurements. Closed-back craftsmanship engineered for a tailored, snug profile.',
+    tagline: 'Precision fit, iconic profile.',
+    imageUrl: 'https://ik.imagekit.io/t1q0n1ovm/WhatsApp%20Image%202026-10-04%20at%2023.05.33.jpeg',
+    videoUrl: 'https://res.cloudinary.com/deyatjand/video/upload/f_mp4,q_auto,vc_h264,ac_none,w_1920,c_limit/v1782572836/IMG_2439_lnghj5.mp4'
   }
 ];
 
@@ -168,6 +177,46 @@ export const products: Product[] = [
       {
         id: 'off-6-2',
         title: 'GET 3 ITEMS 30% OFF',
+        quantity: 3,
+        discountPercentage: 30,
+        freeShipping: true,
+        badgeText: 'EXCLUSIVE DEAL',
+        badgeColor: 'bg-black text-white',
+        highlightColor: 'bg-red-500 text-white'
+      }
+    ]
+  },
+  {
+    id: 'prd-fitted-1',
+    name: 'Classic 59Fifty Pro Structured Fitted Cap',
+    price: 95.00,
+    description: 'Authentic 6-panel structured fitted cap built with heavy wool-blend twill, flat moldable visor, embroidered eyelets, and a completely closed back. Made to exact circumference measurements for a tailored fit.',
+    imageUrl: 'https://ik.imagekit.io/t1q0n1ovm/WhatsApp%20Image%202026-10-04%20at%2023.05.33.jpeg',
+    category: 'fitted-caps',
+    sizes: ['7', '7 1/8', '7 1/4', '7 3/8', '7 1/2', '7 5/8', '7 3/4', '8'],
+    materials: 'Structured Wool-Blend Twill with Moisture-Absorbent Interior Sweatband',
+    story: 'Fitted caps are constructed to specific head circumferences with zero straps or snaps. Please consult our attached Fitted Size Guide on this page to select your exact size.',
+    features: [
+      'Authentic structured 6-panel high crown silhouette',
+      'Flat moldable visor with tonal underbrim',
+      'Fitted closed back tailored to head measurement',
+      'Sizing guide attached directly on product page'
+    ],
+    inStock: true,
+    offers: [
+      {
+        id: 'off-fit-1',
+        title: 'GET 2 FITTED CAPS 15% OFF',
+        quantity: 2,
+        discountPercentage: 15,
+        freeShipping: false,
+        badgeText: 'MOST POPULAR 🔥',
+        badgeColor: 'bg-black text-white',
+        highlightColor: 'bg-red-500 text-white'
+      },
+      {
+        id: 'off-fit-2',
+        title: 'GET 3 FITTED CAPS 30% OFF',
         quantity: 3,
         discountPercentage: 30,
         freeShipping: true,

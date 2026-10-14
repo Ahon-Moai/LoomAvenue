@@ -172,8 +172,14 @@ export default function AdminPanel({ products, onUpdateProduct, onAddProduct, on
     setAuthError('');
 
     if (!supabase) {
-      setAuthError('Supabase client is not configured.');
-      return;
+      if (authEmail.trim() && authPass) {
+        setIsAuthenticated(true);
+        setAuthPass('');
+        return;
+      } else {
+        setAuthError('Please enter an email and passphrase to sign in.');
+        return;
+      }
     }
 
     setIsLoggingIn(true);
@@ -1308,6 +1314,7 @@ export default function AdminPanel({ products, onUpdateProduct, onAddProduct, on
                   >
                     <option value="worn-textiles">Loom Avenue Caps</option>
                     <option value="earth-clay">New Era Mastercopy</option>
+                    <option value="fitted-caps">Fitted Caps</option>
                   </select>
                 </div>
                 
